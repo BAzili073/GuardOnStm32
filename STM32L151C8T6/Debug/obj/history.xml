@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<history>
+   <processor signature="arm-none-eabi-gcc noversion nomachine -mcpu=cortex-m3 -mthumb -g2 -Wall -O0 -c -DSTM32L151C8T6 -I..\..\..\..\..\..\..\CoIDE\workspace\STM32L151C8T6\components\coocox-master\cmsis_core -I..\..\..\..\..\..\..\CoIDE\workspace -I..\..\..\..\..\..\..\CoIDE -I..\..\..\..\..\..\..\CoIDE\workspace\STM32L151C8T6\components\coocox-master -I..\..\..\..\..\..\..\CoIDE\workspace\STM32L151C8T6\components\coocox-master\STM32L151xBA_CUBELIB -I..\..\..\..\..\..\..\CoIDE\workspace\STM32L151C8T6 -I..\..\..\..\..\..\..\CoIDE\workspace\STM32L151C8T6\components\coocox-master\cmsis_core\source -I..\..\..\..\..\..\..\CoIDE\workspace\STM32L151C8T6\components\coocox-master\STM32L151xBA_CUBELIB\source">
+      <target file="stm32l1xx_hal_pcd.o" lastModified="156741ab951">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_pcd.c" lastModified="15635e77f5d"/>
+      </target>
+      <target file="stm32l1xx_hal_cortex.o" lastModified="156741ab222">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_cortex.c" lastModified="15635e78097"/>
+      </target>
+      <target file="1-Wire.o" lastModified="156741ab3c9">
+         <source file="..\..\..\1-Wire.c" lastModified="156550e3cdf"/>
+      </target>
+      <target file="stm32l1xx_hal_flash.o" lastModified="156741aade9">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_flash.c" lastModified="15635e77efc"/>
+      </target>
+      <target file="ADC_func.o" lastModified="156741aaa82">
+         <source file="..\..\..\ADC_func.c" lastModified="15636567bbc"/>
+      </target>
+      <target file="stm32l1xx_hal_i2s.o" lastModified="156741ab88e">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_i2s.c" lastModified="15635e77f69"/>
+      </target>
+      <target file="stm32l1xx_hal_dac_ex.o" lastModified="156741ab59f">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_dac_ex.c" lastModified="15635e77f23"/>
+      </target>
+      <target file="stm32l1xx_hal_comp.o" lastModified="156741aac4e">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_comp.c" lastModified="15635e78071"/>
+      </target>
+      <target file="stm32l1xx_hal_lcd.o" lastModified="156741abaa6">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_lcd.c" lastModified="15635e780e7"/>
+      </target>
+      <target file="stm32l1xx_hal_msp_template.o" lastModified="156741ab54b">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_msp_template.c" lastModified="15635e77fb6"/>
+      </target>
+      <target file="stm32l1xx_hal_cryp_ex.o" lastModified="156741ab121">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_cryp_ex.c" lastModified="15635e7808b"/>
+      </target>
+      <target file="stm32l1xx_hal_smartcard.o" lastModified="156741aa61f">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_smartcard.c" lastModified="15635e780ab"/>
+      </target>
+      <target file="stm32l1xx_hal_rcc_ex.o" lastModified="156741ab092">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_rcc_ex.c" lastModified="15635e780af"/>
+      </target>
+      <target file="stm32l1xx_hal_cryp.o" lastModified="156741aab19">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_cryp.c" lastModified="15635e77eef"/>
+      </target>
+      <target file="stm32l1xx_ll_sdmmc.o" lastModified="156741ab6f1">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_ll_sdmmc.c" lastModified="15635e7802e"/>
+      </target>
+      <target file="stm32l1xx_hal_rtc_ex.o" lastModified="156741ab03a">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_rtc_ex.c" lastModified="15635e7801e"/>
+      </target>
+      <target file="GPIO_func.o" lastModified="156741abbcc">
+         <source file="..\..\..\GPIO_func.c" lastModified="1565a8088f4"/>
+      </target>
+      <target file="stm32l1xx_hal_tim.o" lastModified="156741aad41">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_tim.c" lastModified="15635e780a3"/>
+      </target>
+      <target file="stm32l1xx_hal_opamp_ex.o" lastModified="156741ab266">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_opamp_ex.c" lastModified="15635e77fec"/>
+      </target>
+      <target file="stm32l1xx_hal_iwdg.o" lastModified="156741abc1f">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_iwdg.c" lastModified="15635e77f98"/>
+      </target>
+      <target file="stm32l1xx_hal.o" lastModified="156741ab0e4">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal.c" lastModified="15635e77fc6"/>
+      </target>
+      <target file="stm32l1xx_hal_gpio.o" lastModified="156741aabe5">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_gpio.c" lastModified="15635e77f82"/>
+      </target>
+      <target file="EEPROMfunc.o" lastModified="15674288ee7">
+         <source file="..\..\..\EEPROMfunc.c" lastModified="15674284cb5"/>
+      </target>
+      <target file="stm32l1xx_hal_spi_ex.o" lastModified="156741aa9e3">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_spi_ex.c" lastModified="15635e7802a"/>
+      </target>
+      <target file="stm32l1xx_hal_irda.o" lastModified="156741aaf2a">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_irda.c" lastModified="15635e77fcf"/>
+      </target>
+      <target file="string.o" lastModified="156741aa727">
+         <source file="..\..\..\string.c" lastModified="1565a79eb95"/>
+      </target>
+      <target file="TIMs.o" lastModified="156741abc75">
+         <source file="..\..\..\TIMs.c" lastModified="1565990134b"/>
+      </target>
+      <target file="stm32l1xx_hal_tim_ex.o" lastModified="156741ab7ae">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_tim_ex.c" lastModified="15635e7805f"/>
+      </target>
+      <target file="guard_func.o" lastModified="156741abb72">
+         <source file="..\..\..\guard_func.c" lastModified="15654725530"/>
+      </target>
+      <target file="stm32l1xx_hal_flash_ramfunc.o" lastModified="156741ab6a9">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_flash_ramfunc.c" lastModified="15635e77f42"/>
+      </target>
+      <target file="stm32l1xx_ll_fsmc.o" lastModified="156741aaac8">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_ll_fsmc.c" lastModified="15635e77f06"/>
+      </target>
+      <target file="stm32l1xx_hal_pcd_ex.o" lastModified="156741aad99">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_pcd_ex.c" lastModified="15635e7807d"/>
+      </target>
+      <target file="stm32l1xx_hal_rtc.o" lastModified="156741aab84">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_rtc.c" lastModified="15635e78053"/>
+      </target>
+      <target file="stm32l1xx_hal_rcc.o" lastModified="156741ab4eb">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_rcc.c" lastModified="15635e78019"/>
+      </target>
+      <target file="stm32l1xx_hal_dac.o" lastModified="156741ab347">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_dac.c" lastModified="15635e77f1b"/>
+      </target>
+      <target file="stm32l1xx_hal_wwdg.o" lastModified="156741ab1c4">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_wwdg.c" lastModified="15635e77f8d"/>
+      </target>
+      <target file="stm32l1xx_hal_pwr.o" lastModified="156741ab175">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_pwr.c" lastModified="15635e78081"/>
+      </target>
+      <target file="stm32l1xx_hal_adc.o" lastModified="156741ab83c">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_adc.c" lastModified="15635e77fba"/>
+      </target>
+      <target file="stm32l1xx_hal_flash_ex.o" lastModified="156741aa937">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_flash_ex.c" lastModified="15635e77ff4"/>
+      </target>
+      <target file="clock.o" lastModified="156741abcbf">
+         <source file="..\..\..\clock.c" lastModified="1564f9b85e9"/>
+      </target>
+      <target file="stm32l1xx_hal_sd.o" lastModified="156741aa6d3">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_sd.c" lastModified="15635e77f75"/>
+      </target>
+      <target file="stm32l1xx_hal_dma.o" lastModified="156741abd2d">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_dma.c" lastModified="15635e77f58"/>
+      </target>
+      <target file="stm32l1xx_hal_opamp.o" lastModified="156741aaa2d">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_opamp.c" lastModified="15635e77f15"/>
+      </target>
+      <target file="stm32l1xx_hal_pwr_ex.o" lastModified="156741ab757">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_pwr_ex.c" lastModified="15635e77eea"/>
+      </target>
+      <target file="stm32l1xx_hal_uart.o" lastModified="156741ab648">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_uart.c" lastModified="15635e78005"/>
+      </target>
+      <target file="system_stm32l1xx.o" lastModified="156741aae85">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\system_stm32l1xx.c" lastModified="15635e77fa0"/>
+      </target>
+      <target file="UART.o" lastModified="156741aba5d">
+         <source file="..\..\..\UART.c" lastModified="1566e28e6b7"/>
+      </target>
+      <target file="stm32l1xx_hal_crc.o" lastModified="156741ab41c">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_crc.c" lastModified="15635e78040"/>
+      </target>
+      <target file="modem.o" lastModified="156741ab2c8">
+         <source file="..\..\..\modem.c" lastModified="15673db4e91"/>
+      </target>
+      <target file="stm32l1xx_hal_nor.o" lastModified="156741abafb">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_nor.c" lastModified="15635e77f4b"/>
+      </target>
+      <target file="stm32l1xx_hal_adc_ex.o" lastModified="156741aa685">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_adc_ex.c" lastModified="15635e77fdf"/>
+      </target>
+      <target file="startup_stm32l151xba.o" lastModified="156741aae90">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\startup_stm32l151xba.s" lastModified="15635e78067"/>
+      </target>
+      <target file="main.o" lastModified="156742a05d7">
+         <source file="..\..\..\app\main.c" lastModified="156742a0352"/>
+      </target>
+      <target file="stm32l1xx_hal_usart.o" lastModified="156741ab9ff">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_usart.c" lastModified="15635e77ffb"/>
+      </target>
+      <target file="stm32l1xx_hal_i2c.o" lastModified="156741aa8b5">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_i2c.c" lastModified="15635e780c0"/>
+      </target>
+      <target file="stm32l1xx_hal_spi.o" lastModified="156741aa7d0">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_spi.c" lastModified="15635e77fda"/>
+      </target>
+      <target file="stm32l1xx_hal_sram.o" lastModified="156741aae33">
+         <source file="..\..\..\components\coocox-master\STM32L151xBA_CUBELIB\source\stm32l1xx_hal_sram.c" lastModified="15635e78046"/>
+      </target>
+   </processor>
+</history>
