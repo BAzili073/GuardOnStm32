@@ -1,6 +1,6 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
-
+#include "EEPROMfunc.h"
 #include "defines.h"
 #include "TIMs.h"
 #include "UART.h"
