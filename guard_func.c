@@ -14,8 +14,8 @@ void led_blink(uint8_t led_mode, int8_t time_on,int8_t time_off);
 
 
 uint16_t u_battary;
-int8_t  led_blink_time_on[7] = {-127,-127,-127,-127,-127,-127,-127};
-int8_t  led_blink_time_off[7] = {127,127,127,127,127,127,127};
+int8_t  led_blink_time_on[8] = {-127,-127,-127,-127,-127,-127,-127,-127};
+int8_t  led_blink_time_off[8] = {127,127,127,127,127,127,127,127};
 
 int16_t time_to_alarm = -1;
 uint8_t alarm_st = 0;
@@ -24,7 +24,7 @@ uint8_t guard_st = 0;
 uint16_t outputs[5] = {OUTPUT_1,OUTPUT_2,OUTPUT_3,OUTPUT_4,OUTPUT_5};
 uint8_t outputs_mode[5] = {0,1,2,3,4};
 uint16_t leds[8] = {LED_1,LED_2,LED_3,LED_4,LED_5,LED_6,LED_7,LED_8};
-uint8_t leds_mode[8] = {1,2,3,4,5,6,7,8};
+uint8_t led_mode[8] = {1,2,3,4,5,6,7,7};
 
 uint16_t inputs[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
 uint16_t inputs_max[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
@@ -62,15 +62,17 @@ void output_off_hand(uint8_t output){
 	if (outputs_mode[output] == OUTPUT_MODE_HAND) GPIO_LOW(OUTPUT_PORT,(outputs[output-1]));
 }
 
-void led_on_mode(uint8_t led_mode){
-	for (int i = 1;i<=5;i++){
-		if (leds_mode[i-1] == led_mode) GPIO_HIGH(LED_PORT,(leds[i-1]));
+void led_on_mode(uint8_t mode){
+	int i;
+	for (i = 1;i<=8;i++){
+		if (led_mode[i-1] == mode) GPIO_HIGH(LED_PORT,(leds[i-1]));
 	}
 }
 
-void led_off_mode(uint8_t led_mode){
-	for (int i = 1;i<=5;i++){
-		if (leds_mode[i-1] == led_mode) GPIO_HIGH(LED_PORT,(leds[i-1]));
+void led_off_mode(uint8_t mode){
+	int i;
+	for (i = 1;i<=8;i++){
+		if (led_mode[i-1] == mode) GPIO_LOW(LED_PORT,(leds[i-1]));
 	}
 }
 
@@ -89,8 +91,9 @@ void led_blink(uint8_t led_mode, int8_t time_on,int8_t time_off){
 	led_blink_time_off[led_mode - 1] = time_off;
 }
 
-void led_blink_stop(uint8_t led_mode){
-	led_blink_time_on[led_mode - 1] = LED_BLINK_STOP;
+void led_blink_stop(uint8_t mode){
+	led_blink_time_on[mode - 1] = LED_BLINK_STOP;
+	led_off_mode(mode);
 }
 
 void check_battery(){

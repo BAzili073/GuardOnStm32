@@ -21,12 +21,6 @@ volatile uint32_t i;
     for (i=0; i != 0x80000; i++);
 }
 
-
-
-
- uint8_t a = true;
-
-
 //void initIntExt4(){
 //	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
 //	EXTI -> FTSR |= EXTI_FTSR_TR4;
@@ -39,55 +33,50 @@ volatile uint32_t i;
 //	EXTI -> PR |= EXTI_PR_PR4;
 //}
 
-
-
 int main(void) {
 	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA;
-	//
-//
-//
-//	set_core_clock();
-//	RCC -> CR |= RCC_CR_HSION;
-//		while(!(RCC->CR&RCC_CR_HSIRDY));
-//		RCC -> CFGR |= RCC_CFGR_SW_HSI;
+	set_core_clock();
 	GPIO_init();
 	TIM6_init();
 	ADC_init();
 //    TIM2_init(); //PWM
 	TIM7_init();
 	UART1_init();
-    for(;;) {
-    	set_timeout(1000);
-    	while(!time_out);
-//    	if (modem_state == MODEM_STATE_OFF) GSM_ON();
-    	i++;
+//	led_blink(7,1,1);
 
+    for(;;) {
+    	set_timeout(10000);
+    	while(!time_out);
+    	one_wire_send_presence();
+    	set_timeout(60);
+    	while(!time_out);
+    	int a = one_wire_read_bit();
+    	if (a) send_string_to_GSM("YES\n\r");
+    	else send_string_to_GSM("NOTHING\n\r");
+//    	if (modem_state == MODEM_STATE_OFF) GSM_ON();
+//    	led_blink_stop(7);
     }
     return 0;
 };
 
-void BusFault_Handler()
-{
+void BusFault_Handler(){
 	int x = 3 * 3;
 	x++;
 }
 
-void UsageFault_Handler()
-{
+void UsageFault_Handler(){
 	int x = 3 * 3;
 	x++;
 }
 
-void MemManage_Handler()
-{
+void MemManage_Handler(){
 	int x = 3 * 3;
 	x++;
 }
 
-void HardFault_Handler()
-{
+void HardFault_Handler(){
 __asm volatile
 (
 " tst lr, #4 \n"

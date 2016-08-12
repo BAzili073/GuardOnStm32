@@ -91,6 +91,7 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int ma
 		}else{
 			if (find_str("OK",answer)) return OK_ANSWER;
 			else{
+				max_t -= t;
 				parse_gsm_message();
 			}
 		}

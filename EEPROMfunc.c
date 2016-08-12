@@ -16,7 +16,6 @@ if ((FLASH -> PECR & FLASH_PECR_PELOCK)){
 	EEPROMInit();
 }
 	FLASH -> PECR |= FLASH_PECR_PROG;
-//	FLASH -> PECR |= FLASH_PECR_DATA;
 }
 
 void EEPROMDisable(){

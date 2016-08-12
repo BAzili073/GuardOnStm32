@@ -58,15 +58,29 @@
 
 
 #define LED_PORT GPIOB
+
 #define LED_1 GPIO_PIN_0
 #define LED_2 GPIO_PIN_1
 #define LED_3 GPIO_PIN_2
 #define LED_4 GPIO_PIN_3
 #define LED_5 GPIO_PIN_4
 #define LED_6 GPIO_PIN_5
-#define LED_7 GPIO_PIN_8
-#define LED_8 GPIO_PIN_9
 
+#define LED_7 GPIO_PIN_6
+#define LED_8 GPIO_PIN_7
+//DEBUG
+//#define LED_7 GPIO_PIN_8
+//#define LED_8 GPIO_PIN_9
+
+#define LED_MODE_INPUT_1 1
+#define LED_MODE_INPUT_2 2
+#define LED_MODE_INPUT_3 3
+#define LED_MODE_INPUT_4 4
+#define LED_MODE_INPUT_5 5
+#define LED_MODE_GSM 6
+#define LED_MODE_GUARD 7
+
+#define LED_BLINK_STOP -127
 
 
 #define DEVICE_RESET_PORT GPIOA
@@ -83,15 +97,9 @@
 #define INPUTS_MODE_BUTTON_GUARD 0b00000010
 #define INPUTS_MODE_INVERS 0b00000100
 
-#define LED_MODE_INPUT_1 1
-#define LED_MODE_INPUT_2 2
-#define LED_MODE_INPUT_3 3
-#define LED_MODE_INPUT_4 4
-#define LED_MODE_INPUT_5 5
-#define LED_MODE_GSM 6
-#define LED_MODE_GUARD 7
 
-#define LED_BLINK_STOP -127
+
+
 
 
 #define ONE_WIRE_PORT GPIOA

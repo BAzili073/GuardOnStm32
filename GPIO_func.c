@@ -44,6 +44,18 @@ void GPIO_init(){
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( GPIOA, &initSrtuct);
 
+
+
+		RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pin = (LED_7 | LED_8) ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( GPIOB, &initSrtuct);
+
+
+
 		RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
 
 

@@ -12,6 +12,12 @@ void one_wire_write_bit(uint8_t bit)
 	set_timeout(bit ? 90 : 5);
 }
 
+void one_wire_write_byte(uint8_t data)
+{
+	for(uint8_t i = 0; i<8; i++)
+		one_wire_write_bit(data>>i & 1);
+}
+
 uint8_t one_wire_read_bit()
 {
 	uint8_t bit = 0;
@@ -29,15 +35,10 @@ uint8_t one_wire_read_bit()
 	return bit;
 }
 
-void one_wire_write_byte(uint8_t data)
-{
-	for(uint8_t i = 0; i<8; i++) 		one_wire_write_bit(data>>i & 1);
-}
-
-void send_presence() {
+void one_wire_send_presence() {
 	ONE_WIRE_PORT->ODR = ONE_WIRE_PIN;
 	set_timeout(50);
 	ONE_WIRE_PORT ->ODR &= ~ONE_WIRE_PIN;
-	set_timeout(420); //420us
+	set_timeout(480); //420us
 	ONE_WIRE_PORT->ODR = ONE_WIRE_PIN;
 }
