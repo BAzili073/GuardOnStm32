@@ -49,7 +49,7 @@ void check_led_blink(){
 				led_on_mode(i+1);
 			}else{
 				led_off_mode(i+1);
-				if (led_blink_time[i] == (led_blink_time_off[i] * -1)) led_blink_time[i] = led_blink_time_on[i]+1;
+				if (led_blink_time[i] <= (led_blink_time_off[i] * (-1))) led_blink_time[i] = led_blink_time_on[i]+1;
 			}
 		}
 	}

@@ -40,23 +40,14 @@ int main(void) {
 	set_core_clock();
 	GPIO_init();
 	TIM6_init();
-	ADC_init();
+//	ADC_init();
 //    TIM2_init(); //PWM
 	TIM7_init();
-	UART1_init();
+//	UART1_init();
 //	led_blink(7,1,1);
-
     for(;;) {
-    	set_timeout(10000);
-    	while(!time_out);
-    	one_wire_send_presence();
-    	set_timeout(60);
-    	while(!time_out);
-    	int a = one_wire_read_bit();
-    	if (a) send_string_to_GSM("YES\n\r");
-    	else send_string_to_GSM("NOTHING\n\r");
-//    	if (modem_state == MODEM_STATE_OFF) GSM_ON();
-//    	led_blink_stop(7);
+    	if (one_wire_send_presence()) led_blink(7,20,20);
+    	else led_blink(7,5,5);
     }
     return 0;
 };
