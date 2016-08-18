@@ -13,8 +13,7 @@
 #include "modem.h"
 #include "string.h"
 #include "EEPROMfunc.h"
-
-
+char address[8] = {0,0,0,0,0,0,0,0};
 
 void Delay(void) {
 volatile uint32_t i;
@@ -33,8 +32,7 @@ volatile uint32_t i;
 //	EXTI -> PR |= EXTI_PR_PR4;
 //}
 
-int main(void) {
-	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
+int main(void) {	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA;
 	set_core_clock();
@@ -42,12 +40,39 @@ int main(void) {
 	TIM6_init();
 //	ADC_init();
 //    TIM2_init(); //PWM
-	TIM7_init();
-//	UART1_init();
+//	TIM7_init();
+	UART1_init();
 //	led_blink(7,1,1);
     for(;;) {
-    	if (one_wire_send_presence()) led_blink(7,20,20);
-    	else led_blink(7,5,5);
+    	for (uint8_t i=0;i<100;i++){
+        	    		set_timeout(32000);
+        	    		while_timeout();
+        	    	}
+//    				if (one_wire_send_presence()){
+//    					one_wire_write_byte(0xF0);
+//    					char a = one_wire_read_bit();
+//    					char b = one_wire_read_bit();
+//
+//    					if(a) send_string_to_GSM("1");
+//						else send_string_to_GSM("0");
+//
+//    					if(b) send_string_to_GSM("1");
+//						else send_string_to_GSM("0");
+
+        	    	if(one_wire_read_rom(address)){
+        	    		send_string_to_GSM("ID:");
+        	    		uint8_t o;
+        	    		for (o = 0;o<8;o++){
+    							send_char_to_GSM((address[o] >> 4) + (((address[o] >> 4) >= 10) ? ('A' - 10) : '0'));
+    							send_char_to_GSM((address[o] & 0x0F) + (((address[o] & 0x0F) >= 10) ? ('A' - 10) : '0'));
+    							send_char_to_GSM(' ');
+        	    		}
+    //    	    		send_string_to_UART1(address);
+        	    		send_string_to_GSM("\n\r");
+        	    	}else{
+        	    		send_string_to_GSM("HET\n\r");
+        	    	}
+
     }
     return 0;
 };

@@ -8,28 +8,6 @@ void PORTB_init();
 void PORTC_init();
 void PORTD_init();
 
-void init_one_wire_input(){
-	GPIO_InitTypeDef initSrtuct;
-
-	initSrtuct.Alternate = 0;
-	initSrtuct.Mode = GPIO_MODE_INPUT;
-	initSrtuct.Pin = ONE_WIRE_PIN;
-	initSrtuct.Pull = GPIO_NOPULL;
-	initSrtuct.Speed = GPIO_SPEED_HIGH;
-	HAL_GPIO_Init(ONE_WIRE_PORT, &initSrtuct);
-}
-
-void init_one_wire_output(){
-	GPIO_InitTypeDef initSrtuct;
-
-	initSrtuct.Alternate = 0;
-	initSrtuct.Mode = GPIO_MODE_OUTPUT_OD;
-	initSrtuct.Pin = ONE_WIRE_PIN;
-	initSrtuct.Pull = GPIO_NOPULL;
-	initSrtuct.Speed = GPIO_SPEED_HIGH;
-	HAL_GPIO_Init(ONE_WIRE_PORT, &initSrtuct);
-}
-
 void GPIO_init(){
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
@@ -38,7 +16,12 @@ void GPIO_init(){
 		GPIO_InitTypeDef initSrtuct;
 
 
-	init_one_wire_output();
+			initSrtuct.Alternate = 0;
+			initSrtuct.Mode = GPIO_MODE_OUTPUT_OD;
+			initSrtuct.Pin = ONE_WIRE_PIN;
+			initSrtuct.Pull = GPIO_NOPULL;
+			initSrtuct.Speed = GPIO_SPEED_HIGH;
+			HAL_GPIO_Init(ONE_WIRE_PORT, &initSrtuct);
 
 		//UART1
 		initSrtuct.Alternate = GPIO_AF7_USART1;
