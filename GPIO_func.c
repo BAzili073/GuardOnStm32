@@ -3,11 +3,6 @@
 
 #include "defines.h"
 
-void PORTA_init();
-void PORTB_init();
-void PORTC_init();
-void PORTD_init();
-
 void GPIO_init(){
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
@@ -16,12 +11,13 @@ void GPIO_init(){
 		GPIO_InitTypeDef initSrtuct;
 
 
-			initSrtuct.Alternate = 0;
-			initSrtuct.Mode = GPIO_MODE_OUTPUT_OD;
-			initSrtuct.Pin = ONE_WIRE_PIN;
-			initSrtuct.Pull = GPIO_NOPULL;
-			initSrtuct.Speed = GPIO_SPEED_HIGH;
-			HAL_GPIO_Init(ONE_WIRE_PORT, &initSrtuct);
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_INPUT;//GPIO_MODE_OUTPUT_OD;
+		initSrtuct.Pin = ONE_WIRE_PIN;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init(ONE_WIRE_PORT, &initSrtuct);
+		GPIO_LOW(ONE_WIRE_PORT,ONE_WIRE_PIN);
 
 		//UART1
 		initSrtuct.Alternate = GPIO_AF7_USART1;
@@ -79,21 +75,3 @@ void GPIO_init(){
 
 }
 
-void PORTA_init(){
-
-
-}
-
-void PORTB_init(){
-
-}
-
-void PORTC_init(){
-
-
-
-}
-
-void PORTD_init(){
-
-}

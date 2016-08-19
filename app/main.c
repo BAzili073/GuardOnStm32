@@ -22,24 +22,30 @@ volatile uint32_t i;
     for (i=0; i != 0x80000; i++);
 }
 
-//void initIntExt4(){
+void one_wire_interrupt_init(){
 //	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
-//	EXTI -> FTSR |= EXTI_FTSR_TR4;
-//	NVIC_EnableIRQ(EXTI4_IRQn);
-//	EXTI -> IMR |= EXTI_IMR_MR4;
-//}
+	RCC -> APB2ENR |= RCC_APB2RSTR_SYSCFGRST;
+	SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR2_EXTI5_PB;
+	EXTI -> IMR |= EXTI_IMR_MR5;
+//	EXTI -> EMR |= EXTI_EMR_MR5;
+	EXTI -> FTSR |= EXTI_FTSR_TR5;
+	NVIC_EnableIRQ(EXTI9_5_IRQn);
+}
 //
-//void EXTI4_IRQHandler(){
-//	GPIO_TOGGLE(GPIOC,GPIO_PIN_8);
-//	EXTI -> PR |= EXTI_PR_PR4;
-//}
+void EXTI9_5_IRQHandler(){
+	GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
+	EXTI -> PR |= EXTI_PR_PR5;
+}
 
-int main(void) {	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
+int main(void) {
+	one_wire_interrupt_init();
+	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA;
 	set_core_clock();
 	GPIO_init();
 	TIM6_init();
+	GPIO_HIGH(GPIOB,GPIO_PIN_7);
 //	ADC_init();
 //    TIM2_init(); //PWM
 //	TIM7_init();
@@ -51,15 +57,15 @@ int main(void) {	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
         	    		while_timeout();
         	    	}
 
-    				if (one_wire_start_conversion_temp()){
-    					for (uint8_t f = 0;f<2;f++){
-    						send_string_to_GSM("f");
-    						send_char_to_GSM(48+f);
-    						send_string_to_GSM(" = ");
-							send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
-							send_string_to_GSM("\n\r");
-    					}
-    				}
+//    				if (one_wire_start_conversion_temp()){
+//    					for (uint8_t f = 0;f<2;f++){
+//    						send_string_to_GSM("f");
+//    						send_char_to_GSM(48+f);
+//    						send_string_to_GSM(" = ");
+//							send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
+//							send_string_to_GSM("\n\r");
+//    					}
+//    				}
 //    	one_wire_read_temp();
 //    				if (one_wire_send_presence()){
 //    					one_wire_write_byte(0x33);

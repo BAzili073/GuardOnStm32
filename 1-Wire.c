@@ -117,11 +117,14 @@ char one_wire_send_presence() {
 }
 
 void one_wire_low(){
-	GPIO_LOW(ONE_WIRE_PORT,ONE_WIRE_PIN);
+//	GPIO_LOW(ONE_WIRE_PORT,ONE_WIRE_PIN);
+	GPIOB -> MODER |= GPIO_MODER_MODER5_0;
+
 }
 
 void one_wire_high(){
-	GPIO_HIGH(ONE_WIRE_PORT,ONE_WIRE_PIN);
+//	GPIO_HIGH(ONE_WIRE_PORT,ONE_WIRE_PIN);
+	GPIOB -> MODER &= ~GPIO_MODER_MODER5_0;
 }
 
 
