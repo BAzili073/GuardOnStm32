@@ -3,12 +3,11 @@
 
 #include "defines.h"
 
-#define TCHK ;
-
 char gsm_buffer[GSM_BUFFER_SIZE];
 uint16_t gsm_buffer_char_counter = 0;
 void send_char_to_GSM(char c);
 void USART_get_message();
+uint16_t uart_digit(uint16_t dig, uint16_t sub);
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
@@ -55,4 +54,36 @@ void USART_get_message(){
 	if (gsm_buffer_char_counter == GSM_BUFFER_SIZE) gsm_buffer_char_counter = 0;
 }
 
+void send_int_to_GSM(uint16_t num){
+	uint16_t unum; // число без знака
+	  if (num < 0) { // отрицательное число. Отсылает знак
+	    unum = -num;
+	    send_char_to_GSM('-');
+	  } else {
+	    unum = num;
+	  }
+	  uint16_t snum =  unum >> 4; // отбрасывает дробную часть
+	  if (snum >= 10) {
+	    if (snum >= 100) {
+	      if (snum >= 1000) {
+	        snum = uart_digit(snum, 1000); // 4й разряд
+	      }
+	      snum = uart_digit(snum, 100); // 3й разряд
+	    }
+	    snum = uart_digit(snum, 10); // 2й разряд
+	  }
+	  uart_digit(snum, 1); // 1й разряд
+	  send_char_to_GSM('.'); // десятичный разделитель
+	  uart_digit((((uint8_t)(unum & 0x0F)) * 10) >> 4, 1); // дробная часть
+}
+
+uint16_t uart_digit(uint16_t dig, uint16_t sub) {
+  char c = '0';
+  while (dig >= sub) {
+    dig -= sub;
+    c++;
+  }
+  send_char_to_GSM(c);
+  return dig;
+}
 

@@ -13,7 +13,9 @@
 #include "modem.h"
 #include "string.h"
 #include "EEPROMfunc.h"
-char address[8] = {0,0,0,0,0,0,0,0};
+char address[8] = {0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40};
+
+char temp_address[2][8] = {{0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40},{0x28,0xB8,0xa3,0xA0,0x04,0x00,0x00,0xf2}};
 
 void Delay(void) {
 volatile uint32_t i;
@@ -48,6 +50,17 @@ int main(void) {	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
         	    		set_timeout(32000);
         	    		while_timeout();
         	    	}
+
+    				if (one_wire_start_conversion_temp()){
+    					for (uint8_t f = 0;f<2;f++){
+    						send_string_to_GSM("f");
+    						send_char_to_GSM(48+f);
+    						send_string_to_GSM(" = ");
+							send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
+							send_string_to_GSM("\n\r");
+    					}
+    				}
+//    	one_wire_read_temp();
 //    				if (one_wire_send_presence()){
 //    					one_wire_write_byte(0x33);
 //    					uint8_t i;
@@ -78,27 +91,27 @@ int main(void) {	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 //        	    	}else{
 //        	    		send_string_to_GSM("HET\n\r");
 //        	    	}
-    			one_wire_enum_init(); // Начало перечисления устройств
-
-
-    			while(1){
-    				uint8_t * p = one_wire_enum_next(); // Очередной адрес
-    				        if (!p)
-    				          break;
-    				        // Вывод шестнадцатиричной записи адреса в UART и рассчёт CRC
-    				        uint8_t d = *(p++);
-    				        uint8_t family_code = d; // Сохранение первого байта (код семейства)
-    				        for (uint8_t i = 0; i < 8; i++) {
-    				          send_char_to_GSM((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
-						      send_char_to_GSM((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
-						      send_char_to_GSM(' ');
-    				          d = *(p++);
-    				        }
-    				        send_string_to_GSM("\n\r");
-    			}
-    			send_string_to_GSM("BCE\n\r");
-
-
+//    			one_wire_enum_init(); // Начало перечисления устройств
+//
+//
+//    			while(1){
+//    				uint8_t * p = one_wire_enum_next(); // Очередной адрес
+//    				        if (!p)
+//    				          break;
+//    				        // Вывод шестнадцатиричной записи адреса в UART и рассчёт CRC
+//    				        uint8_t d = *(p++);
+//    				        uint8_t family_code = d; // Сохранение первого байта (код семейства)
+//    				        for (uint8_t i = 0; i < 8; i++) {
+//    				          send_char_to_GSM((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
+//						      send_char_to_GSM((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
+//						      send_char_to_GSM(' ');
+//    				          d = *(p++);
+//    				        }
+//    				        send_string_to_GSM("\n\r");
+//    			}
+//    			send_string_to_GSM("BCE\n\r");
+//
+//
     				}
     return 0;
 };

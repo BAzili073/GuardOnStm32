@@ -4,7 +4,10 @@
 #include "defines.h"
 #include "TIMs.h"
 #include "GPIO_func.h"
+#include "UART.h"
 
+uint8_t one_wire_crc_update(uint8_t crc, uint8_t b);
+uint8_t one_wire_check_crc(uint8_t address[8]);
 void one_wire_low();
 void one_wire_high();
 char one_wire_check_line();
@@ -195,11 +198,154 @@ uint8_t * one_wire_enum_next() {
   return &onewire_enum[0];
 }
 
-// ¬ыполн€ет инициализацию (сброс) и, если импульс присутстви€ получен,
-// выполн€ет MATCH_ROM дл€ последнего найденного методом onewire_enum_next адреса
-// ¬озвращает 0, если импульс присутстви€ не был получен, 1 - в ином случае
-//uint8_t onewire_match_last() {
-//  return onewire_match(&onewire_enum[0]);
-//}
+uint8_t one_wire_check_crc(uint8_t address[8]){
+	uint8_t i;
+	uint8_t crc = 0;
+	for (i = 0; i < 8; i++) {
+	  crc = one_wire_crc_update(crc, address[i]);
+	}
+	return crc;
+}
+
+uint8_t one_wire_crc_update(uint8_t crc, uint8_t b) {
+  for (uint8_t p = 8; p; p--) {
+    crc = ((crc ^ b) & 1) ? (crc >> 1) ^ 0b10001100 : (crc >> 1);
+    b >>= 1;
+  }
+  return crc;
+}
+
+uint8_t one_wire_skip() {
+  if (!one_wire_send_presence())
+    return 0;
+  one_wire_write_byte(0xCC);
+  return 1;
+}
 
 
+uint8_t one_wire_start_conversion_temp(){
+	if (one_wire_skip()) { // ≈сли у нас на шине кто-то присутствует,...
+	      one_wire_write_byte(0x44);
+	      for (uint8_t i=0;i<100;i++){
+			  set_timeout(10000);
+			  while_timeout();
+	      }
+	      return 1;
+	}
+	return 0;
+}
+
+int16_t one_wire_read_temp_to_address(uint8_t address[8]){
+	if (one_wire_send_presence()){
+		one_wire_write_byte(0x55);
+		uint8_t i = 0;
+		for (i = 0;i<8;i++){
+			one_wire_write_byte(address[i]);
+		}
+		if ((address[0] == 0x28) || (address[0] == 0x22) || (address[0] == 0x10)) {
+			// ≈сли код семейства соответствует одному из известных...
+			one_wire_write_byte(0xBE);
+			uint8_t scratchpad[8];
+			uint8_t crc = 0;;
+			for (uint8_t i = 0; i < 8; i++) {
+				scratchpad[i] = one_wire_read_byte();
+			  crc = one_wire_crc_update(crc, scratchpad[i]);
+			}
+			if (one_wire_read_byte() != crc) {
+				return ONE_WIRE_CONVERSION_ERROR;
+			} else {
+			  int16_t t = (scratchpad[1] << 8) | scratchpad[0];
+			  if (address[0] == 0x10) { // 0x10 - DS18S20
+				// у DS18S20 значение температуры хранит 1 разр€д в дробной части.
+				// повысить точность показаний можно считав байт 6 (COUNT_REMAIN) из scratchpad
+				t <<= 3;
+				if (scratchpad[7] == 0x10) { // проверка на вс€кий случай
+				  t &= 0xFFF0;
+				  t += 12 - scratchpad[6];
+				}
+			  } // дл€ DS18B20 DS1822 значение по умолчанию 4 бита в дробной части
+			  return t;
+			}
+	  }
+	}
+	return ONE_WIRE_CONVERSION_ERROR;
+}
+
+void one_wire_read_temp(){
+	if (one_wire_skip()) { // ≈сли у нас на шине кто-то присутствует,...
+      one_wire_write_byte(0x44); // ...запускаетс€ замер температуры на всех термодатчиках
+      for (uint8_t i=0;i<100;i++){
+		  set_timeout(10000);
+		  while_timeout();
+      }
+           one_wire_enum_init(); // Ќачало перечислени€ устройств
+      for(;;) {
+        uint8_t * p = one_wire_enum_next(); // ќчередной адрес
+        if (!p)
+          break;
+        // ¬ывод шестнадцатиричной записи адреса в UART и рассчЄт CRC
+        uint8_t d = *(p++);
+        uint8_t crc = 0;
+        uint8_t family_code = d; // —охранение первого байта (код семейства)
+        for (uint8_t i = 0; i < 8; i++) {
+        	send_char_to_GSM((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
+		    send_char_to_GSM((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
+		    send_char_to_GSM(' ');
+          crc = one_wire_crc_update(crc, d);
+          d = *(p++);
+        }
+        if (crc) {
+          // в итоге должен получитьс€ ноль. ≈сли не так, вывод сообщени€ об ошибке
+        	send_char_to_GSM('C');
+        	send_char_to_GSM('R');
+        	send_char_to_GSM('C');
+        } else {
+          if ((family_code == 0x28) || (family_code == 0x22) || (family_code == 0x10)) {
+            // ≈сли код семейства соответствует одному из известных...
+            // 0x10 - DS18S20, 0x28 - DS18B20, 0x22 - DS1822
+            // проведЄм запрос scratchpad'а, счита€ по ходу crc
+            one_wire_write_byte(0xBE);
+            uint8_t scratchpad[8];
+            crc = 0;
+            for (uint8_t i = 0; i < 8; i++) {
+            	scratchpad[i] = one_wire_read_byte();
+              crc = one_wire_crc_update(crc, scratchpad[i]);
+            }
+            if (one_wire_read_byte() != crc) {
+              // ≈сли контрольна€ сумма скретчпада не совпала.
+            	send_char_to_GSM('~');
+            	send_char_to_GSM('C');
+            	send_char_to_GSM('R');
+            	send_char_to_GSM('C');
+            	send_char_to_GSM(crc);
+            } else {
+              int16_t t = (scratchpad[1] << 8) | scratchpad[0];
+//              if (family_code == 0x10) { // 0x10 - DS18S20
+//                // у DS18S20 значение температуры хранит 1 разр€д в дробной части.
+//                // повысить точность показаний можно считав байт 6 (COUNT_REMAIN) из scratchpad
+//                t <<= 3;
+//                if (scratchpad[7] == 0x10) { // проверка на вс€кий случай
+//                  t &= 0xFFF0;
+//                  t += 12 - scratchpad[6];
+//                }
+//              } // дл€ DS18B20 DS1822 значение по умолчанию 4 бита в дробной части
+//              // ¬ывод температуры
+              send_int_to_GSM(t);
+            }
+          } else {
+            // Ќеизвестное устройство
+        	  send_char_to_GSM('?');
+          }
+        }
+        send_char_to_GSM('\n');
+        	send_char_to_GSM('\r');
+      }
+      send_char_to_GSM('.');
+    } else {
+    	send_char_to_GSM('-');
+    }
+	send_char_to_GSM('\n');
+	send_char_to_GSM('\r');
+    set_timeout(32000); // небольша€ задержка
+    while_timeout();
+  }
