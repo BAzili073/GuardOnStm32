@@ -43,13 +43,18 @@ int main(void) {	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 //	TIM7_init();
 	UART1_init();
 //	led_blink(7,1,1);
-    for(;;) {
+    while(1) {
     	for (uint8_t i=0;i<100;i++){
         	    		set_timeout(32000);
         	    		while_timeout();
         	    	}
 //    				if (one_wire_send_presence()){
-//    					one_wire_write_byte(0xF0);
+//    					one_wire_write_byte(0x33);
+//    					uint8_t i;
+//    					for (i=0;i<8;i++){
+//    						address[i] = one_wire_read_byte();
+//    					}
+
 //    					char a = one_wire_read_bit();
 //    					char b = one_wire_read_bit();
 //
@@ -58,22 +63,43 @@ int main(void) {	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 //
 //    					if(b) send_string_to_GSM("1");
 //						else send_string_to_GSM("0");
+//    				uint8_t * p = one_wire_enum_next();
+//    				uint8_t d = *(p++);
+//        	    	if(p){
+//        	    		send_string_to_GSM("ID:");
+//        	    		uint8_t o;
+//        	    		for (o = 0;o<8;o++){
+//    							send_char_to_GSM((address[o] >> 4) + (((address[o] >> 4) >= 10) ? ('A' - 10) : '0'));
+//    							send_char_to_GSM((address[o] & 0x0F) + (((address[o] & 0x0F) >= 10) ? ('A' - 10) : '0'));
+//    							send_char_to_GSM(' ');
+//        	    		}
+////    //    	    		send_string_to_UART1(address);
+//        	    		send_string_to_GSM("\n\r");
+//        	    	}else{
+//        	    		send_string_to_GSM("HET\n\r");
+//        	    	}
+    			one_wire_enum_init(); // Начало перечисления устройств
 
-        	    	if(one_wire_read_rom(address)){
-        	    		send_string_to_GSM("ID:");
-        	    		uint8_t o;
-        	    		for (o = 0;o<8;o++){
-    							send_char_to_GSM((address[o] >> 4) + (((address[o] >> 4) >= 10) ? ('A' - 10) : '0'));
-    							send_char_to_GSM((address[o] & 0x0F) + (((address[o] & 0x0F) >= 10) ? ('A' - 10) : '0'));
-    							send_char_to_GSM(' ');
-        	    		}
-    //    	    		send_string_to_UART1(address);
-        	    		send_string_to_GSM("\n\r");
-        	    	}else{
-        	    		send_string_to_GSM("HET\n\r");
-        	    	}
 
-    }
+    			while(1){
+    				uint8_t * p = one_wire_enum_next(); // Очередной адрес
+    				        if (!p)
+    				          break;
+    				        // Вывод шестнадцатиричной записи адреса в UART и рассчёт CRC
+    				        uint8_t d = *(p++);
+    				        uint8_t family_code = d; // Сохранение первого байта (код семейства)
+    				        for (uint8_t i = 0; i < 8; i++) {
+    				          send_char_to_GSM((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
+						      send_char_to_GSM((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
+						      send_char_to_GSM(' ');
+    				          d = *(p++);
+    				        }
+    				        send_string_to_GSM("\n\r");
+    			}
+    			send_string_to_GSM("BCE\n\r");
+
+
+    				}
     return 0;
 };
 
