@@ -88,8 +88,8 @@
     <File name="components/STM32L151xBA_CUBELIB/system_stm32l1xx.h" path="components/coocox-master/STM32L151xBA_CUBELIB/source/system_stm32l1xx.h" type="1"/>
     <File name="components/STM32L151xBA_CUBELIB/stm32l1xx_hal_uart.c" path="components/coocox-master/STM32L151xBA_CUBELIB/source/stm32l1xx_hal_uart.c" type="1"/>
     <File name="Modem/modem.h" path="modem.h" type="1"/>
-    <File name="components/STM32L151xBA_CUBELIB/stm32l1xx_hal_spi_ex.c" path="components/coocox-master/STM32L151xBA_CUBELIB/source/stm32l1xx_hal_spi_ex.c" type="1"/>
     <File name="components/STM32L151xBA_CUBELIB/stm32l1xx_hal_pcd.c" path="components/coocox-master/STM32L151xBA_CUBELIB/source/stm32l1xx_hal_pcd.c" type="1"/>
+    <File name="components/STM32L151xBA_CUBELIB/stm32l1xx_hal_spi_ex.c" path="components/coocox-master/STM32L151xBA_CUBELIB/source/stm32l1xx_hal_spi_ex.c" type="1"/>
     <File name="components/STM32L151xBA_CUBELIB/stm32l1xx_hal_pcd_ex.c" path="components/coocox-master/STM32L151xBA_CUBELIB/source/stm32l1xx_hal_pcd_ex.c" type="1"/>
     <File name="Guard/guard_func.c" path="guard_func.c" type="1"/>
     <File name="components/cmsis_core/arm_const_structs.h" path="components/coocox-master/cmsis_core/source/arm_const_structs.h" type="1"/>

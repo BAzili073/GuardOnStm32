@@ -1,7 +1,14 @@
+#ifdef GUARD_H
+#else
+#define GUARD_H
+
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
 
 #include "defines.h"
+#include "EEPROMfunc.h"
+#include "1-Wire.h"
+
 
 unsigned int ADC_read(unsigned int chanel);
 
@@ -12,12 +19,17 @@ void output_off_hand(uint8_t output);
 void led_blink_stop(uint8_t led_mode);
 void led_blink(uint8_t led_mode, int8_t time_on,int8_t time_off);
 
+void output_on(uint8_t output);
+void output_off(uint8_t output);
+
 
 uint16_t u_battary;
 int8_t  led_blink_time_on[8] = {-127,-127,-127,-127,-127,-127,-127,-127};
 int8_t  led_blink_time_off[8] = {127,127,127,127,127,127,127,127};
 
 int16_t time_to_alarm = -1;
+int16_t time_to_guard_on = 0;
+int16_t time_set_to_guard_on = 0;
 uint8_t alarm_st = 0;
 uint8_t last_alarm = 0;
 uint8_t guard_st = 0;
@@ -32,34 +44,46 @@ uint16_t inputs_min[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
 uint8_t inputs_mode_bit[5] = {INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL};
 uint8_t inputs_time_to_alarm[5] = {0,0,0,0,0};
 
+uint8_t tel_number[MAX_TEL_NUMBERS][11];
+
+
 
 void guard_on(){
-	guard_st = GUARD_ON;
-	output_on_mode(OUTPUT_MODE_GUARD);
+	if (time_set_to_guard_on){
+		time_to_guard_on = time_set_to_guard_on;
+
+	}
+	if(!time_to_guard_on){
+		guard_st = GUARD_ON;
+		output_on_mode(OUTPUT_MODE_GUARD);
+	}
 }
 void guard_off(){
 	guard_st = GUARD_OFF;
+	time_to_guard_on = 0;
+	time_to_alarm = -1;
 	output_off_mode(OUTPUT_MODE_GUARD);
+	output_off_mode(OUTPUT_MODE_ALARM);
 }
 
 void output_on_mode(uint8_t mode){
 	for (int i = 1;i<=5;i++){
-		if (outputs_mode[i-1] == mode) GPIO_HIGH(OUTPUT_PORT,(outputs[i-1]));
+		if (outputs_mode[i-1] == mode) output_on(outputs[i-1]);
 	}
 }
 
 void output_off_mode(uint8_t mode){
 	for (int i = 1;i<=5;i++){
-			if (outputs_mode[i-1] == mode) GPIO_LOW(OUTPUT_PORT,(outputs[i-1]));
+			if (outputs_mode[i-1] == mode) output_off(outputs[i-1]);
 	}
 }
 
 void output_on_hand(uint8_t output){
-	if (outputs_mode[output] == OUTPUT_MODE_HAND) GPIO_HIGH(OUTPUT_PORT,(outputs[output-1]));
+	if (outputs_mode[output] == OUTPUT_MODE_HAND) output_on(output);
 }
 
 void output_off_hand(uint8_t output){
-	if (outputs_mode[output] == OUTPUT_MODE_HAND) GPIO_LOW(OUTPUT_PORT,(outputs[output-1]));
+	if (outputs_mode[output] == OUTPUT_MODE_HAND) output_off(output);
 }
 
 void led_on_mode(uint8_t mode){
@@ -75,6 +99,15 @@ void led_off_mode(uint8_t mode){
 		if (led_mode[i-1] == mode) GPIO_LOW(LED_PORT,(leds[i-1]));
 	}
 }
+
+void output_on(uint8_t output){
+	GPIO_HIGH(OUTPUT_PORT,(outputs[output-1]));
+}
+
+void output_off(uint8_t output){
+	GPIO_LOW(OUTPUT_PORT,(outputs[output-1]));
+}
+
 
 void alarm_on(){
 	output_on_mode(OUTPUT_MODE_ALARM);
@@ -113,7 +146,7 @@ void check_inputs(void){
 						if (!guard_st) guard_on();
 						return;
 					}
-					if (guard_st || (inputs_mode_bit[i-1] & INPUTS_MODE_24H) ){ //если на охране или вход 24 часа
+					if ((guard_st || (inputs_mode_bit[i-1] & INPUTS_MODE_24H)) & !alarm_st){ //если на охране или вход 24 часа
 						last_alarm = i; //запомним последний сработавший вход
 						if ((time_to_alarm == -1) || (inputs_time_to_alarm[i-1] < time_to_alarm)){ //если время до тревоги нету
 							time_to_alarm = inputs_time_to_alarm[i-1];
@@ -132,4 +165,29 @@ void check_inputs(void){
 	}
 }
 
+void read_settings(){
+	uint8_t i = 0;
+	uint8_t y = 0;
+
+
+	for (i = 0;i< MAX_TEL_NUMBERS;i++){
+		for (y = 0;y < 11; y++)
+		tel_number[i][y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
+	}
+
+
+	for (i = 0;i< MAX_TM;i++){
+		for (y = 0;y < 8; y++)
+		tm_id[i][y] = EEPROMRead((EEPROM_tms_id + (i * 8) + y),1);
+	}
+
+
+	for (i = 0;i< MAX_DS18x20;i++){
+		for (y = 0;y < 8; y++)
+		tm_id[i][y] = EEPROMRead((EEPROM_ds18x20_id + (i * 8) + y),1);
+	}
+
+}
+
+#endif
 

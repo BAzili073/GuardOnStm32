@@ -6,6 +6,10 @@
 #include "GPIO_func.h"
 #include "UART.h"
 
+
+char ds18x20_id[MAX_DS18x20][8];
+char key_id[MAX_TM][8];
+
 uint8_t one_wire_crc_update(uint8_t crc, uint8_t b);
 uint8_t one_wire_check_crc(uint8_t address[8]);
 void one_wire_low();
@@ -13,6 +17,7 @@ void one_wire_high();
 char one_wire_check_line();
 char one_wire_send_presence();
 uint8_t one_wire_read_rom(uint8_t * buf);
+uint8_t find_key(uint8_t key[8]);
 
 uint8_t onewire_enum[8]; // найденный восьмибайтовый адрес
 uint8_t onewire_enum_fork_bit; // последний нулевой бит, где была неоднозначность (нумеру€ с единицы)
@@ -117,14 +122,14 @@ char one_wire_send_presence() {
 }
 
 void one_wire_low(){
-//	GPIO_LOW(ONE_WIRE_PORT,ONE_WIRE_PIN);
-	GPIOB -> MODER |= GPIO_MODER_MODER5_0;
+	GPIO_LOW(ONE_WIRE_PORT,ONE_WIRE_PIN);
+//	GPIOB -> MODER |= GPIO_MODER_MODER5_0;
 
 }
 
 void one_wire_high(){
-//	GPIO_HIGH(ONE_WIRE_PORT,ONE_WIRE_PIN);
-	GPIOB -> MODER &= ~GPIO_MODER_MODER5_0;
+	GPIO_HIGH(ONE_WIRE_PORT,ONE_WIRE_PIN);
+//	GPIOB -> MODER &= ~GPIO_MODER_MODER5_0;
 }
 
 
@@ -352,3 +357,59 @@ void one_wire_read_temp(){
     set_timeout(32000); // небольша€ задержка
     while_timeout();
   }
+
+uint8_t one_wire_check_keys(){
+	if (one_wire_skip()) {
+	one_wire_enum_init(); // Ќачало перечислени€ устройств
+	      for(;;) {
+	        uint8_t * p = one_wire_enum_next(); // ќчередной адрес
+	        if (!p)
+	          break;
+	        // ¬ывод шестнадцатиричной записи адреса в UART и рассчЄт CRC
+	        uint8_t d = *(p++);
+	        uint8_t crc = 0;
+	        uint8_t key[8];
+	        uint8_t family_code = d; // —охранение первого байта (код семейства)
+	        for (uint8_t i = 0; i < 8; i++) {
+//	        	send_char_to_GSM((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
+//			    send_char_to_GSM((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
+//			    send_char_to_GSM(' ');
+	          key[i] = d;
+	          crc = one_wire_crc_update(crc, d);
+	          d = *(p++);
+	        }
+	        if (crc) {
+	          // в итоге должен получитьс€ ноль. ≈сли не так, вывод сообщени€ об ошибке
+//	        	send_char_to_GSM('C');
+//	        	send_char_to_GSM('R');
+//	        	send_char_to_GSM('C');
+	        } else {
+	          if ((family_code == 0x01) || (family_code == 0x01) || (family_code == 0x01)) {
+	        	  if (find_key(key)) return 1;
+	          } else {
+	            // Ќеизвестное устройство
+//	        	  send_char_to_GSM('?');
+	          }
+	        }
+	      }
+	}
+	      return 0;
+}
+
+uint8_t find_key(uint8_t key[8]){
+	uint8_t i;
+	uint8_t y;
+	uint8_t ok;
+	for (i = 0; i < MAX_TM;i++){
+		ok = 1;
+		for (y = 0;y<8;y++){
+			if (key[y] != key_id[i][y]){
+				ok = 0;
+				break;
+			}
+		}
+		if (ok) return 1;
+//		if (key == keys[i]) return 1;
+	}
+	return 0;
+}

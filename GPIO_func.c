@@ -12,7 +12,8 @@ void GPIO_init(){
 
 
 		initSrtuct.Alternate = 0;
-		initSrtuct.Mode = GPIO_MODE_INPUT;//GPIO_MODE_OUTPUT_OD;
+//		initSrtuct.Mode = GPIO_MODE_INPUT;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_OD;
 		initSrtuct.Pin = ONE_WIRE_PIN;
 		initSrtuct.Pull = GPIO_NOPULL;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;

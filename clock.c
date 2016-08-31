@@ -4,6 +4,9 @@
 
 void set_core_clock(){
 
+	  FLASH->ACR = FLASH_ACR_ACC64;
+	  FLASH->ACR|=FLASH_ACR_LATENCY;
+	  FLASH->ACR|=FLASH_ACR_PRFTEN;
 
 	RCC -> CR |= RCC_CR_HSION;
 	while(!(RCC->CR&RCC_CR_HSIRDY));

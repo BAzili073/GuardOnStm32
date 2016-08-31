@@ -11,6 +11,7 @@ uint8_t m_sec = 0;
 void check_time_to_alarm();
 void check_lamp_blink();
 void check_led_blink();
+void check_time_to_guard_on();
 
 void TIM2_init(){
 	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
@@ -37,9 +38,18 @@ void  TIM7_IRQHandler(){
 	  if (m_sec == 10) {
 	  		m_sec = 0;
 	  		check_time_to_alarm();
-
+	  		check_time_to_guard_on();
 	  	}
 }
+
+void check_time_to_guard_on(){
+	if (time_to_guard_on){
+		time_to_guard_on--;
+		if (!time_to_guard_on) guard_on();
+	}
+}
+
+
 void check_led_blink(){
 	int i;
 	for (i = 0; i<=7;i++){
@@ -90,19 +100,17 @@ void TIM2_set_pwm_duty_cycle(uint8_t cyc){
 void check_time_to_alarm(){
 		if (time_to_alarm > 0) time_to_alarm--;
 		if (!time_to_alarm){
-			time_to_alarm = - 1;
+			time_to_alarm = -1;
 			alarm_on();
 		}
 }
 
 void check_lamp_blink(){
-	if (alarm_st){
+	if (alarm_st || time_to_guard_on){
 		if (lamp_blink_time > 0) {
 			output_on_mode(OUTPUT_MODE_LAMP);
-			led_on_mode(LED_MODE_GUARD);
 		}else{
 			output_off_mode(OUTPUT_MODE_LAMP);
-			led_off_mode(LED_MODE_GUARD);
 		}
 		lamp_blink_time--;
 		if (lamp_blink_time == -5) lamp_blink_time = 5;

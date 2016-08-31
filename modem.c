@@ -89,7 +89,7 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int ma
 		if(c == NO_ANSWER){
 			max_t -= t;
 		}else{
-			if (find_str("OK",answer)) return OK_ANSWER;
+			if (find_str(await_ans,answer)) return OK_ANSWER;
 			else{
 				max_t -= t;
 				parse_gsm_message();
@@ -97,5 +97,19 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int ma
 		}
 	}
 	return NO_ANSWER;
+}
+
+char modem_setup(){
+	if (!send_command_to_GSM("AT+CMGF=1","OK",gsm_message,200,500)) return 0;
+	if (!send_command_to_GSM("AT+CSCS=\"GSM\"","OK",gsm_message,200,500)) return 0;
+	return 1;
+}
+
+char modem_send_sms_message(char * number,char * text){
+	if (!send_command_to_GSM("AT+CMGS=\"+79021201364\"",">",gsm_message,200,500)) return 0;
+	send_string_to_GSM(text);
+	send_char_to_GSM(0x1a);
+
+	return 1;
 }
 

@@ -6,6 +6,7 @@
 #include "stm32l151xba.h"
 
 int16_t time_to_alarm;
+int16_t time_to_guard_on;
 uint8_t alarm_st;
 uint8_t guard_st;
 uint8_t last_alarm;

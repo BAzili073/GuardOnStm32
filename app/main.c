@@ -13,14 +13,11 @@
 #include "modem.h"
 #include "string.h"
 #include "EEPROMfunc.h"
-char address[8] = {0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40};
-
 char temp_address[2][8] = {{0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40},{0x28,0xB8,0xa3,0xA0,0x04,0x00,0x00,0xf2}};
-
-void Delay(void) {
-volatile uint32_t i;
-    for (i=0; i != 0x80000; i++);
-}
+//void Delay(void) {
+//volatile uint32_t i;
+//    for (i=0; i != 0x80000; i++);
+//}
 
 void one_wire_interrupt_init(){
 //	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
@@ -33,12 +30,12 @@ void one_wire_interrupt_init(){
 }
 //
 void EXTI9_5_IRQHandler(){
-	GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
+	if (one_wire_check_keys()) GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
 	EXTI -> PR |= EXTI_PR_PR5;
 }
 
 int main(void) {
-	one_wire_interrupt_init();
+//	one_wire_interrupt_init();
 	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA;
@@ -50,22 +47,25 @@ int main(void) {
 //    TIM2_init(); //PWM
 //	TIM7_init();
 	UART1_init();
+
 //	led_blink(7,1,1);
     while(1) {
-    	for (uint8_t i=0;i<100;i++){
-        	    		set_timeout(32000);
-        	    		while_timeout();
-        	    	}
-
-//    				if (one_wire_start_conversion_temp()){
-//    					for (uint8_t f = 0;f<2;f++){
-//    						send_string_to_GSM("f");
-//    						send_char_to_GSM(48+f);
-//    						send_string_to_GSM(" = ");
-//							send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
-//							send_string_to_GSM("\n\r");
-//    					}
-//    				}
+//    	for (uint8_t i=0;i<100;i++){
+//        	    		set_timeout(15000);
+//        	    		while_timeout();
+//        	    	}
+//    	if (one_wire_check_keys()) GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
+    				if (one_wire_start_conversion_temp()){
+    					for (uint8_t f = 0;f<2;f++){
+    						send_string_to_GSM("f");
+    						send_char_to_GSM(48+f);
+    						send_string_to_GSM(" = ");
+							send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
+							send_string_to_GSM("\n\r");
+    					}
+    				}else{
+    					send_string_to_GSM("no dev");
+    				}
 //    	one_wire_read_temp();
 //    				if (one_wire_send_presence()){
 //    					one_wire_write_byte(0x33);

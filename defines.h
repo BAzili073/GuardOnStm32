@@ -130,6 +130,41 @@
 
 #define start_EEPROM 0x08080000
 
+#define MAX_TEL_NUMBERS 5
+#define MAX_TM 5
+#define MAX_DS18x20 5
+
+
+#define EEPROM_tel_numbers 			0
+#define EEPROM_tel_settings 		EEPROM_tel_numbers + (11*5)
+#define EEPROM_tms_id 				EEPROM_tel_settings + 10
+#define EEPROM_ds18x20_id 			EEPROM_tms_id + (8 * MAX_DS18x20)
+#define EEPROM_tms_names 			EEPROM_ds18x20_id + (8 * MAX_TM)
+#define EEPROM_ds18x20_settings		EEPROM_tms_names + (10 * MAX_TM)
+#define EEPROM_device_settings		EEPROM_ds18x20_settings + (MAX_DS18x20 * 4)
+#define EEPROM_outputs_settings		EEPROM_device_settings + 10
+#define EEPROM_inputs_settings		EEPROM_outputs_settings + (5 * 8)
+#define EEPROM_next					EEPROM_inputs_settings + (5 * 8)
+
+
+
+/*
+ * 4096 EEPROM all
+ *
+ * TEL.NUMBERS : 0-10,11-21,22-32,33-43,44-54
+ * TEL.NUMBERS. SETTINGS 55 - 59
+ * TMs ID:
+ * DS18x20 ID:
+ * TM name:
+ * DS18x20 SETTINGS:
+ * DEVICE SETTINGS:
+ * OUTPUTS SETTING:
+ * INPUT SETTINGS:
+ *
+ */
+
+
+
 
 #endif
 
