@@ -68,8 +68,8 @@ void check_led_blink(){
 void TIM6_init(){
 			RCC->APB1ENR |=  RCC_APB1ENR_TIM6EN ;
 			TIM6->CR1 |= TIM_CR1_OPM;
-//			TIM6->PSC =  16000 - 1;
-			TIM6->PSC =  16-1;
+			TIM6->PSC =  16000 - 1;
+//			TIM6->PSC =  16-1;
 }
 
 void set_timeout(int t)

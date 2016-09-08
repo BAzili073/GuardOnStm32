@@ -68,7 +68,7 @@ void GPIO_init(){
 			HAL_GPIO_Init( GPIOC, &initSrtuct);
 
 			initSrtuct.Alternate = 0;
-			initSrtuct.Mode = GPIO_MODE_OUTPUT_OD;
+			initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
 			initSrtuct.Pin = MODEM_ON_PIN ;
 			initSrtuct.Speed = GPIO_SPEED_HIGH;
 			HAL_GPIO_Init( MODEM_ON_PORT, &initSrtuct);

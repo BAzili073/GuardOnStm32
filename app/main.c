@@ -11,30 +11,35 @@
 #include "UART.h"
 #include "1-Wire.h"
 #include "modem.h"
-#include "string.h"
+//#include "string.h"
 #include "EEPROMfunc.h"
+
+//#include <strings.h>
+
 char temp_address[2][8] = {{0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40},{0x28,0xB8,0xa3,0xA0,0x04,0x00,0x00,0xf2}};
+char number_call[10] = {"9021201364"};
 //void Delay(void) {
 //volatile uint32_t i;
 //    for (i=0; i != 0x80000; i++);
 //}
 
-void one_wire_interrupt_init(){
-//	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
-	RCC -> APB2ENR |= RCC_APB2RSTR_SYSCFGRST;
-	SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR2_EXTI5_PB;
-	EXTI -> IMR |= EXTI_IMR_MR5;
-//	EXTI -> EMR |= EXTI_EMR_MR5;
-	EXTI -> FTSR |= EXTI_FTSR_TR5;
-	NVIC_EnableIRQ(EXTI9_5_IRQn);
-}
-//
-void EXTI9_5_IRQHandler(){
-	if (one_wire_check_keys()) GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
-	EXTI -> PR |= EXTI_PR_PR5;
-}
+//void one_wire_interrupt_init(){
+////	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
+//	RCC -> APB2ENR |= RCC_APB2RSTR_SYSCFGRST;
+//	SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR2_EXTI5_PB;
+//	EXTI -> IMR |= EXTI_IMR_MR5;
+////	EXTI -> EMR |= EXTI_EMR_MR5;
+//	EXTI -> FTSR |= EXTI_FTSR_TR5;
+//	NVIC_EnableIRQ(EXTI9_5_IRQn);
+//}
+////
+//void EXTI9_5_IRQHandler(){
+//	if (one_wire_check_keys()) GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
+//	EXTI -> PR |= EXTI_PR_PR5;
+//}
 
 int main(void) {
+//	strncmp("asdfs13512", "asd413tv", 3);
 //	one_wire_interrupt_init();
 	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA;
@@ -42,7 +47,6 @@ int main(void) {
 	set_core_clock();
 	GPIO_init();
 	TIM6_init();
-	GPIO_HIGH(GPIOB,GPIO_PIN_7);
 //	ADC_init();
 //    TIM2_init(); //PWM
 //	TIM7_init();
@@ -50,22 +54,40 @@ int main(void) {
 
 //	led_blink(7,1,1);
     while(1) {
+    	if (!modem_state) MODEM_ON();
+    	else{
+    		modem_setup();
+    		modem_send_sms_message(number_call,"Hello world)) ");
+    	}
+//    	GPIO_HIGH(MODEM_ON_PORT,MODEM_ON_PIN);
+		set_timeout(20000);
+		while_timeout();
+//		GPIO_LOW(MODEM_ON_PORT,MODEM_ON_PIN);
+//		set_timeout(15000);
+//		while_timeout();
+//    	else{
+//    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;
+//    	}
+//    	else{
+//    		modem_call("9021201364");
+//    	}
+
 //    	for (uint8_t i=0;i<100;i++){
 //        	    		set_timeout(15000);
 //        	    		while_timeout();
 //        	    	}
 //    	if (one_wire_check_keys()) GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
-    				if (one_wire_start_conversion_temp()){
-    					for (uint8_t f = 0;f<2;f++){
-    						send_string_to_GSM("f");
-    						send_char_to_GSM(48+f);
-    						send_string_to_GSM(" = ");
-							send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
-							send_string_to_GSM("\n\r");
-    					}
-    				}else{
-    					send_string_to_GSM("no dev");
-    				}
+//    				if (one_wire_start_conversion_temp()){
+//    					for (uint8_t f = 0;f<2;f++){
+//    						send_string_to_GSM("f");
+//    						send_char_to_GSM(48+f);
+//    						send_string_to_GSM(" = ");
+//							send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
+//							send_string_to_GSM("\n\r");
+//    					}
+//    				}else{
+//    					send_string_to_GSM("no dev");
+//    				}
 //    	one_wire_read_temp();
 //    				if (one_wire_send_presence()){
 //    					one_wire_write_byte(0x33);

@@ -4,13 +4,19 @@
 #include "defines.h"
 #include "TIMs.h"
 #include "UART.h"
-#include "string.h"
+#include "my_string.h"
+
+
 
 
 char parse_gsm_message();
 void clear_gsm_message();
 char check_gsm_message();
 void del_all_gsm_message();
+
+void modem_call(char * number);
+char modem_send_sms_message(char * number,char * text);
+char modem_setup();
 
 int modem_state = MODEM_STATE_OFF;
 char get_next_gsm_message();
@@ -21,14 +27,14 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int ma
 char gsm_message[GSM_MESSAGE_SIZE];
 
 
-void GSM_ON(){
-	check_gsm_message();
+void MODEM_ON(){
+//	check_gsm_message();
 	while(modem_state == MODEM_STATE_OFF){
 		GPIO_LOW(MODEM_ON_PORT,MODEM_ON_PIN);
-		set_timeout(800);
+		set_timeout(2000);
 		while_timeout();
 		GPIO_HIGH(MODEM_ON_PORT,MODEM_ON_PIN);
-		set_timeout(800);
+		set_timeout(15000);
 		while_timeout();
 		if (send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_ON;
 	}
@@ -89,7 +95,7 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int ma
 		if(c == NO_ANSWER){
 			max_t -= t;
 		}else{
-			if (find_str(await_ans,answer)) return OK_ANSWER;
+			if (find_str("OK",answer)) return OK_ANSWER;
 			else{
 				max_t -= t;
 				parse_gsm_message();
@@ -106,10 +112,18 @@ char modem_setup(){
 }
 
 char modem_send_sms_message(char * number,char * text){
-	if (!send_command_to_GSM("AT+CMGS=\"+79021201364\"",">",gsm_message,200,500)) return 0;
+	send_string_to_GSM("AT+CMGS=\"+7");
+	send_string_to_GSM(number);
+	if (!send_command_to_GSM("\"",">",gsm_message,200,500)) return 0;
 	send_string_to_GSM(text);
 	send_char_to_GSM(0x1a);
 
 	return 1;
+}
+
+void modem_call(char * number){
+	send_string_to_GSM("ATD+7");
+	send_string_to_GSM(number);
+	send_string_to_GSM(";\n\r");
 }
 
