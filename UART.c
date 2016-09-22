@@ -55,37 +55,17 @@ void USART_get_message(){
 }
 
 void send_int_to_GSM(uint16_t num){
-	uint16_t unum; // число без знака
-	  if (num < 0) { // отрицательное число. Отсылает знак
-	    unum = -num;
-	    send_char_to_GSM('-');
-	  } else {
-	    unum = num;
-	  }
-	  uint16_t snum =  unum >> 4; // отбрасывает дробную часть
-	  if (snum >= 10) {
-	    if (snum >= 100) {
-	      if (snum >= 1000) {
-	        snum = uart_digit(snum, 1000); // 4й разряд
-	      }
-	      snum = uart_digit(snum, 100); // 3й разряд
-	    }
-	    snum = uart_digit(snum, 10); // 2й разряд
-	  }
-	  uart_digit(snum, 1); // 1й разряд
-	  send_char_to_GSM('.'); // десятичный разделитель
-	  uart_digit((((uint8_t)(unum & 0x0F)) * 10) >> 4, 1); // дробная часть
+	char d1,d2,d3,d4;
+	d1 = (num/1000);
+	if (num>999) send_char_to_GSM((d1+'0'));
+	d2 = ((num - d1 * 1000)/100);
+	if (num>99) send_char_to_GSM((d2 + '0'));
+	d3 = ((num - d1*1000 - d2*100)/10);
+	if (num>9) send_char_to_GSM((d3 + '0'));
+	d4 = ((num - d1*1000 - d2*100 - d3*10));
+	send_char_to_GSM((d4 + '0'));
 }
 
-uint16_t uart_digit(uint16_t dig, uint16_t sub) {
-  char c = '0';
-  while (dig >= sub) {
-    dig -= sub;
-    c++;
-  }
-  send_char_to_GSM(c);
-  return dig;
-}
 
 
 

@@ -2,7 +2,7 @@
 <breakpoints>
 <breakpoint enabled="true" persistant="true" registered="true">
 <resource path="/STM32L151C8T6/main.c" type="1"/>
-<marker lineNumber="139" type="org.eclipse.cdt.debug.core.cLineBreakpointMarker">
+<marker lineNumber="149" type="org.eclipse.cdt.debug.core.cLineBreakpointMarker">
 <attrib name="enabled" value="true"/>
 <attrib name="org.eclipse.cdt.debug.core.condition" value=""/>
 <attrib name="org.eclipse.debug.core.id" value="org.eclipse.cdt.debug.core"/>
@@ -16,28 +16,8 @@
 <attrib name="registered" value="true"/>
 <attrib name="path" value="/STM32L151C8T6/main.c"/>
 <attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="C:\Users\user\CoIDE\workspace\STM32L151C8T6\app\main.c"/>
-<attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
 <attrib name="org.eclipse.debug.core.enabled" value="true"/>
-</marker>
-</breakpoint>
-<breakpoint enabled="true" persistant="true" registered="true">
-<resource path="/STM32L151C8T6/main.c" type="1"/>
-<marker lineNumber="134" type="org.eclipse.cdt.debug.core.cLineBreakpointMarker">
-<attrib name="enabled" value="true"/>
-<attrib name="org.eclipse.cdt.debug.core.condition" value=""/>
-<attrib name="org.eclipse.debug.core.id" value="org.eclipse.cdt.debug.core"/>
-<attrib name="workingset_name" value=""/>
-<attrib name="org.eclipse.cdt.debug.core.installCount" value="0"/>
-<attrib name="type" value="org.eclipse.cdt.debug.core.cLineBreakpointMarker"/>
-<attrib name="persistant" value="true"/>
-<attrib name="org.eclipse.cdt.debug.core.breakpointType" value="0"/>
-<attrib name="workingset_id" value="org.eclipse.debug.ui.breakpointWorkingSet"/>
-<attrib name="message" value="Line breakpoint: main.c [line: 124]"/>
-<attrib name="registered" value="true"/>
-<attrib name="path" value="/STM32L151C8T6/main.c"/>
-<attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="C:\Users\user\CoIDE\workspace\STM32L151C8T6\app\main.c"/>
 <attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
-<attrib name="org.eclipse.debug.core.enabled" value="true"/>
 </marker>
 </breakpoint>
 <breakpoint enabled="true" persistant="true" registered="true">
@@ -52,12 +32,32 @@
 <attrib name="persistant" value="true"/>
 <attrib name="org.eclipse.cdt.debug.core.breakpointType" value="0"/>
 <attrib name="workingset_id" value="org.eclipse.debug.ui.breakpointWorkingSet"/>
+<attrib name="message" value="Line breakpoint: main.c [line: 124]"/>
+<attrib name="registered" value="true"/>
+<attrib name="path" value="/STM32L151C8T6/main.c"/>
+<attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="C:\Users\user\CoIDE\workspace\STM32L151C8T6\app\main.c"/>
+<attrib name="org.eclipse.debug.core.enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
+</marker>
+</breakpoint>
+<breakpoint enabled="true" persistant="true" registered="true">
+<resource path="/STM32L151C8T6/main.c" type="1"/>
+<marker lineNumber="154" type="org.eclipse.cdt.debug.core.cLineBreakpointMarker">
+<attrib name="enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.condition" value=""/>
+<attrib name="org.eclipse.debug.core.id" value="org.eclipse.cdt.debug.core"/>
+<attrib name="workingset_name" value=""/>
+<attrib name="org.eclipse.cdt.debug.core.installCount" value="0"/>
+<attrib name="type" value="org.eclipse.cdt.debug.core.cLineBreakpointMarker"/>
+<attrib name="persistant" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.breakpointType" value="0"/>
+<attrib name="workingset_id" value="org.eclipse.debug.ui.breakpointWorkingSet"/>
 <attrib name="message" value="Line breakpoint: main.c [line: 134]"/>
 <attrib name="registered" value="true"/>
 <attrib name="path" value="/STM32L151C8T6/main.c"/>
 <attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="C:\Users\user\CoIDE\workspace\STM32L151C8T6\app\main.c"/>
-<attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
 <attrib name="org.eclipse.debug.core.enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
 </marker>
 </breakpoint>
 <breakpoint enabled="true" persistant="true" registered="true">
@@ -76,8 +76,8 @@
 <attrib name="registered" value="true"/>
 <attrib name="path" value="/STM32L151C8T6/1-Wire/1-Wire.c"/>
 <attrib name="org.eclipse.cdt.debug.core.sourceHandle" value="C:\Users\user\CoIDE\workspace\STM32L151C8T6\1-Wire.c"/>
-<attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
 <attrib name="org.eclipse.debug.core.enabled" value="true"/>
+<attrib name="org.eclipse.cdt.debug.core.ignoreCount" value="0"/>
 </marker>
 </breakpoint>
 </breakpoints>

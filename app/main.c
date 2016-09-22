@@ -11,7 +11,7 @@
 #include "UART.h"
 #include "1-Wire.h"
 #include "modem.h"
-//#include "string.h"
+#include "string.h"
 #include "EEPROMfunc.h"
 
 //#include <strings.h>
@@ -56,15 +56,10 @@ int main(void) {
     while(1) {
     	if (!modem_state) MODEM_ON();
     	else{
-    		modem_setup();
-    		modem_send_sms_message(number_call,"Hello world)) ");
+    		modem_send_sms_message(number_call,"privet medved");
     	}
-//    	GPIO_HIGH(MODEM_ON_PORT,MODEM_ON_PIN);
-		set_timeout(20000);
+		set_timeout(10000);
 		while_timeout();
-//		GPIO_LOW(MODEM_ON_PORT,MODEM_ON_PIN);
-//		set_timeout(15000);
-//		while_timeout();
 //    	else{
 //    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;
 //    	}
