@@ -6,3 +6,4 @@ char modem_send_sms_message(char * number,char * text);
 char modem_setup();
 
 char gsm_message[GSM_MESSAGE_SIZE];
+char check_number_of_sms();

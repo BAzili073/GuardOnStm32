@@ -56,8 +56,10 @@ int main(void) {
     while(1) {
     	if (!modem_state) MODEM_ON();
     	else{
-    		modem_send_sms_message(number_call,"privet medved");
+    		modem_send_sms_message(tel_number[0],"vse horowo 9?01573 1e 3 c ");
+//    		check_gsm_message();
     	}
+
 		set_timeout(10000);
 		while_timeout();
 //    	else{

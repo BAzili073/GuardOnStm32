@@ -98,10 +98,6 @@
 #define INPUTS_MODE_INVERS 0b00000100
 
 
-
-
-
-
 #define ONE_WIRE_PORT GPIOB
 #define ONE_WIRE_PIN GPIO_PIN_5
 #define ONE_WIRE_CRL_MODE GPIO_CRH_MODE11
@@ -119,12 +115,20 @@
 #define OK_ANSWER 1
 #define NO_ANSWER 0
 
+#define TEL_NUMBER_ALLOW 1
+#define TEL_NUMBER_DENY 100
+
+#define TEL_ACCESS_ADMIN 9
+
 #define MODEM_STATE_OFF 0
 #define MODEM_STATE_ON 1
 
 #define UNKNOW_GSM_MESSAGE 0
 #define OK_GSM_MESSAGE 1
 #define ERROR_GSM_MESSAGE 2
+#define INCOMING_SMS 3
+
+
 
 
 

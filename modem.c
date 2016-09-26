@@ -4,6 +4,7 @@
 #include "defines.h"
 #include "TIMs.h"
 #include "UART.h"
+#include "guard_func.h"
 #include "my_string.h"
 
 
@@ -18,6 +19,8 @@ void modem_call(char * number);
 char modem_send_sms_message(char * number,char * text);
 char modem_setup();
 
+char check_number_of_sms();
+
 int modem_state = MODEM_STATE_OFF;
 char get_next_gsm_message();
 uint16_t gsm_message_check_counter = 0;
@@ -29,6 +32,8 @@ void send_int_as_hex_to_GSM(int x);
 
 
 char gsm_message[GSM_MESSAGE_SIZE];
+char sms_message[70];
+
 
 
 void MODEM_ON(){
@@ -49,13 +54,13 @@ void MODEM_ON(){
 
 char get_next_gsm_message(){
 	int k = 0;
-	while ((gsm_buffer[gsm_message_check_counter-2] != 13) & (gsm_message_check_counter != gsm_buffer_char_counter)){
+	while ((gsm_buffer[gsm_message_check_counter-2] != '>') & (gsm_buffer[gsm_message_check_counter] != 13) & (gsm_message_check_counter != gsm_buffer_char_counter)){
 		gsm_message[k] = gsm_buffer[gsm_message_check_counter];
 		gsm_message_check_counter++;
 		if (gsm_message_check_counter == GSM_BUFFER_SIZE) gsm_message_check_counter = 0;
 		k++;
 	}
-	gsm_message_check_counter++;
+	while (gsm_buffer[gsm_message_check_counter] == 13 || (gsm_buffer[gsm_message_check_counter] == 10)) gsm_message_check_counter++;
 	if (gsm_message[0]) return OK_ANSWER;
 	else return NO_ANSWER;
 }
@@ -67,17 +72,34 @@ void clear_gsm_buffer(){
 
  char check_gsm_message(){
 		while(get_next_gsm_message()){
-			parse_gsm_message();
+			switch (parse_gsm_message()){
+				case INCOMING_SMS:
+					send_command_to_GSM("AT+CMGR=1,0","+CMGR:",gsm_message,200,500);
+					send_command_to_GSM("","0008",gsm_message,200,500);
+//					get_next_gsm_message();
+					parse_incoming_sms();
+				break;
+			}
+
 		}
 	return 0;
 }
 
-
+void parse_incoming_sms(){
+	last_control_ID_number = check_number_of_sms();
+	if (last_control_ID_number > MAX_TEL_NUMBERS) return;
+	ucs_to_eng(gsm_message, sms_message);
+	if (sms_message[0] == 'a'){
+		sms_message[0] = 0;
+		send_string_to_GSM("NNNICE");
+	}
+}
 
 char parse_gsm_message(){
 	char gsm_message_number = UNKNOW_GSM_MESSAGE;
 	if (find_str("OK\r\n",gsm_message)) gsm_message_number = OK_GSM_MESSAGE;
 	if (find_str("ERROR\r\n",gsm_message)) gsm_message_number = ERROR_GSM_MESSAGE;
+	if (find_str("+CMTI:",gsm_message)) gsm_message_number = INCOMING_SMS;
 	gsm_buffer[gsm_message_check_counter-2] = 0;
 	clear_gsm_message();
 	return gsm_message_number;
@@ -106,7 +128,7 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int ma
 			if (find_str(await_ans,answer)) return OK_ANSWER;
 			else{
 				max_t -= t;
-				parse_gsm_message();
+				if (parse_gsm_message() == ERROR_GSM_MESSAGE) return NO_ANSWER;;
 			}
 		}
 	}
@@ -134,12 +156,12 @@ char modem_send_sms_message(char * number,char * text){
 	send_string_to_GSM(text);
 	send_char_to_GSM(0x1a);
 #else
-//	 Print "0001000B91" ; Numbern$ ; "0008" ; Hex(rejim_vihoda) ; Otvetn$ ; Chr(26)
 	send_string_to_GSM("AT+CMGS=");
 	send_int_to_GSM(((str_length(text) * 2)+13));
-	if (!send_command_to_GSM("",">",gsm_message,200,500)) return 0;
+	if (!send_command_to_GSM("",">",gsm_message,200,1200)) return 0;
 	 send_string_to_GSM("0001000B91");
-	 send_string_to_GSM("9720211063F4");//number);
+	 send_string_to_GSM("97");
+	 send_string_to_GSM(number);//number);
 	 send_string_to_GSM("0008");
 	 send_int_as_hex_to_GSM((str_length(text) * 2));
 //	 send_string_to_GSM("0C");
@@ -148,6 +170,7 @@ char modem_send_sms_message(char * number,char * text){
 //	 send_string_to_GSM(int_to_hex(str_length(text))); // send length text as HEX
 //	 send_string_to_GSM(eng_to_ucs(text)); //send text as hex
 	 send_char_to_GSM(0x1a);
+	 if (!send_command_to_GSM("",">",gsm_message,200,1200)) return 0;
 #endif
 	return 1;
 }
@@ -168,26 +191,30 @@ void int_to_hex(int x){
 }
 
 
-void ucs_to_eng(char * in_message, char * message,char len){
+void ucs_to_eng(char * in_message, char * message){
 	unsigned int i;
 	char abc[] = "abvgdejziIklmnoprstufhcCwWDQBEUq";
+	unsigned int len;
+	if (in_message[53] > 64) len = 10 + 'A' - in_message[53];
+	else len = in_message[53]- '0';
+	len = (((in_message[52] - '0')*16 + len)*2);
 //	char sign[] = " !{034}#$%&'()*+,-./0123456789:;<=>?";
-	for (i = 50;i<(50 + len);i=i+4){
+	for (i = 54;i<(54 + len);i=i+4){
 		if (in_message[i+1] == '4'){
 			if (in_message[i+2] == '1' || in_message[i+2] == '3'){
-				message[i - 50] = abc[(hexchar_to_dec(in_message[i+3]))];
+				message[((i - 54)/4)] = abc[(hexchar_to_dec(in_message[i+3]))];
 			}else if(in_message[i+2] == '2' || in_message[i+2] == '4'){
-				message[i - 50] = abc[(hexchar_to_dec(in_message[i+3]) + 16)];
+				message[((i - 54)/4)] = abc[(hexchar_to_dec(in_message[i+3]) + 16)];
 			}
 		}else if (in_message[i+1] == '0'){
-			message[i - 50] = (hexchar_to_dec(in_message[i+2])<<4) + (hexchar_to_dec(in_message[i+3]));
+			message[((i - 54)/4)] = (hexchar_to_dec(in_message[i+2])<<4) + (hexchar_to_dec(in_message[i+3]));
 		}
 	}
 }
 
 void send_text_as_ucs(char * out_message, unsigned int len){
 	char abc[] = "abvgdejziIklmnoprstufhcCwWDQBEUq";
-	char sign[] = " !{034}#$%&'()*+,-./0123456789:;<=>?";
+	char sign[] = " !\"#$%&'()*+,-./0123456789:;<=>?";
 	unsigned int i = 0;
 	unsigned int y = 0;
 	for (i = 0;i<len;i++){
@@ -221,11 +248,27 @@ void number_for_pdu(char * number){
 }
 
 void modem_call(char * number){
-	send_string_to_GSM("ATD+7");
+	send_string_to_GSM("ATD+79");
 	send_string_to_GSM(number);
 	send_string_to_GSM(";\n\r");
 }
 
+char check_number_of_sms(){
+	unsigned int i = 0;
+	unsigned int y = 0;
+	char access;
+	for (y = 0;y<MAX_TEL_NUMBERS;y++){
+		access = 1;
+		for (i = 13;i < 24;i++){
+			if (tel_number[y][i] != gsm_message[i+13]){
+				access = 0;
+				break;
+			}
+			if ((tel_access[y] == TEL_ACCESS_ADMIN) && access) return y;
+		}
+	}
+	return TEL_NUMBER_DENY;
+}
 /*AT COMMANDS
  AT+COPS?   GET OPERATOR
  AT+CSQ     GET SIGNAL QUALITY
