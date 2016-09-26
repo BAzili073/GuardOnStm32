@@ -1,7 +1,7 @@
 #ifdef UART_H
 #else
 #define UART_H
-uint8_t gsm_buffer_char_counter;
+unsigned int gsm_buffer_char_counter;
 char gsm_buffer[GSM_BUFFER_SIZE];
 
 void UART1_init();

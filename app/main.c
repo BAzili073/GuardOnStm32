@@ -56,11 +56,11 @@ int main(void) {
     while(1) {
     	if (!modem_state) MODEM_ON();
     	else{
-    		modem_send_sms_message(tel_number[0],"vse horowo 9?01573 1e 3 c ");
-//    		check_gsm_message();
+//    		modem_send_sms_message(tel_number[0],"vse horowo 9?01573 1e 3 c ");
+    		check_gsm_message();
     	}
 
-		set_timeout(10000);
+		set_timeout(500);
 		while_timeout();
 //    	else{
 //    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;

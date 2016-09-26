@@ -23,7 +23,7 @@ char check_number_of_sms();
 
 int modem_state = MODEM_STATE_OFF;
 char get_next_gsm_message();
-uint16_t gsm_message_check_counter = 0;
+volatile unsigned int gsm_message_check_counter = 0;
 char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int max_t);
 
 
@@ -54,13 +54,27 @@ void MODEM_ON(){
 
 char get_next_gsm_message(){
 	int k = 0;
-	while ((gsm_buffer[gsm_message_check_counter-2] != '>') & (gsm_buffer[gsm_message_check_counter] != 13) & (gsm_message_check_counter != gsm_buffer_char_counter)){
-		gsm_message[k] = gsm_buffer[gsm_message_check_counter];
-		gsm_message_check_counter++;
-		if (gsm_message_check_counter == GSM_BUFFER_SIZE) gsm_message_check_counter = 0;
-		k++;
+	while(1){
+		if ((gsm_message_check_counter == gsm_buffer_char_counter)) {
+			break;
+		}else if((gsm_buffer[gsm_message_check_counter-1] == '>') && (gsm_buffer[gsm_message_check_counter] == ' ')){
+			break;
+		}else if((gsm_buffer[gsm_message_check_counter] == 10) || (gsm_buffer[gsm_message_check_counter] == 13)){
+			gsm_message_check_counter++;
+			if (gsm_message_check_counter == GSM_BUFFER_SIZE) gsm_message_check_counter = 0;
+		}else{
+			if((gsm_buffer[gsm_message_check_counter-1] == 10) || (gsm_buffer[gsm_message_check_counter-1] == 13)){
+				gsm_buffer[gsm_message_check_counter-1] = 0;
+//				gsm_buffer[gsm_message_check_counter-2] = 0;
+				break;
+			}
+			gsm_message[k] = gsm_buffer[gsm_message_check_counter];
+			gsm_message_check_counter++;
+			if (gsm_message_check_counter == GSM_BUFFER_SIZE) gsm_message_check_counter = 0;
+			k++;
+		}
 	}
-	while (gsm_buffer[gsm_message_check_counter] == 13 || (gsm_buffer[gsm_message_check_counter] == 10)) gsm_message_check_counter++;
+
 	if (gsm_message[0]) return OK_ANSWER;
 	else return NO_ANSWER;
 }
@@ -78,6 +92,8 @@ void clear_gsm_buffer(){
 					send_command_to_GSM("","0008",gsm_message,200,500);
 //					get_next_gsm_message();
 					parse_incoming_sms();
+					send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,200,500);
+
 				break;
 			}
 
@@ -85,29 +101,20 @@ void clear_gsm_buffer(){
 	return 0;
 }
 
-void parse_incoming_sms(){
-	last_control_ID_number = check_number_of_sms();
-	if (last_control_ID_number > MAX_TEL_NUMBERS) return;
-	ucs_to_eng(gsm_message, sms_message);
-	if (sms_message[0] == 'a'){
-		sms_message[0] = 0;
-		send_string_to_GSM("NNNICE");
-	}
-}
+
 
 char parse_gsm_message(){
 	char gsm_message_number = UNKNOW_GSM_MESSAGE;
 	if (find_str("OK\r\n",gsm_message)) gsm_message_number = OK_GSM_MESSAGE;
 	if (find_str("ERROR\r\n",gsm_message)) gsm_message_number = ERROR_GSM_MESSAGE;
 	if (find_str("+CMTI:",gsm_message)) gsm_message_number = INCOMING_SMS;
-	gsm_buffer[gsm_message_check_counter-2] = 0;
 	clear_gsm_message();
 	return gsm_message_number;
 }
 
 void clear_gsm_message(){
 	int i = 0;
-	while ((gsm_message[i] != '\0') & (i<GSM_MESSAGE_SIZE)){
+	while ((gsm_message[i] != 0) && (i<GSM_MESSAGE_SIZE)){
 		gsm_message[i] = 0;
 		i++;
 	}
@@ -169,8 +176,8 @@ char modem_send_sms_message(char * number,char * text){
 //	 send_string_to_GSM("041F04400438043204350442");
 //	 send_string_to_GSM(int_to_hex(str_length(text))); // send length text as HEX
 //	 send_string_to_GSM(eng_to_ucs(text)); //send text as hex
-	 send_char_to_GSM(0x1a);
-	 if (!send_command_to_GSM("",">",gsm_message,200,1200)) return 0;
+//	 send_char_to_GSM(0x1a);
+	 if (!send_command_to_GSM(0x1a,">",gsm_message,200,1200)) return 0;
 #endif
 	return 1;
 }
@@ -243,8 +250,15 @@ unsigned int hexchar_to_dec(char a){
 	else return (a-'A'+10);
 }
 
-void number_for_pdu(char * number){
-
+void convert_number_to_upd(char * number){
+	number[9] = 'F';
+	unsigned int i = 0;
+	char temp;
+	for (i=0; i<10; i=i+2){
+		temp = number[i];
+		number[i] = number[i+1];
+		number[i+1] = temp;
+	}
 }
 
 void modem_call(char * number){
@@ -253,14 +267,15 @@ void modem_call(char * number){
 	send_string_to_GSM(";\n\r");
 }
 
+
 char check_number_of_sms(){
 	unsigned int i = 0;
 	unsigned int y = 0;
 	char access;
 	for (y = 0;y<MAX_TEL_NUMBERS;y++){
 		access = 1;
-		for (i = 13;i < 24;i++){
-			if (tel_number[y][i] != gsm_message[i+13]){
+		for (i = 24;i < 34;i++){
+			if (tel_number[y][i-24] != gsm_message[i]){
 				access = 0;
 				break;
 			}

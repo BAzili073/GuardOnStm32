@@ -4,7 +4,7 @@
 #include "defines.h"
 
 char gsm_buffer[GSM_BUFFER_SIZE];
-uint16_t gsm_buffer_char_counter = 0;
+unsigned int gsm_buffer_char_counter = 0;
 void send_char_to_GSM(char c);
 void USART_get_message();
 uint16_t uart_digit(uint16_t dig, uint16_t sub);
@@ -51,7 +51,9 @@ void USART1_IRQHandler(){
 void USART_get_message(){
 	gsm_buffer[gsm_buffer_char_counter] = USART1 -> DR;
 	gsm_buffer_char_counter++;
-	if (gsm_buffer_char_counter == GSM_BUFFER_SIZE) gsm_buffer_char_counter = 0;
+	if (gsm_buffer_char_counter == GSM_BUFFER_SIZE) {
+		gsm_buffer_char_counter = 0;
+	}
 }
 
 void send_int_to_GSM(uint16_t num){

@@ -35,3 +35,12 @@ unsigned int str_length(char * str){
 	}
 	return i;
 }
+
+void str_copy (char * out, char * in){
+	unsigned int i = 0;
+	int in_len = str_length(in);
+	int out_len = str_length(out);
+	for (i = 0;i<out_len;i++){
+		in[in_len+i+1] = out[i];
+	}
+}
