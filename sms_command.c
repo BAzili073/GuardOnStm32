@@ -8,6 +8,8 @@
 #include "my_string.h"
 #include "modem.h"
 
+void sms_command_nn();
+
 void parse_incoming_sms(){
 	last_control_ID_number = check_number_of_sms();
 	if (last_control_ID_number > MAX_TEL_NUMBERS) return;
@@ -16,7 +18,7 @@ void parse_incoming_sms(){
 }
 
 void sms_command_nn(){
-	char ID_number  = (sms_message[3] - '0');
+	unsigned int ID_number  = (sms_message[3] - '0');
 	char row_number[10];
 	unsigned int i;
 	for (i = 0;i<10;i++){

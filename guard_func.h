@@ -4,7 +4,7 @@
 
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
-
+uint8_t device_settings;
 int16_t time_to_alarm;
 int16_t time_to_guard_on;
 uint8_t alarm_st;

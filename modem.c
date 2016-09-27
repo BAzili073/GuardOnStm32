@@ -6,10 +6,11 @@
 #include "UART.h"
 #include "guard_func.h"
 #include "my_string.h"
+#include "sms_command.h"
 
 
 
-
+void send_text_as_ucs(char * out_message, unsigned int len);
 char parse_gsm_message();
 void clear_gsm_message();
 char check_gsm_message();
@@ -26,7 +27,7 @@ char get_next_gsm_message();
 volatile unsigned int gsm_message_check_counter = 0;
 char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int max_t);
 
-
+void convert_number_to_upd(char * number);
 unsigned int hexchar_to_dec(char a);
 void send_int_as_hex_to_GSM(int x);
 
@@ -77,11 +78,6 @@ char get_next_gsm_message(){
 
 	if (gsm_message[0]) return OK_ANSWER;
 	else return NO_ANSWER;
-}
-
-void clear_gsm_buffer(){
-	while (get_next_gsm_message() != 0){
-	}
 }
 
  char check_gsm_message(){
@@ -177,7 +173,11 @@ char modem_send_sms_message(char * number,char * text){
 //	 send_string_to_GSM(int_to_hex(str_length(text))); // send length text as HEX
 //	 send_string_to_GSM(eng_to_ucs(text)); //send text as hex
 //	 send_char_to_GSM(0x1a);
-	 if (!send_command_to_GSM(0x1a,">",gsm_message,200,1200)) return 0;
+//	 if (!send_command_to_GSM(0x1a,">",gsm_message,200,1200)) return 0;
+	 if (!send_command_to_GSM("\x1a",">",gsm_message,200,1200)) return 0;
+//	 if (!send_command_to_GSM("\032",">",gsm_message,200,1200)) return 0;
+
+
 #endif
 	return 1;
 }

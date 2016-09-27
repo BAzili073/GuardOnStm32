@@ -53,7 +53,15 @@ int main(void) {
 	UART1_init();
 
 //	led_blink(7,1,1);
+	if (device_settings & DEVICE_SETTING_SMS_AT_STARTUP){
+
+	}
+	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
+		guard_on();
+	}
+
     while(1) {
+
     	if (!modem_state) MODEM_ON();
     	else{
 //    		modem_send_sms_message(tel_number[0],"vse horowo 9?01573 1e 3 c ");

@@ -28,9 +28,10 @@ int8_t  led_blink_time_on[8] = {-127,-127,-127,-127,-127,-127,-127,-127};
 int8_t  led_blink_time_off[8] = {127,127,127,127,127,127,127,127};
 
 int16_t time_to_alarm = -1;
-int16_t time_to_guard_on = 0;
+uint16_t time_to_guard_on = -1;
 int16_t time_set_to_guard_on = 0;
 uint8_t alarm_st = 0;
+uint8_t device_settings = 0;
 uint8_t last_alarm = 0;
 uint8_t guard_st = 0;
 uint16_t outputs[5] = {OUTPUT_1,OUTPUT_2,OUTPUT_3,OUTPUT_4,OUTPUT_5};
@@ -52,9 +53,8 @@ uint8_t last_control_ID_number = 100;
 
 
 void guard_on(){
-	if (time_set_to_guard_on){
+	if (time_set_to_guard_on && (time_to_guard_on == -1)){
 		time_to_guard_on = time_set_to_guard_on;
-
 	}
 	if(!time_to_guard_on){
 		guard_st = GUARD_ON;
@@ -63,7 +63,7 @@ void guard_on(){
 }
 void guard_off(){
 	guard_st = GUARD_OFF;
-	time_to_guard_on = 0;
+	time_to_guard_on = -1;
 	time_to_alarm = -1;
 	output_off_mode(OUTPUT_MODE_GUARD);
 	output_off_mode(OUTPUT_MODE_ALARM);
