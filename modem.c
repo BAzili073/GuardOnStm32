@@ -279,8 +279,8 @@ char check_number_of_sms(){
 				access = 0;
 				break;
 			}
-			if ((tel_access[y] == TEL_ACCESS_ADMIN) && access) return y;
 		}
+		if ((tel_access[y] == TEL_ACCESS_ADMIN) && access) return y;
 	}
 	return TEL_NUMBER_DENY;
 }

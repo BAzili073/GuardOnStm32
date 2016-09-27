@@ -132,16 +132,16 @@
 
 
 
-#define start_EEPROM 0x08080000
+
 
 #define MAX_TEL_NUMBERS 5
 #define MAX_TM 5
 #define MAX_DS18x20 5
 
-
+#define start_EEPROM 0x08080000
 #define EEPROM_tel_numbers 			0
-#define EEPROM_tel_settings 		EEPROM_tel_numbers + (11*5)
-#define EEPROM_tms_id 				EEPROM_tel_settings + 10
+#define EEPROM_tel_settings 		EEPROM_tel_numbers + (10*MAX_TEL_NUMBERS)
+#define EEPROM_tms_id 				EEPROM_tel_settings + MAX_TEL_NUMBERS
 #define EEPROM_ds18x20_id 			EEPROM_tms_id + (8 * MAX_DS18x20)
 #define EEPROM_tms_names 			EEPROM_ds18x20_id + (8 * MAX_TM)
 #define EEPROM_ds18x20_settings		EEPROM_tms_names + (10 * MAX_TM)

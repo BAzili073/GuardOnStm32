@@ -16,7 +16,7 @@ void parse_incoming_sms(){
 }
 
 void sms_command_nn(){
-	char ID_number;
+	char ID_number  = (sms_message[3] - '0');
 	char row_number[10];
 	unsigned int i;
 	for (i = 0;i<10;i++){
@@ -25,7 +25,8 @@ void sms_command_nn(){
 	}
 		convert_number_to_upd(row_number);
 		for (i = 0;i<10;i++){
-			tel_number[(sms_message[3] - '0')][i] = row_number[i];
+			tel_number[ID_number][i] = row_number[i];
+			EEPROMWrite((EEPROM_tel_numbers + ID_number*10+i),row_number[i],1);
 		}
 
 }
