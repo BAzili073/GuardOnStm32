@@ -18,8 +18,10 @@ void del_all_gsm_message();
 
 void modem_call(char * number);
 char modem_send_sms_message(char * number,char * text);
+char send_sms_message_for_all(char * text,int function);
 char modem_setup();
 
+void clear_output_sms_message();
 char check_number_of_sms();
 
 int modem_state = MODEM_STATE_OFF;
@@ -33,7 +35,8 @@ void send_int_as_hex_to_GSM(int x);
 
 
 char gsm_message[GSM_MESSAGE_SIZE];
-char sms_message[70];
+char output_sms_message[70];
+//char input_sms_message[70];
 
 
 
@@ -89,7 +92,6 @@ char get_next_gsm_message(){
 //					get_next_gsm_message();
 					parse_incoming_sms();
 					send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,200,500);
-
 				break;
 			}
 
@@ -151,6 +153,25 @@ char modem_setup(){
 	return 1;
 }
 
+char send_sms_message_for_all(char * text,int function){
+	unsigned int i;
+	for (i=0;i<MAX_TEL_NUMBERS;i++){
+		if ((tel_access[i] == TEL_ACCESS_ADMIN) || (tel_access[i] == TEL_ACCESS_DOUBLE_SMS) || (tel_access[i] == function)){
+			if (!modem_send_sms_message(tel_number[i],text)) return 0;
+		}
+	}
+	clear_output_sms_message();
+	return 1;
+}
+void clear_output_sms_message(){
+	unsigned int i;
+	for (i=0;i<70;i++) {
+		output_sms_message[i] = 0;
+	}
+}
+
+
+
 char modem_send_sms_message(char * number,char * text){
 #ifdef MODEM_TEXT_MODE
 	send_string_to_GSM("AT+CMGS=\"+7");
@@ -172,10 +193,11 @@ char modem_send_sms_message(char * number,char * text){
 //	 send_string_to_GSM("041F04400438043204350442");
 //	 send_string_to_GSM(int_to_hex(str_length(text))); // send length text as HEX
 //	 send_string_to_GSM(eng_to_ucs(text)); //send text as hex
-//	 send_char_to_GSM(0x1a);
+	 send_char_to_GSM(0x1a);
 //	 if (!send_command_to_GSM(0x1a,">",gsm_message,200,1200)) return 0;
-	 if (!send_command_to_GSM("\x1a",">",gsm_message,200,1200)) return 0;
-//	 if (!send_command_to_GSM("\032",">",gsm_message,200,1200)) return 0;
+//	 if (!send_command_to_GSM("\x1a",">",gsm_message,200,1200)) return 0;
+	 if (!send_command_to_GSM("","+CMGS:",gsm_message,200,1200)) return 0;
+	 return 1;
 
 
 #endif
@@ -259,6 +281,17 @@ void convert_number_to_upd(char * number){
 		number[i] = number[i+1];
 		number[i+1] = temp;
 	}
+}
+
+void convert_number_to_eng(char * number){
+	unsigned int i = 0;
+	char temp;
+	for (i=0; i<10; i=i+2){
+		temp = number[i];
+		number[i] = number[i+1];
+		number[i+1] = temp;
+	}
+	number[9] = 0;
 }
 
 void modem_call(char * number){

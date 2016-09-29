@@ -3,6 +3,7 @@
 
 unsigned int str_length(char * str);
 int find_str(char * find,char * string);
+void str_add_str (char * out, char * in);
 
 
 int find_str(char * find,char * string){
@@ -36,11 +37,12 @@ unsigned int str_length(char * str){
 	return i;
 }
 
-void str_copy (char * out, char * in){
+void str_add_str ( char * in,char * out){
 	unsigned int i = 0;
 	int in_len = str_length(in);
+//	in_len ? in_len++ : 0;
 	int out_len = str_length(out);
 	for (i = 0;i<out_len;i++){
-		in[in_len+i+1] = out[i];
+		in[in_len+i] = out[i];
 	}
 }

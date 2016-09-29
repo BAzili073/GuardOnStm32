@@ -127,6 +127,15 @@
 #define TEL_NUMBER_DENY 100
 
 #define TEL_ACCESS_ADMIN 9
+#define TEL_ACCESS_DOUBLE_SMS 8
+#define TEL_ACCESS_CHOP 7
+#define TEL_ACCESS_GUARD_ALARM 6
+#define TEL_ACCESS_ALARM_5 5
+#define TEL_ACCESS_ALARM_4 4
+#define TEL_ACCESS_ALARM_3 3
+#define TEL_ACCESS_ALARM_2 2
+#define TEL_ACCESS_ALARM_1 1
+
 
 #define MODEM_STATE_OFF 0
 #define MODEM_STATE_ON 1
@@ -136,7 +145,16 @@
 #define ERROR_GSM_MESSAGE 2
 #define INCOMING_SMS 3
 
-
+//#define SMS_FUNCTION_ALERT_1 9
+//#define SMS_FUNCTION_ALERT_2 8
+#define SMS_FUNCTION_SERVICE 7
+#define SMS_FUNCTION_CHANGE_GUARD_ALARM 6
+#define SMS_FUNCTION_ALERT_5 5
+#define SMS_FUNCTION_ALERT_4 4
+#define SMS_FUNCTION_ALERT_3 3
+#define SMS_FUNCTION_ALERT_2 2
+#define SMS_FUNCTION_ALERT_1 1
+#define SMS_FUNCTION_ALERT 0
 
 
 
@@ -148,15 +166,15 @@
 
 #define start_EEPROM 0x08080000
 #define EEPROM_tel_numbers 			0
-#define EEPROM_tel_settings 		EEPROM_tel_numbers + (10*MAX_TEL_NUMBERS)
-#define EEPROM_tms_id 				EEPROM_tel_settings + MAX_TEL_NUMBERS
-#define EEPROM_ds18x20_id 			EEPROM_tms_id + (8 * MAX_DS18x20)
-#define EEPROM_tms_names 			EEPROM_ds18x20_id + (8 * MAX_TM)
-#define EEPROM_ds18x20_settings		EEPROM_tms_names + (10 * MAX_TM)
-#define EEPROM_device_settings		EEPROM_ds18x20_settings + (MAX_DS18x20 * 4)
-#define EEPROM_outputs_settings		EEPROM_device_settings + 10
-#define EEPROM_inputs_settings		EEPROM_outputs_settings + (5 * 8)
-#define EEPROM_next					EEPROM_inputs_settings + (5 * 8)
+#define EEPROM_tel_settings 		(EEPROM_tel_numbers + (10*MAX_TEL_NUMBERS))
+#define EEPROM_tms_id 				(EEPROM_tel_settings + MAX_TEL_NUMBERS)
+#define EEPROM_ds18x20_id 			(EEPROM_tms_id + (8 * MAX_DS18x20))
+#define EEPROM_tms_names 			(EEPROM_ds18x20_id + (8 * MAX_TM))
+#define EEPROM_ds18x20_settings		(EEPROM_tms_names + (10 * MAX_TM))
+#define EEPROM_device_settings		(EEPROM_ds18x20_settings + (MAX_DS18x20 * 4))
+#define EEPROM_outputs_settings		(EEPROM_device_settings + 10)
+#define EEPROM_inputs_settings		(EEPROM_outputs_settings + (5 * 8))
+#define EEPROM_next					(EEPROM_inputs_settings + (5 * 8))
 
 
 

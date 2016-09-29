@@ -34,16 +34,16 @@ void one_wire_write_bit(uint8_t bit)
 	one_wire_low();
 	if (bit){
 		set_timeout(2);
-		while_timeout();
+		while(!time_out);
 		one_wire_high();
 		set_timeout(65);
-		while_timeout();
+		while(!time_out);
 	}else{
 		set_timeout(65);
-		while_timeout();
+		while(!time_out);
 		one_wire_high();
 		set_timeout(2);
-		while_timeout();
+		while(!time_out);
 	}
 }
 
@@ -74,7 +74,7 @@ uint8_t one_wire_read_bit() {
 //  }
 
   set_timeout(65);
-  while_timeout();
+  while(!time_out);
   return r;
 }
 
@@ -109,13 +109,13 @@ uint8_t one_wire_read_rom(uint8_t * buf) {
 char one_wire_send_presence() {
 	one_wire_low();
 	set_timeout(480);
-	while_timeout();
+	while(!time_out);
 	one_wire_high();
 	set_timeout(70);
-	while_timeout();
+	while(!time_out);
 		if (!one_wire_level()){
 			set_timeout(410);
-			while_timeout();
+			while(!time_out);
 			return 1;
 		}
 	return 0;

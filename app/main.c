@@ -47,18 +47,23 @@ int main(void) {
 	set_core_clock();
 	GPIO_init();
 	TIM6_init();
-//	ADC_init();
+	ADC_init();
 //    TIM2_init(); //PWM
 //	TIM7_init();
 	UART1_init();
 
 //	led_blink(7,1,1);
-	if (device_settings & DEVICE_SETTING_SMS_AT_STARTUP){
-
-	}
+//	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
+	MODEM_ON();
 	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
 		guard_on();
 	}
+
+	if (device_settings & DEVICE_SETTING_SMS_AT_STARTUP){
+		str_add_str(output_sms_message,"ver:5.0 ");
+		sms_command_r();
+	}
+
 
     while(1) {
 

@@ -39,11 +39,13 @@ void led_blink_stop(uint8_t led_mode);
 void led_blink(uint8_t led_mode, int8_t time_on,int8_t time_off);
 
 void check_inputs();
+int check_input(int input);
 
 
-uint8_t tel_number[MAX_TEL_NUMBERS][10];
+char tel_number[MAX_TEL_NUMBERS][10];
 uint8_t tel_access[MAX_TEL_NUMBERS];
-uint8_t last_control_ID_number;
 
+uint8_t last_control_ID_number;
+char last_control_guard[13];
 
 #endif

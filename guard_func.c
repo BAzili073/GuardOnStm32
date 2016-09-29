@@ -4,7 +4,8 @@
 
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
-
+#include "modem.h"
+#include "my_string.h"
 #include "defines.h"
 #include "EEPROMfunc.h"
 #include "1-Wire.h"
@@ -22,6 +23,13 @@ void led_blink(uint8_t led_mode, int8_t time_on,int8_t time_off);
 void output_on(uint8_t output);
 void output_off(uint8_t output);
 
+int check_input(int input);
+void guard_on();
+
+void clear_last_control_guard();
+void changed_guard_sms(int status);
+
+uint8_t last_input_alarm = 0;
 
 uint16_t u_battary;
 int8_t  led_blink_time_on[8] = {-127,-127,-127,-127,-127,-127,-127,-127};
@@ -45,29 +53,44 @@ uint16_t inputs_min[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
 uint8_t inputs_mode_bit[5] = {INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL};
 uint8_t inputs_time_to_alarm[5] = {0,0,0,0,0};
 
-uint8_t tel_number[MAX_TEL_NUMBERS][10] = {"20211063F4"};
+char tel_number[MAX_TEL_NUMBERS][10] = {"20211063F4"};
 uint8_t tel_access[MAX_TEL_NUMBERS] = {9,0,0,0,0};
 
+
 uint8_t last_control_ID_number = 100;
+char last_control_guard[13];
 
-
-
-void guard_on(){
-	if (time_set_to_guard_on && (time_to_guard_on == -1)){
-		time_to_guard_on = time_set_to_guard_on;
-	}
-	if(!time_to_guard_on){
-		guard_st = GUARD_ON;
-		output_on_mode(OUTPUT_MODE_GUARD);
+void guard_on_TM(){
+	if (time_set_to_guard_on){
+		if (!time_to_guard_on){
+			time_to_guard_on = time_set_to_guard_on;
+		}
+	}else{
+		guard_on();
 	}
 }
+
+void guard_on(){
+		guard_st = GUARD_ON;
+		output_on_mode(OUTPUT_MODE_GUARD);
+		changed_guard_sms(1);
+}
+
 void guard_off(){
 	guard_st = GUARD_OFF;
-	time_to_guard_on = -1;
 	time_to_alarm = -1;
 	output_off_mode(OUTPUT_MODE_GUARD);
 	output_off_mode(OUTPUT_MODE_ALARM);
+	changed_guard_sms(0);
 }
+
+void changed_guard_sms(int status){
+	str_add_str(output_sms_message,(status ? "na ohranu " : "snqt s ohranu " ));
+	str_add_str(output_sms_message,last_control_guard);
+	if (last_control_guard[0]) send_sms_message_for_all(output_sms_message,SMS_FUNCTION_CHANGE_GUARD_ALARM);
+	clear_last_control_guard();
+}
+
 
 void output_on_mode(uint8_t mode){
 	for (int i = 1;i<=5;i++){
@@ -138,10 +161,8 @@ void check_battery(){
 
 void check_inputs(void){
 	int i;
-	unsigned int adc_value;
 	for (i = 1;i<=5;i++){ // перебор входов
-		adc_value = ADC_read(inputs[i - 1]); // измерение со входа
-		if ((((inputs_max[i - 1] > adc_value) & (adc_value > inputs_min[i - 1])) ^ !((inputs_mode_bit[i-1] & INPUTS_MODE_INVERS)>0)) ){ //вход не в норме
+		if (check_input(i)){
 			led_on_mode(i);
 			output_on_mode(OUTPUT_MODE_INPUTS + i);
 			if (last_alarm != i){
@@ -153,6 +174,7 @@ void check_inputs(void){
 						last_alarm = i; //запомним последний сработавший вход
 						if ((time_to_alarm == -1) || (inputs_time_to_alarm[i-1] < time_to_alarm)){ //если время до тревоги нету
 							time_to_alarm = inputs_time_to_alarm[i-1];
+							last_input_alarm = i + 1;
 						}
 					}
 			}
@@ -190,6 +212,24 @@ void read_settings(){
 		tm_id[i][y] = EEPROMRead((EEPROM_ds18x20_id + (i * 8) + y),1);
 	}
 
+}
+
+
+int check_input(int input){
+		unsigned int adc_value;
+			adc_value = ADC_read(inputs[input - 1]); // измерение со входа
+			if ((((inputs_max[input - 1] > adc_value) & (adc_value > inputs_min[input - 1])) ^ !((inputs_mode_bit[input-1] & INPUTS_MODE_INVERS)>0)) ){//вход не в норме
+				return 1;
+			}else{
+				return 0;
+			}
+}
+
+void clear_last_control_guard(){
+	unsigned int i;
+	for (i=0;i<13;i++) {
+		last_control_guard[i] = 0;
+	}
 }
 
 #endif
