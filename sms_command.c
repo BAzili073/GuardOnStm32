@@ -30,6 +30,8 @@ void parse_incoming_sms(){
 		}else{
 			guard_off();
 		}
+	}else if((input_sms_message[0] == 'r')){
+		sms_command_r();
 	}
 }
 

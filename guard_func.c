@@ -138,6 +138,7 @@ void output_off(uint8_t output){
 void alarm_on(){
 	output_on_mode(OUTPUT_MODE_ALARM);
 	alarm_st = ALARM_ON;
+
 }
 
 void alarm_off(){
