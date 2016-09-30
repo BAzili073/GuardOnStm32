@@ -9,6 +9,7 @@
 #include "modem.h"
 
 void sms_command_nn();
+void sms_command_r();
 
 void parse_incoming_sms(){
 	last_control_ID_number = check_number_of_sms();

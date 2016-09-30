@@ -1,2 +1,9 @@
 /output/
 /STM32L151C8T6/Debug/*
+*.comemgui
+*.coproj
+*.cogui
+*.comarker
+
+
+
