@@ -49,7 +49,7 @@ int main(void) {
 	TIM6_init();
 	ADC_init();
 //    TIM2_init(); //PWM
-//	TIM7_init();
+	TIM7_init();
 	UART1_init();
 
 //	led_blink(7,1,1);
@@ -73,8 +73,8 @@ int main(void) {
     		check_gsm_message();
     	}
 
-		set_timeout(500);
-		while_timeout();
+		set_timeout_7(20);
+		while_timeout_7();
 //    	else{
 //    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;
 //    	}

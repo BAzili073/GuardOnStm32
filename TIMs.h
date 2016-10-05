@@ -10,6 +10,8 @@ void set_timeout(int t);
 void reset_timer();
 void TIM6_init();
 void while_timeout();
-
+void set_timeout_7 (int m_sec);
+void while_timeout_7();
+int timeout_7;
 
 #endif

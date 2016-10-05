@@ -44,12 +44,12 @@ void MODEM_ON(){
 //	check_gsm_message();
 	while(modem_state == MODEM_STATE_OFF){
 		GPIO_LOW(MODEM_ON_PORT,MODEM_ON_PIN);
-		set_timeout(2000);
-		while_timeout();
+		set_timeout_7(20);
+		while_timeout_7();
 		GPIO_HIGH(MODEM_ON_PORT,MODEM_ON_PIN);
-		set_timeout(15000);
-		while_timeout();
-		if (send_command_to_GSM("AT","OK",gsm_message,1000,3000)){
+		set_timeout_7(100);
+		while_timeout_7();
+		if (send_command_to_GSM("AT","OK",gsm_message,10,30)){
 			modem_state = MODEM_STATE_ON;
 			modem_setup();
 		}
@@ -87,11 +87,11 @@ char get_next_gsm_message(){
 		while(get_next_gsm_message()){
 			switch (parse_gsm_message()){
 				case INCOMING_SMS:
-					send_command_to_GSM("AT+CMGR=1,0","+CMGR:",gsm_message,200,500);
-					send_command_to_GSM("","0008",gsm_message,200,500);
+					send_command_to_GSM("AT+CMGR=1,0","+CMGR:",gsm_message,2,5);
+					send_command_to_GSM("","0008",gsm_message,2,5);
 //					get_next_gsm_message();
 					parse_incoming_sms();
-					send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,200,500);
+					send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,2,5);
 				break;
 			}
 
@@ -119,20 +119,20 @@ void clear_gsm_message(){
 }
 
 
-char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int max_t){
+char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, int max_t){
 
 	send_string_to_GSM(s);
 	send_char_to_GSM('\r');
 	while(max_t > 0){
-		set_timeout(t);
-		while(!time_out);
+		set_timeout(t_msec);
+		while_timeout_7();
 		char c = get_next_gsm_message();
 		if(c == NO_ANSWER){
-			max_t -= t;
+			max_t -= t_msec;
 		}else{
 			if (find_str(await_ans,answer)) return OK_ANSWER;
 			else{
-				max_t -= t;
+				max_t -= t_msec;
 				if (parse_gsm_message() == ERROR_GSM_MESSAGE) return NO_ANSWER;;
 			}
 		}
@@ -142,14 +142,14 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int ma
 //#define MODEM_TEXT_MODE
 char modem_setup(){
 #ifdef MODEM_TEXT_MODE
-	if (!send_command_to_GSM("AT+CMGF=1","OK",gsm_message,200,500)) return 0;
+	if (!send_command_to_GSM("AT+CMGF=1","OK",gsm_message,2,5)) return 0;
 #else
-	if (!send_command_to_GSM("AT+CMGF=0","OK",gsm_message,200,500)) return 0;
+	if (!send_command_to_GSM("AT+CMGF=0","OK",gsm_message,2,5)) return 0;
 #endif
 
-	if (!send_command_to_GSM("AT+CSCS=\"GSM\"","OK",gsm_message,200,500)) return 0;
-	if (!send_command_to_GSM("AT+CLIP=1","OK",gsm_message,200,500)) return 0;   // for AON
-	if (!send_command_to_GSM("AT+CPBS=\"SM\"","OK",gsm_message,200,500)) return 0;   // select sim as memory
+	if (!send_command_to_GSM("AT+CSCS=\"GSM\"","OK",gsm_message,2,5)) return 0;
+	if (!send_command_to_GSM("AT+CLIP=1","OK",gsm_message,2,5)) return 0;   // for AON
+	if (!send_command_to_GSM("AT+CPBS=\"SM\"","OK",gsm_message,2,5)) return 0;   // select sim as memory
 	return 1;
 }
 
@@ -176,13 +176,13 @@ char modem_send_sms_message(char * number,char * text){
 #ifdef MODEM_TEXT_MODE
 	send_string_to_GSM("AT+CMGS=\"+7");
 	send_string_to_GSM(number);
-	if (!send_command_to_GSM("\"",">",gsm_message,200,500)) return 0;
+	if (!send_command_to_GSM("\"",">",gsm_message,2,5)) return 0;
 	send_string_to_GSM(text);
 	send_char_to_GSM(0x1a);
 #else
 	send_string_to_GSM("AT+CMGS=");
 	send_int_to_GSM(((str_length(text) * 2)+13));
-	if (!send_command_to_GSM("",">",gsm_message,200,1200)) return 0;
+	if (!send_command_to_GSM("",">",gsm_message,2,12)) return 0;
 	 send_string_to_GSM("0001000B91");
 	 send_string_to_GSM("97");
 	 send_string_to_GSM(number);//number);
@@ -194,9 +194,9 @@ char modem_send_sms_message(char * number,char * text){
 //	 send_string_to_GSM(int_to_hex(str_length(text))); // send length text as HEX
 //	 send_string_to_GSM(eng_to_ucs(text)); //send text as hex
 	 send_char_to_GSM(0x1a);
-//	 if (!send_command_to_GSM(0x1a,">",gsm_message,200,1200)) return 0;
-//	 if (!send_command_to_GSM("\x1a",">",gsm_message,200,1200)) return 0;
-	 if (!send_command_to_GSM("","+CMGS:",gsm_message,200,1200)) return 0;
+//	 if (!send_command_to_GSM(0x1a,">",gsm_message,2,12)) return 0;
+//	 if (!send_command_to_GSM("\x1a",">",gsm_message,2,12)) return 0;
+	 if (!send_command_to_GSM("","+CMGS:",gsm_message,2,12)) return 0;
 	 return 1;
 
 

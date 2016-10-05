@@ -8,6 +8,8 @@ int8_t lamp_blink_time = 5;
 int8_t led_blink_time[8];
 uint8_t m_sec = 0;
 
+int timeout_7;
+
 void check_time_to_alarm();
 void check_lamp_blink();
 void check_led_blink();
@@ -31,6 +33,7 @@ void TIM7_init(){
 }
 
 void  TIM7_IRQHandler(){
+	  if (timeout_7) timeout_7 --;
       TIM7 -> SR &= ~TIM_SR_UIF;
 	  check_lamp_blink();
 	  check_led_blink();
@@ -68,8 +71,8 @@ void check_led_blink(){
 void TIM6_init(){
 			RCC->APB1ENR |=  RCC_APB1ENR_TIM6EN ;
 			TIM6->CR1 |= TIM_CR1_OPM;
-			TIM6->PSC =  16000 - 1;
-//			TIM6->PSC =  16-1;
+//			TIM6->PSC =  16000 - 1;
+			TIM6->PSC =  16-1;
 }
 
 void set_timeout(int t)
@@ -84,6 +87,13 @@ void while_timeout(){
 	while(!time_out);
 }
 
+void set_timeout_7 (int m_sec){
+	timeout_7 = m_sec;
+}
+
+void while_timeout_7(){
+	while(timeout_7);
+}
 
 void reset_timer()
 {

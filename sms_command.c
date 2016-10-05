@@ -15,24 +15,31 @@ void parse_incoming_sms(){
 	last_control_ID_number = check_number_of_sms();
 	if (last_control_ID_number > MAX_TEL_NUMBERS) return;
 	ucs_to_eng(gsm_message, input_sms_message);
-	if (input_sms_message[0] == 'n') {
-		switch(input_sms_message[1]){
-			case 'n':
+
+	switch(input_sms_message[0]){
+//nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+		case 'n':
+			if (input_sms_message[1] == 'n') {
 				sms_command_nn();
-			break;
-		}
-	}else if((input_sms_message[0] == 'o')){
-		str_add_str(last_control_guard,"+79");
-		char number_x[10];
-		str_add_str(number_x,tel_number[last_control_ID_number]);
-		str_add_str(last_control_guard,number_x);
-		if((input_sms_message[1] - '0')){
-			guard_on();
-		}else{
-			guard_off();
-		}
-	}else if((input_sms_message[0] == 'r')){
-		sms_command_r();
+			}
+		break;
+//oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+		case 'o':
+				str_add_str(last_control_guard,"+79");
+				char number_x[10];
+				str_add_str(number_x,tel_number[last_control_ID_number]);
+				str_add_str(last_control_guard,number_x);
+				if((input_sms_message[1] - '0')){
+					guard_on();
+				}else{
+					guard_off();
+				}
+		break;
+//rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+		case 'r':
+				sms_command_r();
+		break;
+
 	}
 }
 
