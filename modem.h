@@ -10,6 +10,7 @@ void ucs_to_eng(char * in_message, char * message);
 void send_text_as_ucs(char * out_message, unsigned int len);
 char check_gsm_message();
 int modem_state;
+char modem_time_check;
 char input_sms_message[70];
 char output_sms_message[70];
 char gsm_message[GSM_MESSAGE_SIZE];

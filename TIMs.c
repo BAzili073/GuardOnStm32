@@ -4,6 +4,7 @@
 #include "defines.h"
 #include "guard_func.h"
 #include "1-Wire.h"
+#include "modem.h"
 
 int8_t lamp_blink_time = 5;
 int8_t led_blink_time[8];
@@ -38,10 +39,12 @@ void TIM7_init(){
 
 void  TIM7_IRQHandler(){
 	  if (timeout_7) timeout_7 --;
+	  if (modem_time_check) modem_time_check--;
       TIM7 -> SR &= ~TIM_SR_UIF;
 	  check_lamp_blink();
 	  check_led_blink();
 	  m_sec++;
+
 	  if (m_sec == 10) {
 //		  	static int time_check_term;
 //		  	time_check_term++;

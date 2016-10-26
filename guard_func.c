@@ -58,7 +58,7 @@ uint8_t inputs_time_to_alarm[5] = {0,0,0,0,0};
 
 char tel_number[MAX_TEL_NUMBERS][10] = {"20211063F4"};
 uint8_t tel_access[MAX_TEL_NUMBERS] = {9,0,0,0,0};
-
+char tel_number_temp[10];
 
 uint8_t last_control_ID_number = 254;
 char last_control_guard[13];

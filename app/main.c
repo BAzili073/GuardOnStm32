@@ -89,7 +89,7 @@ int main(void) {
 //    		    				}
     	}
 
-		set_timeout_7(50);
+		set_timeout_7(1);
 		while_timeout_7();
 //    	else{
 //    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;

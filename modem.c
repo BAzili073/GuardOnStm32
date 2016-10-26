@@ -38,33 +38,35 @@ int modem_action = MODEM_ACTION_FREE;
 //char input_sms_message[70];
 int gsm_signal_quality;
 char modem_setup_ok = 0;
-
-
-
+char modem_time_check = 0;
+char incoming_rings = 0;
 void modem_check_state(){
-	switch (modem_state){
-	case MODEM_STATE_NO_SIM:
+	if (modem_action == MODEM_ACTION_FREE){
+		switch (modem_state){
+			case MODEM_STATE_NO_SIM:
 
-	break;
-	case MODEM_STATE_OFF:
-		MODEM_ON();
-	break;
-	case MODEM_STATE_ON:
-		modem_check_online();
-	break;
-	case MODEM_STATE_OFFLINE:
-		modem_check_online();
-	break;
-	case MODEM_STATE_SETUP:
-		if (!modem_setup_ok){
-			modem_setup_ok = modem_setup();
-			if (modem_setup_ok) modem_state = MODEM_STATE_ONLINE;
+			break;
+			case MODEM_STATE_OFF:
+				MODEM_ON();
+			break;
+			case MODEM_STATE_ON:
+				modem_check_online();
+			break;
+			case MODEM_STATE_OFFLINE:
+				modem_check_online();
+			break;
+			case MODEM_STATE_SETUP:
+				if (!modem_setup_ok){
+					modem_setup_ok = modem_setup();
+					if (modem_setup_ok) modem_state = MODEM_STATE_ONLINE;
+				}
+			break;
+			case MODEM_STATE_ONLINE:
+				modem_check_quality();
+			break;
 		}
-	break;
-	case MODEM_STATE_ONLINE:
-		modem_check_quality();
-	break;
 	}
+
 
 }
 void MODEM_ON(){
@@ -79,21 +81,22 @@ void MODEM_ON(){
 		while_timeout_7();
 		if (send_command_to_GSM("AT","OK",gsm_message,10,30)){
 			modem_state = MODEM_STATE_ON;
-//			if (send_command_to_GSM("AT+CMEE=2","OK",gsm_message,10,30)){
-//
-//			}
-//			send_string_to_GSM("AT+CPIN\r");
-
 		}
 	}
 }
 
 
 void modem_check_online(){
-	send_string_to_GSM("AT+COPS?\r");
+	if (!modem_time_check) {
+		modem_time_check = SET_MODEM_TIME_CHECK;
+		send_string_to_GSM("AT+COPS?\r");
+	}
 }
 void modem_check_quality(){
-	send_string_to_GSM("AT+CSQ\r");
+	if (!modem_time_check){
+		modem_time_check = SET_MODEM_TIME_CHECK;
+		send_string_to_GSM("AT+CSQ\r");
+	}
 }
 
 
@@ -140,11 +143,7 @@ char get_next_gsm_message(){
 char parse_gsm_message(){
 	int return_gsm_message = GSM_MESSAGE_UNKNOW;
 	if (find_str("+CMTI:",gsm_message)){
-		send_command_to_GSM("AT+CMGR=1,0","+CMGR:",gsm_message,2,5);
-		send_command_to_GSM("","0008",gsm_message,2,5);
-	//					get_next_gsm_message();
-		parse_incoming_sms();
-		send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,2,5);
+		incoming_sms();
 		return_gsm_message = GSM_MESSAGE_INCOMING_SMS;
 	}else if (find_str("+CPIN:",gsm_message)){
 		if (find_str("READY",gsm_message)){
@@ -163,10 +162,10 @@ char parse_gsm_message(){
 			modem_state = MODEM_STATE_OFFLINE;
 		}
 	}else if (find_str("BUSY",gsm_message)){
-			modem_action = MODEM_ACTION_FREE;
+			modem_free();
 			return_gsm_message = GSM_MESSAGE_CALL_BUSY;
 	}else if (find_str("NO ANSWER",gsm_message)){
-			modem_action = MODEM_ACTION_FREE;
+				modem_free();
 			return_gsm_message = GSM_MESSAGE_CALL_NO_ANSWER;
 	}else if (find_str("+CSQ:",gsm_message)){
 		if (gsm_message[7] == ','){
@@ -174,6 +173,11 @@ char parse_gsm_message(){
 		}else{
 			gsm_signal_quality = (gsm_message[6] - 48) * 10 + (gsm_message[7] - 48);
 		}
+	}else if(find_str("NO CARRIER",gsm_message)){
+		modem_no_carrier();
+
+	}else if(find_str("+CLIP:",gsm_message)){
+		incoming_call();
 	}else if (find_str("OK\r\n",gsm_message)){
 		return_gsm_message = GSM_MESSAGE_OK;
 	}else if (find_str("ERROR\r\n",gsm_message)){
@@ -182,6 +186,46 @@ char parse_gsm_message(){
 	clear_gsm_message();
 	return return_gsm_message;
 }
+
+
+void incoming_call(){
+	if (modem_action == MODEM_ACTION_FREE){
+		int i;
+			for (i = 0;i<10;i++){
+				tel_number_temp[i] = gsm_message[i+11];
+			}
+		modem_action = MODEM_ACTION_INCOMING_CALL;
+	}
+	  incoming_rings ++;
+	if (INCOMING_RINGS == 4) {
+		send_string_to_GSM("ATA\r");
+		modem_action = MODEM_ACTION_TALK;
+	}
+}
+
+
+void incoming_sms(){
+	send_command_to_GSM("AT+CMGR=1,0","+CMGR:",gsm_message,2,5);
+	send_command_to_GSM("","0008",gsm_message,2,5);
+//					get_next_gsm_message();
+	parse_incoming_sms();
+	send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,2,5);
+}
+
+void modem_free(){
+	modem_action = MODEM_ACTION_FREE;
+}
+
+void modem_no_carrier(){
+	if (modem_action == MODEM_ACTION_INCOMING_CALL){
+		if (incoming_rings == 2){
+
+		}
+	}
+	incoming_rings = 0;
+	modem_free();
+}
+
 
 void clear_gsm_message(){
 	int i = 0;
@@ -372,7 +416,7 @@ void modem_call(char * number){
 		send_string_to_GSM("ATD+79");
 		send_string_to_GSM(number);
 		send_string_to_GSM(";\n\r");
-		modem_action = MODEM_ACTION_CALL;
+		modem_action = MODEM_ACTION_OUTGOING_CALL;
 	}
 }
 
