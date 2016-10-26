@@ -25,7 +25,10 @@ void output_off(uint8_t output);
 
 int check_input(int input);
 void guard_on();
-
+void guard_off();
+void guard_on_TM();
+void check_inputs();
+void check_battery();
 void clear_last_control_guard();
 void changed_guard_sms(int status);
 
@@ -57,8 +60,28 @@ char tel_number[MAX_TEL_NUMBERS][10] = {"20211063F4"};
 uint8_t tel_access[MAX_TEL_NUMBERS] = {9,0,0,0,0};
 
 
-uint8_t last_control_ID_number = 100;
+uint8_t last_control_ID_number = 254;
 char last_control_guard[13];
+
+
+void main_guard(){
+	int current_TM = one_wire_check_keys();
+	if (current_TM != ONE_WIRE_KEY_DENY) {
+		clear_last_control_guard();
+		str_add_str(last_control_guard,"TM = ");
+		str_add_num(current_TM,last_control_guard);
+//		last_control_ID_number = current_TM + 100;
+		if (guard_st){
+			guard_off();
+		}else{
+			guard_on_TM();
+		}
+	}
+	check_inputs();
+	check_battery();
+	check_gsm_message();
+}
+
 
 void guard_on_TM(){
 	if (time_set_to_guard_on){

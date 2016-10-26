@@ -7,8 +7,10 @@
 #include "UART.h"
 
 
-char ds18x20_id[MAX_DS18x20][8];
+uint8_t ds18x20_id[MAX_DS18x20][8];
 char key_id[MAX_TM][8];
+int16_t last_get_temp[MAX_DS18x20];
+uint8_t ds18x20_number;
 
 uint8_t one_wire_crc_update(uint8_t crc, uint8_t b);
 uint8_t one_wire_check_crc(uint8_t address[8]);
@@ -16,9 +18,11 @@ void one_wire_low();
 void one_wire_high();
 char one_wire_check_line();
 char one_wire_send_presence();
+
+
 uint8_t one_wire_read_rom(uint8_t * buf);
 uint8_t find_key(uint8_t key[8]);
-
+int16_t one_wire_read_temp_to_address(uint8_t address[8]);
 uint8_t onewire_enum[8]; // найденный восьмибайтовый адрес
 uint8_t onewire_enum_fork_bit; // последний нулевой бит, где была неоднозначность (нумеруя с единицы)
 
@@ -234,13 +238,19 @@ uint8_t one_wire_skip() {
 uint8_t one_wire_start_conversion_temp(){
 	if (one_wire_skip()) { // Если у нас на шине кто-то присутствует,...
 	      one_wire_write_byte(0x44);
-	      for (uint8_t i=0;i<100;i++){
-			  set_timeout(10000);
-			  while_timeout();
-	      }
+//	      for (uint8_t i=0;i<100;i++){
+//			  set_timeout(10000);
+//			  while_timeout();
+//	      }
 	      return 1;
 	}
 	return 0;
+}
+void get_all_temp(){
+	int i;
+	for (i = 0;i<ds18x20_number;i++){
+		last_get_temp[i] = one_wire_read_temp_to_address(ds18x20_id[i]);
+	}
 }
 
 int16_t one_wire_read_temp_to_address(uint8_t address[8]){
@@ -385,7 +395,8 @@ uint8_t one_wire_check_keys(){
 //	        	send_char_to_GSM('C');
 	        } else {
 	          if ((family_code == 0x01) || (family_code == 0x01) || (family_code == 0x01)) {
-	        	  if (find_key(key)) return 1;
+	        	  uint8_t key_access= find_key(key);
+	        	  if (key_access != ONE_WIRE_KEY_DENY) return key_access;
 	          } else {
 	            // Неизвестное устройство
 //	        	  send_char_to_GSM('?');
@@ -393,7 +404,7 @@ uint8_t one_wire_check_keys(){
 	        }
 	      }
 	}
-	      return 0;
+	      return ONE_WIRE_KEY_DENY;
 }
 
 uint8_t find_key(uint8_t key[8]){
@@ -408,8 +419,8 @@ uint8_t find_key(uint8_t key[8]){
 				break;
 			}
 		}
-		if (ok) return 1;
+		if (ok) return i;
 //		if (key == keys[i]) return 1;
 	}
-	return 0;
+	return ONE_WIRE_KEY_DENY;
 }

@@ -4,7 +4,7 @@
 unsigned int str_length(char * str);
 int find_str(char * find,char * string);
 void str_add_str (char * out, char * in);
-
+void str_add_num(int num,char * out);
 
 int find_str(char * find,char * string){
 	 int counter = 0;
@@ -44,5 +44,18 @@ void str_add_str ( char * in,char * out){
 	int out_len = str_length(out);
 	for (i = 0;i<out_len;i++){
 		in[in_len+i] = out[i];
+	}
+}
+
+void str_add_num(int num,char * out){
+	int i = 5;
+	int out_len = str_length(out);
+	for (i = 5;i;i--){
+		int a = num/(10^i);
+		if (a || (i == 1)){
+			num = num-(a*(10^i));
+			out[out_len] = (48 + a);
+			out_len++;
+		}
 	}
 }

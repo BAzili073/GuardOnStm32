@@ -8,8 +8,6 @@
 #include "my_string.h"
 #include "sms_command.h"
 
-
-
 void send_text_as_ucs(char * out_message, unsigned int len);
 char parse_gsm_message();
 void clear_gsm_message();
@@ -36,25 +34,68 @@ void send_int_as_hex_to_GSM(int x);
 
 char gsm_message[GSM_MESSAGE_SIZE];
 char output_sms_message[70];
+int modem_action = MODEM_ACTION_FREE;
 //char input_sms_message[70];
+int gsm_signal_quality;
+char modem_setup_ok = 0;
 
 
 
+void modem_check_state(){
+	switch (modem_state){
+	case MODEM_STATE_NO_SIM:
+
+	break;
+	case MODEM_STATE_OFF:
+		MODEM_ON();
+	break;
+	case MODEM_STATE_ON:
+		modem_check_online();
+	break;
+	case MODEM_STATE_OFFLINE:
+		modem_check_online();
+	break;
+	case MODEM_STATE_SETUP:
+		if (!modem_setup_ok){
+			modem_setup_ok = modem_setup();
+			if (modem_setup_ok) modem_state = MODEM_STATE_ONLINE;
+		}
+	break;
+	case MODEM_STATE_ONLINE:
+		modem_check_quality();
+	break;
+	}
+
+}
 void MODEM_ON(){
-//	check_gsm_message();
+	modem_setup_ok = 0;
+	check_gsm_message();
 	while(modem_state == MODEM_STATE_OFF){
 		GPIO_LOW(MODEM_ON_PORT,MODEM_ON_PIN);
-		set_timeout_7(20);
+		set_timeout_7(10);
 		while_timeout_7();
 		GPIO_HIGH(MODEM_ON_PORT,MODEM_ON_PIN);
-		set_timeout_7(100);
+		set_timeout_7(20);
 		while_timeout_7();
 		if (send_command_to_GSM("AT","OK",gsm_message,10,30)){
 			modem_state = MODEM_STATE_ON;
-			modem_setup();
+//			if (send_command_to_GSM("AT+CMEE=2","OK",gsm_message,10,30)){
+//
+//			}
+//			send_string_to_GSM("AT+CPIN\r");
+
 		}
 	}
 }
+
+
+void modem_check_online(){
+	send_string_to_GSM("AT+COPS?\r");
+}
+void modem_check_quality(){
+	send_string_to_GSM("AT+CSQ\r");
+}
+
 
 char get_next_gsm_message(){
 	int k = 0;
@@ -64,11 +105,15 @@ char get_next_gsm_message(){
 		}else if((gsm_buffer[gsm_message_check_counter-1] == '>') && (gsm_buffer[gsm_message_check_counter] == ' ')){
 			break;
 		}else if((gsm_buffer[gsm_message_check_counter] == 10) || (gsm_buffer[gsm_message_check_counter] == 13)){
-			gsm_message_check_counter++;
-			if (gsm_message_check_counter == GSM_BUFFER_SIZE) gsm_message_check_counter = 0;
+			while((gsm_buffer[gsm_message_check_counter] == 13) || (gsm_buffer[gsm_message_check_counter] == 10)){
+				gsm_buffer[gsm_message_check_counter] = 0;
+				gsm_message_check_counter++;
+				if (gsm_message_check_counter == GSM_BUFFER_SIZE) gsm_message_check_counter = 0;
+			}
+			break;
 		}else{
 			if((gsm_buffer[gsm_message_check_counter-1] == 10) || (gsm_buffer[gsm_message_check_counter-1] == 13)){
-				gsm_buffer[gsm_message_check_counter-1] = 0;
+//				c
 //				gsm_buffer[gsm_message_check_counter-2] = 0;
 				break;
 			}
@@ -85,16 +130,7 @@ char get_next_gsm_message(){
 
  char check_gsm_message(){
 		while(get_next_gsm_message()){
-			switch (parse_gsm_message()){
-				case INCOMING_SMS:
-					send_command_to_GSM("AT+CMGR=1,0","+CMGR:",gsm_message,2,5);
-					send_command_to_GSM("","0008",gsm_message,2,5);
-//					get_next_gsm_message();
-					parse_incoming_sms();
-					send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,2,5);
-				break;
-			}
-
+			parse_gsm_message();
 		}
 	return 0;
 }
@@ -102,12 +138,49 @@ char get_next_gsm_message(){
 
 
 char parse_gsm_message(){
-	char gsm_message_number = UNKNOW_GSM_MESSAGE;
-	if (find_str("OK\r\n",gsm_message)) gsm_message_number = OK_GSM_MESSAGE;
-	if (find_str("ERROR\r\n",gsm_message)) gsm_message_number = ERROR_GSM_MESSAGE;
-	if (find_str("+CMTI:",gsm_message)) gsm_message_number = INCOMING_SMS;
+	int return_gsm_message = GSM_MESSAGE_UNKNOW;
+	if (find_str("+CMTI:",gsm_message)){
+		send_command_to_GSM("AT+CMGR=1,0","+CMGR:",gsm_message,2,5);
+		send_command_to_GSM("","0008",gsm_message,2,5);
+	//					get_next_gsm_message();
+		parse_incoming_sms();
+		send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,2,5);
+		return_gsm_message = GSM_MESSAGE_INCOMING_SMS;
+	}else if (find_str("+CPIN:",gsm_message)){
+		if (find_str("READY",gsm_message)){
+//			modem_state = MODEM_STATE_NO_SIM;
+//			return_gsm_message = GSM_MESSAGE_NO_SIM;
+		}
+		if (find_str("NOT INSERTED",gsm_message)){
+			modem_state = MODEM_STATE_NO_SIM;
+			return_gsm_message = GSM_MESSAGE_NO_SIM;
+		}
+
+	} else if (find_str("+COPS:",gsm_message)){
+		if (str_length(gsm_message) > 15) {
+			modem_state = MODEM_STATE_SETUP;
+		}else{
+			modem_state = MODEM_STATE_OFFLINE;
+		}
+	}else if (find_str("BUSY",gsm_message)){
+			modem_action = MODEM_ACTION_FREE;
+			return_gsm_message = GSM_MESSAGE_CALL_BUSY;
+	}else if (find_str("NO ANSWER",gsm_message)){
+			modem_action = MODEM_ACTION_FREE;
+			return_gsm_message = GSM_MESSAGE_CALL_NO_ANSWER;
+	}else if (find_str("+CSQ:",gsm_message)){
+		if (gsm_message[7] == ','){
+			gsm_signal_quality = gsm_message[6] - 48;
+		}else{
+			gsm_signal_quality = (gsm_message[6] - 48) * 10 + (gsm_message[7] - 48);
+		}
+	}else if (find_str("OK\r\n",gsm_message)){
+		return_gsm_message = GSM_MESSAGE_OK;
+	}else if (find_str("ERROR\r\n",gsm_message)){
+		return_gsm_message = GSM_MESSAGE_ERROR;
+	}
 	clear_gsm_message();
-	return gsm_message_number;
+	return return_gsm_message;
 }
 
 void clear_gsm_message(){
@@ -124,7 +197,7 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, i
 	send_string_to_GSM(s);
 	send_char_to_GSM('\r');
 	while(max_t > 0){
-		set_timeout(t_msec);
+		set_timeout_7(t_msec);
 		while_timeout_7();
 		char c = get_next_gsm_message();
 		if(c == NO_ANSWER){
@@ -133,7 +206,7 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, i
 			if (find_str(await_ans,answer)) return OK_ANSWER;
 			else{
 				max_t -= t_msec;
-				if (parse_gsm_message() == ERROR_GSM_MESSAGE) return NO_ANSWER;;
+				if (parse_gsm_message() == GSM_MESSAGE_ERROR) return NO_ANSWER;;
 			}
 		}
 	}
@@ -196,7 +269,7 @@ char modem_send_sms_message(char * number,char * text){
 	 send_char_to_GSM(0x1a);
 //	 if (!send_command_to_GSM(0x1a,">",gsm_message,2,12)) return 0;
 //	 if (!send_command_to_GSM("\x1a",">",gsm_message,2,12)) return 0;
-	 if (!send_command_to_GSM("","+CMGS:",gsm_message,2,12)) return 0;
+	 if (!send_command_to_GSM("","+CMGS:",gsm_message,2,40)) return 0;
 	 return 1;
 
 
@@ -295,9 +368,12 @@ void convert_number_to_eng(char * number){
 }
 
 void modem_call(char * number){
-	send_string_to_GSM("ATD+79");
-	send_string_to_GSM(number);
-	send_string_to_GSM(";\n\r");
+	if (modem_action == MODEM_ACTION_FREE){
+		send_string_to_GSM("ATD+79");
+		send_string_to_GSM(number);
+		send_string_to_GSM(";\n\r");
+		modem_action = MODEM_ACTION_CALL;
+	}
 }
 
 

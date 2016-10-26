@@ -62,7 +62,7 @@ void sms_command_nn(){
 void sms_command_r(){
 		char a[1];
 		unsigned int i;
-		str_add_str(output_sms_message,(guard_st ? "na ograne" : "snqt s ohranQ "));
+		str_add_str(output_sms_message,(guard_st ? "na ohrane" : "snqt s ohranQ "));
 		str_add_str(output_sms_message,"vh:");
 		for (i = 1;i<6;i++) {
 			a[0] = (('-' - (check_input(i)*2)));

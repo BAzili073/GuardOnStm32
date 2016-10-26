@@ -54,26 +54,42 @@ int main(void) {
 
 //	led_blink(7,1,1);
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
-	MODEM_ON();
-	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
-		guard_on();
-	}
-
-	if (device_settings & DEVICE_SETTING_SMS_AT_STARTUP){
-		str_add_str(output_sms_message,"ver:5.0 ");
-		sms_command_r();
-	}
+	//MODEM_ON();
+//	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
+//		guard_on();
+//	}
+//
+//	if (device_settings & DEVICE_SETTING_SMS_AT_STARTUP){
+//		str_add_str(output_sms_message,"ver:5.0 ");
+//		sms_command_r();
+//	}
 
 
     while(1) {
-
-    	if (!modem_state) MODEM_ON();
-    	else{
+//    	main_guard();
+    	check_gsm_message();
+    	modem_check_state();
+    		int a = GPIO_READ(GPIOA,GPIO_PIN_15);
+    		if (!a){
+//    			 modem_call("021201364");
+//    			 modem_call("061430141");
 //    		modem_send_sms_message(tel_number[0],"vse horowo 9?01573 1e 3 c ");
-    		check_gsm_message();
+
+
+//    		if (one_wire_start_conversion_temp()){
+//    		    					for (uint8_t f = 0;f<2;f++){
+//    		    						send_string_to_GSM("f");
+//    		    						send_char_to_GSM(48+f);
+//    		    						send_string_to_GSM(" = ");
+//    									send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
+//    									send_string_to_GSM("\n\r");
+//    		    					}
+//    		    				}else{
+//    		    					send_string_to_GSM("no dev");
+//    		    				}
     	}
 
-		set_timeout_7(20);
+		set_timeout_7(50);
 		while_timeout_7();
 //    	else{
 //    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;

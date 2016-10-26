@@ -35,11 +35,11 @@ void GPIO_init(){
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( GPIOA, &initSrtuct);
 
-//		initSrtuct.Alternate = 0;
-//		initSrtuct.Mode = GPIO_MODE_INPUT;
-//		initSrtuct.Pin = (GPIO_PIN_0 | GPIO_PIN_4);
-//		initSrtuct.Speed = GPIO_SPEED_HIGH;
-//		HAL_GPIO_Init( GPIOA, &initSrtuct);
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_INPUT;
+		initSrtuct.Pin = (GPIO_PIN_15);
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( GPIOA, &initSrtuct);
 
 
 

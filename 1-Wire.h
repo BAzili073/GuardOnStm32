@@ -10,7 +10,7 @@ uint8_t * one_wire_enum_next();
 int16_t one_wire_read_temp_to_address(uint8_t address[8]);
 uint8_t one_wire_start_conversion_temp();
 uint8_t one_wire_check_keys();
-
+void get_all_temp();
 
 char ds18x20_id[MAX_DS18x20][8];
 char tm_id[MAX_TM][8];

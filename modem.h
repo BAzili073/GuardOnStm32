@@ -1,5 +1,4 @@
 #include "defines.h"
-int check_gsm_messages();
 void MODEM_ON();
 char modem_call(char * number);
 char modem_send_sms_message(char * number,char * text);
@@ -14,3 +13,4 @@ int modem_state;
 char input_sms_message[70];
 char output_sms_message[70];
 char gsm_message[GSM_MESSAGE_SIZE];
+void modem_check_state();

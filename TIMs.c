@@ -3,17 +3,21 @@
 
 #include "defines.h"
 #include "guard_func.h"
+#include "1-Wire.h"
 
 int8_t lamp_blink_time = 5;
 int8_t led_blink_time[8];
 uint8_t m_sec = 0;
 
 int timeout_7;
+char state_check_term = 0;
 
 void check_time_to_alarm();
 void check_lamp_blink();
 void check_led_blink();
 void check_time_to_guard_on();
+
+
 
 void TIM2_init(){
 	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
@@ -39,9 +43,21 @@ void  TIM7_IRQHandler(){
 	  check_led_blink();
 	  m_sec++;
 	  if (m_sec == 10) {
-	  		m_sec = 0;
-	  		check_time_to_alarm();
-	  		check_time_to_guard_on();
+//		  	static int time_check_term;
+//		  	time_check_term++;
+//		  	if(time_check_term == TIME_FOR_CHECK_TEMP){
+//		  		time_check_term = 0;
+//		  		if (!state_check_term){
+//		  			state_check_term = !state_check_term;
+//		  			one_wire_start_conversion_temp();
+//		  		}else{
+//		  			state_check_term = !state_check_term;
+//		  			get_all_temp();
+//		  		}
+//		  	}
+//	  		m_sec = 0;
+//	  		check_time_to_alarm();
+//	  		check_time_to_guard_on();
 	  	}
 }
 

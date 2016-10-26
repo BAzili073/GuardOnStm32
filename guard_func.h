@@ -48,4 +48,6 @@ uint8_t tel_access[MAX_TEL_NUMBERS];
 uint8_t last_control_ID_number;
 char last_control_guard[13];
 
+void main_guard();
+
 #endif
