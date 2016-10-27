@@ -74,8 +74,8 @@
 #define LED_5 GPIO_PIN_4
 #define LED_6 GPIO_PIN_5
 
-#define LED_7 GPIO_PIN_6
-#define LED_8 GPIO_PIN_7
+#define LED_7 GPIO_PIN_4// GPIO_PIN_6
+#define LED_8 GPIO_PIN_5 //GPIO_PIN_7
 //DEBUG
 //#define LED_7 GPIO_PIN_8
 //#define LED_8 GPIO_PIN_9

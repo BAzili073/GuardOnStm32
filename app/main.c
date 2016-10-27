@@ -13,6 +13,7 @@
 #include "modem.h"
 #include "string.h"
 #include "EEPROMfunc.h"
+#include "SPI.h"
 
 //#include <strings.h>
 
@@ -23,16 +24,24 @@ char number_call[10] = {"9021201364"};
 //    for (i=0; i != 0x80000; i++);
 //}
 
-//void one_wire_interrupt_init(){
-////	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
-//	RCC -> APB2ENR |= RCC_APB2RSTR_SYSCFGRST;
-//	SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR2_EXTI5_PB;
-//	EXTI -> IMR |= EXTI_IMR_MR5;
-////	EXTI -> EMR |= EXTI_EMR_MR5;
-//	EXTI -> FTSR |= EXTI_FTSR_TR5;
-//	NVIC_EnableIRQ(EXTI9_5_IRQn);
-//}
+void GPIO_interrupt_init(){
+//	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
+	RCC -> APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+	SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR1_EXTI0_PA;
+	EXTI -> IMR |= EXTI_IMR_MR0;
+	EXTI -> EMR |= EXTI_EMR_MR0;
+//	EXTI -> FTSR |= EXTI_FTSR_TR0;
+	EXTI -> RTSR |= EXTI_RTSR_TR0;
+	NVIC_EnableIRQ(EXTI0_IRQn);
+}
 ////
+
+void EXTI0_IRQHandler(){
+	modem_time_check = 100;
+	send_string_to_GSM("#############INTERRUPT#############");
+	EXTI -> PR |= EXTI_PR_PR0;
+}
+
 //void EXTI9_5_IRQHandler(){
 //	if (one_wire_check_keys()) GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
 //	EXTI -> PR |= EXTI_PR_PR5;
@@ -51,6 +60,7 @@ int main(void) {
 //    TIM2_init(); //PWM
 	TIM7_init();
 	UART1_init();
+	GPIO_interrupt_init();
 
 //	led_blink(7,1,1);
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
@@ -63,13 +73,33 @@ int main(void) {
 //		str_add_str(output_sms_message,"ver:5.0 ");
 //		sms_command_r();
 //	}
-
-
+	uint16_t a;
+SPI1_Init();
+ADXL_setup();
+a = SPI_read_reg(0x31);
+send_string_to_GSM("\r\n0x31 = ");
+send_int_to_GSM(a);
     while(1) {
+
 //    	main_guard();
-    	check_gsm_message();
-    	modem_check_state();
-    		int a = GPIO_READ(GPIOA,GPIO_PIN_15);
+//    	check_gsm_message();
+//    	modem_check_state();
+//
+    		a = SPI_read_reg(0x30);
+    		send_string_to_GSM("\r\nINT = ");
+    		send_int_to_GSM(a);
+    		if (modem_time_check) GPIO_HIGH(GPIOB,GPIO_PIN_4);
+    		else GPIO_LOW(GPIOB,GPIO_PIN_4);
+//
+//    		a = 0;
+//    		a = SPI_read_reg(0x35);
+//    		send_string_to_GSM("\r\nY = ");
+//    		send_int_to_GSM(a);
+//    		a = 0;
+//    		a = SPI_read_reg(0x37);
+//    		send_string_to_GSM("\r\nZ = ");
+//    		send_int_to_GSM(a);
+//    		a = 0;
     		if (!a){
 //    			 modem_call("021201364");
 //    			 modem_call("061430141");
@@ -89,7 +119,7 @@ int main(void) {
 //    		    				}
     	}
 
-		set_timeout_7(1);
+		set_timeout_7(10);
 		while_timeout_7();
 //    	else{
 //    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;

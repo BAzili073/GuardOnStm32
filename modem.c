@@ -197,7 +197,7 @@ void incoming_call(){
 		modem_action = MODEM_ACTION_INCOMING_CALL;
 	}
 	  incoming_rings ++;
-	if (INCOMING_RINGS == 4) {
+	if (incoming_rings == 4) {
 		send_string_to_GSM("ATA\r");
 		modem_action = MODEM_ACTION_TALK;
 	}
