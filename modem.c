@@ -7,6 +7,7 @@
 #include "guard_func.h"
 #include "my_string.h"
 #include "sms_command.h"
+#include "modem.h"
 
 void send_text_as_ucs(char * out_message, unsigned int len);
 char parse_gsm_message();

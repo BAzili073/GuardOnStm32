@@ -2,6 +2,8 @@
 #include "stm32l151xba.h"
 
 #include "defines.h"
+#include "modem.h"
+#include "UART.h"
 
 void GPIO_init(){
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
@@ -41,12 +43,25 @@ void GPIO_init(){
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( GPIOA, &initSrtuct);
 
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_IT_RISING_FALLING;
+		initSrtuct.Pin = GPIO_PIN_0;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( GPIOA, &initSrtuct);
+
 
 
 
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
 		initSrtuct.Pin = (LED_7 | LED_8) ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( GPIOB, &initSrtuct);
+
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_ANALOG;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = (GPIO_PIN_12) ;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( GPIOB, &initSrtuct);
 
@@ -75,4 +90,8 @@ void GPIO_init(){
 			GPIO_HIGH(MODEM_ON_PORT,MODEM_ON_PIN);
 
 }
+
+
+////
+
 

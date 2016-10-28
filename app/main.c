@@ -23,7 +23,6 @@ char number_call[10] = {"9021201364"};
 //volatile uint32_t i;
 //    for (i=0; i != 0x80000; i++);
 //}
-
 void GPIO_interrupt_init(){
 //	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
 	RCC -> APB2ENR |= RCC_APB2ENR_SYSCFGEN;
@@ -34,13 +33,14 @@ void GPIO_interrupt_init(){
 	EXTI -> RTSR |= EXTI_RTSR_TR0;
 	NVIC_EnableIRQ(EXTI0_IRQn);
 }
-////
+
 
 void EXTI0_IRQHandler(){
 	modem_time_check = 100;
 	send_string_to_GSM("#############INTERRUPT#############");
 	EXTI -> PR |= EXTI_PR_PR0;
 }
+
 
 //void EXTI9_5_IRQHandler(){
 //	if (one_wire_check_keys()) GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
@@ -62,6 +62,10 @@ int main(void) {
 	UART1_init();
 	GPIO_interrupt_init();
 
+
+
+
+
 //	led_blink(7,1,1);
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
 	//MODEM_ON();
@@ -76,18 +80,18 @@ int main(void) {
 	uint16_t a;
 SPI1_Init();
 ADXL_setup();
-a = SPI_read_reg(0x31);
-send_string_to_GSM("\r\n0x31 = ");
-send_int_to_GSM(a);
     while(1) {
 
 //    	main_guard();
 //    	check_gsm_message();
 //    	modem_check_state();
 //
-    		a = SPI_read_reg(0x30);
-    		send_string_to_GSM("\r\nINT = ");
-    		send_int_to_GSM(a);
+//    		a = ADC_read(ADC_CHANNEL_18);
+			a = SPI_read_reg(0x32);
+			send_string_to_GSM("\r\n0x32 = ");
+			send_int_to_GSM(a);
+//    		send_string_to_GSM("\r\nINT = ");
+//    		send_int_to_GSM(a);
     		if (modem_time_check) GPIO_HIGH(GPIOB,GPIO_PIN_4);
     		else GPIO_LOW(GPIOB,GPIO_PIN_4);
 //
