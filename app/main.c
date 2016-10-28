@@ -14,6 +14,7 @@
 #include "string.h"
 #include "EEPROMfunc.h"
 #include "SPI.h"
+#include "FingerPrint.h"
 
 //#include <strings.h>
 
@@ -23,24 +24,7 @@ char number_call[10] = {"9021201364"};
 //volatile uint32_t i;
 //    for (i=0; i != 0x80000; i++);
 //}
-void GPIO_interrupt_init(){
-//	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
-	RCC -> APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-	SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR1_EXTI0_PA;
-	EXTI -> IMR |= EXTI_IMR_MR0;
-	EXTI -> EMR |= EXTI_EMR_MR0;
-//	EXTI -> FTSR |= EXTI_FTSR_TR0;
-	EXTI -> RTSR |= EXTI_RTSR_TR0;
-	NVIC_EnableIRQ(EXTI0_IRQn);
-}
 
-
-void EXTI0_IRQHandler(){
-	modem_time_check = 100;
-	send_string_to_GSM("#############INTERRUPT#############");
-	EXTI -> PR |= EXTI_PR_PR0;
-	SPI_read_reg(0x30);
-}
 
 
 //void EXTI9_5_IRQHandler(){
@@ -61,6 +45,7 @@ int main(void) {
 //    TIM2_init(); //PWM
 	TIM7_init();
 	UART1_init();
+	UART2_init();
 	GPIO_interrupt_init();
 
 
@@ -91,8 +76,7 @@ ADXL_setup();
     		if (a>3000) GPIO_HIGH(GPIOB,GPIO_PIN_5);
     		else GPIO_LOW(GPIOB,GPIO_PIN_5);
 //			a = SPI_read_reg(0x30);
-			send_string_to_GSM("\r\nADC = ");
-			send_int_to_GSM(a);
+
 //    		send_string_to_GSM("\r\nINT = ");
 //    		send_int_to_GSM(a);
     		if (modem_time_check) GPIO_HIGH(GPIOB,GPIO_PIN_4);
@@ -107,6 +91,10 @@ ADXL_setup();
 //    		send_string_to_GSM("\r\nZ = ");
 //    		send_int_to_GSM(a);
 //    		a = 0;
+    		send_command_to_FP(FP_FINGER_DETECT);
+    		a = FP_check();
+    		send_string_to_GSM("\r\nFINGER = ");
+			send_int_to_GSM(a);
     		if (!a){
 //    			 modem_call("021201364");
 //    			 modem_call("061430141");
@@ -126,7 +114,7 @@ ADXL_setup();
 //    		    				}
     	}
 
-		set_timeout_7(10);
+		set_timeout_7(30);
 		while_timeout_7();
 //    	else{
 //    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;

@@ -1,0 +1,11 @@
+const char FP_FINGER_DETECT[26];
+char FP_TestConnection[26];
+char FP_GET_IMAGE[26];
+char FP_AFM_GO_TO_STANDBYMODE[26];
+char FP_GENERATE[26];
+char FP__MERGE[26];
+char FP_SEARCH[26];
+char FP_GET_EMPTY_ID[26];
+char  FP_GET_ENROLL_COUNT[26];
+char FP_DEL_CHAR[26];
+char FP_GENERATE_FOR_ENROLL[26];

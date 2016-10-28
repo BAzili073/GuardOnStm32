@@ -30,6 +30,17 @@ void GPIO_init(){
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( GPIOA, &initSrtuct);
 
+
+		//UART2
+		initSrtuct.Alternate = GPIO_AF7_USART2;
+		initSrtuct.Mode = GPIO_MODE_AF_PP;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( GPIOA, &initSrtuct);
+
+
+
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_AF_PP;
 		initSrtuct.Pull = GPIO_NOPULL;
@@ -93,5 +104,22 @@ void GPIO_init(){
 
 
 ////
+void GPIO_interrupt_init(){
+//	AFIO -> EXTICR[1] |= AFIO_EXTICR2_EXTI4_PA;
+	RCC -> APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+	SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR1_EXTI0_PA;
+	EXTI -> IMR |= EXTI_IMR_MR0;
+	EXTI -> EMR |= EXTI_EMR_MR0;
+//	EXTI -> FTSR |= EXTI_FTSR_TR0;
+	EXTI -> RTSR |= EXTI_RTSR_TR0;
+	NVIC_EnableIRQ(EXTI0_IRQn);
+}
 
+
+void EXTI0_IRQHandler(){
+	modem_time_check = 100;
+	send_string_to_GSM("#############INTERRUPT#############");
+	EXTI -> PR |= EXTI_PR_PR0;
+	SPI_read_reg(0x30);
+}
 

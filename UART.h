@@ -1,8 +1,12 @@
 #ifdef UART_H
 #else
 #define UART_H
+
+#include "defines.h"
 unsigned int gsm_buffer_char_counter;
 char gsm_buffer[GSM_BUFFER_SIZE];
+
+char UART2_message[UART2_MESSAGE_SIZE];
 
 void UART1_init();
 void send_string_to_GSM(char * s);
