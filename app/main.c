@@ -91,6 +91,7 @@ ADXL_setup();
 //    		send_string_to_GSM("\r\nZ = ");
 //    		send_int_to_GSM(a);
 //    		a = 0;
+//    		send_command_to_FP(FP_SET_PARAM);
     		send_command_to_FP(FP_FINGER_DETECT);
     		a = FP_check();
     		send_string_to_GSM("\r\nFINGER = ");
@@ -114,7 +115,7 @@ ADXL_setup();
 //    		    				}
     	}
 
-		set_timeout_7(30);
+		set_timeout_7(1);
 		while_timeout_7();
 //    	else{
 //    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;

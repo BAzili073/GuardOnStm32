@@ -125,6 +125,7 @@ char UART2_get_next_data(){
 		if (uart2_buffer_char_counter == uart2_check_counter) return 1;
 		UART2_message[i] = uart2_buffer[uart2_check_counter];
 		uart2_check_counter++;
+		if (uart2_check_counter == UART2_BUFFER_SIZE) uart2_check_counter = 0;
 		//if (gsm_buffer_char_counter == (uart2_check_counter)) return 0;
 	}
 	return 1;
