@@ -39,6 +39,7 @@ void EXTI0_IRQHandler(){
 	modem_time_check = 100;
 	send_string_to_GSM("#############INTERRUPT#############");
 	EXTI -> PR |= EXTI_PR_PR0;
+	SPI_read_reg(0x30);
 }
 
 
@@ -86,9 +87,11 @@ ADXL_setup();
 //    	check_gsm_message();
 //    	modem_check_state();
 //
-//    		a = ADC_read(ADC_CHANNEL_18);
-			a = SPI_read_reg(0x32);
-			send_string_to_GSM("\r\n0x32 = ");
+    		a = ADC_read(ADC_CHANNEL_18);
+    		if (a>3000) GPIO_HIGH(GPIOB,GPIO_PIN_5);
+    		else GPIO_LOW(GPIOB,GPIO_PIN_5);
+//			a = SPI_read_reg(0x30);
+			send_string_to_GSM("\r\nADC = ");
 			send_int_to_GSM(a);
 //    		send_string_to_GSM("\r\nINT = ");
 //    		send_int_to_GSM(a);
