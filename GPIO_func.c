@@ -56,10 +56,16 @@ void GPIO_init(){
 
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_IT_RISING_FALLING;
-		initSrtuct.Pin = GPIO_PIN_0;
+		initSrtuct.Pin = GPIO_PIN_0 | GPIO_PIN_11 | GPIO_PIN_12 ;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( GPIOA, &initSrtuct);
 
+
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_IT_RISING_FALLING;
+		initSrtuct.Pin = GPIO_PIN_9 ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( GPIOB, &initSrtuct);
 
 
 
@@ -106,12 +112,26 @@ void GPIO_init(){
 ////
 void GPIO_interrupt_init(){
 	RCC -> APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
 	SYSCFG -> EXTICR[1] |= SYSCFG_EXTICR1_EXTI0_PA;
-	EXTI -> IMR |= EXTI_IMR_MR0;
-	EXTI -> EMR |= EXTI_EMR_MR0;
-//	EXTI -> FTSR  = EXTI_FTSR_TR0;
-	EXTI -> RTSR |= EXTI_RTSR_TR0;
+	SYSCFG -> EXTICR[3] |= SYSCFG_EXTICR3_EXTI9_PB;
+	SYSCFG -> EXTICR[3] |= SYSCFG_EXTICR3_EXTI11_PA;
+	SYSCFG -> EXTICR[4] |= SYSCFG_EXTICR4_EXTI12_PA;
+
+
+	EXTI -> IMR |= EXTI_IMR_MR0 | EXTI_IMR_MR9 | EXTI_IMR_MR11 | EXTI_IMR_MR12;
+	EXTI -> EMR |= EXTI_EMR_MR0 | EXTI_EMR_MR9 | EXTI_EMR_MR11 | EXTI_EMR_MR12;
+
+
+	EXTI -> FTSR = 0;
+	EXTI -> RTSR = 0;
+	EXTI -> FTSR |= EXTI_FTSR_TR0 | EXTI_FTSR_TR9 | EXTI_FTSR_TR11 |EXTI_FTSR_TR12;
+	EXTI -> RTSR |= EXTI_RTSR_TR12 | EXTI_RTSR_TR11;//EXTI_RTSR_TR0 | EXTI_RTSR_TR9  |
+
+
 	NVIC_EnableIRQ(EXTI0_IRQn);
+	NVIC_EnableIRQ(EXTI9_5_IRQn);
+	NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
 

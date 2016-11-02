@@ -16,7 +16,7 @@
 //#define int16_t int
 
 
-//#define DEBUG_FINGER
+#define DEBUG_FINGER
 
 #define true 1
 #define false 0

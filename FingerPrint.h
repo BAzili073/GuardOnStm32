@@ -1,4 +1,6 @@
 int FP_detect_time;
+char FP_check_allow;
+char FP_time_for_rec;
 
 int alarm_flag[3];
 int FP_time_check;

@@ -51,6 +51,8 @@ void  TIM7_IRQHandler(){
 	  m_sec++;
 
 	  if (m_sec == 10) {
+		  if (FP_time_for_rec) FP_time_for_rec--;
+		  if (modem_time_on && (modem_time_on<200)) modem_time_on--;
 		  if ((alarm_flag[ALARM_FLAG_ACC]) && (alarm_flag[ALARM_FLAG_ACC] < 200)) alarm_flag[ALARM_FLAG_ACC]--;
 		  if ((alarm_flag[ALARM_FLAG_TEMPERATURE]) && (alarm_flag[ALARM_FLAG_TEMPERATURE]<200)) alarm_flag[ALARM_FLAG_TEMPERATURE]--;
 //		  	static int time_check_term;

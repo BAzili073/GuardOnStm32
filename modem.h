@@ -49,6 +49,7 @@ void modem_check_state();
 
 
 ////VARIABLES
+int modem_time_on;
 int modem_state;
 char modem_time_check;
 char input_sms_message[70];

@@ -31,7 +31,7 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int ma
 void convert_number_to_upd(char * number);
 unsigned int hexchar_to_dec(char a);
 void send_int_as_hex_to_GSM(int x);
-
+int modem_time_on = 0;
 
 char gsm_message[GSM_MESSAGE_SIZE];
 char output_sms_message[70];
@@ -310,8 +310,6 @@ void clear_output_sms_message(){
 
 
 char modem_send_sms_message(char * number,char * text){
-	set_timeout_7(2);
-	while_timeout_7();
 	if (modem_state != MODEM_STATE_ONLINE){
 		if (modem_state == MODEM_STATE_NOT_NEED){
 				modem_state = MODEM_STATE_OFF;

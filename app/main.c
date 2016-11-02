@@ -33,11 +33,34 @@ char number_call[10] = {"9021201364"};
 //}
 
 void EXTI0_IRQHandler(){
-	if (!alarm_flag[ALARM_FLAG_ACC]) alarm_flag[ALARM_FLAG_ACC] = 250;
-	SPI_read_reg(0x30);
+//	if (!alarm_flag[ALARM_FLAG_ACC]) alarm_flag[ALARM_FLAG_ACC] = 250;
 	EXTI -> PR |= EXTI_PR_PR0;
+	SPI_read_reg(0x30);
 }
 
+void EXTI9_5_IRQHandler(){
+	if (EXTI -> PR & EXTI_PR_PR9){
+		EXTI -> PR |= EXTI_PR_PR9;
+		if (!modem_time_on){
+			modem_time_on = 250;
+		}
+	}
+}
+
+void EXTI15_10_IRQHandler(){
+	if (EXTI -> PR & EXTI_PR_PR11){
+		EXTI -> PR |= EXTI_PR_PR11;
+		if (GPIO_READ(GPIOA,GPIO_PIN_11)){
+			FP_check_allow = 0;
+		}else{
+			FP_check_allow = 1;
+		}
+	}else if(EXTI -> PR & EXTI_PR_PR12){
+		EXTI -> PR |= EXTI_PR_PR12;
+		FP_time_for_rec = 60;
+
+	}
+}
 
 
 
@@ -80,10 +103,14 @@ int main(void) {
 //    	main_guard();
     	check_gsm_message();
     	check_alarm();
-    	if (!FP_time_check){
-    		FP_check();
-    		FP_time_check = 3;
+
+    	if (FP_check_allow){
+			if (!FP_time_check){
+				FP_check();
+				FP_time_check = 3;
+			}
     	}
+
     	if (!modem_time_check){
     		modem_check_state();
     		modem_time_check = 30;
@@ -94,7 +121,9 @@ int main(void) {
 			}
 			temperature_time_check = 5;
     	}
-	}
+	set_timeout_7(1);
+	while_timeout_7();
+    }
     return 0;
 }
 
@@ -159,6 +188,18 @@ volatile uint32_t psr;/* Program status register. */
 
 
 void check_alarm(){
+	if (modem_time_on){
+		if (modem_time_on == 250){
+			if (modem_send_sms_message(tel_number[0],"vklUCenie modema")){
+					modem_time_on = 180;
+			}
+		}
+		if ((modem_time_on == 1) && (modem_state == MODEM_STATE_ONLINE)){
+			MODEM_OFF();
+		}
+	}
+
+
 	if (alarm_flag[ALARM_FLAG_ACC] == 250){
 		if (modem_send_sms_message(tel_number[0],"akselerometr srabotal")){
 					alarm_flag[ALARM_FLAG_ACC] = 180;

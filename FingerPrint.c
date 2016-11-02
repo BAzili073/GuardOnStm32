@@ -43,6 +43,8 @@ char empty_id[2];
 char generate_for_enroll_step = 1;
 char FP_try = 0;
 int FP_time_check = 2;
+char FP_check_allow;
+char FP_time_for_rec = 0;
 
 const char FP_CMD_FINGER_DETECT[26] = 	{0x55,0xAA,0x00,0x00,0x21,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x01};
 char FP_CMD_TEST_CONNECTION[26] = 		{0x55,0xAA,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01};
@@ -73,7 +75,7 @@ char FP_check(){
 			FP_detect_time = 20;
 			led_on_mode(6);
 			FP_current_step = FP_STEP_DETETCT_FINGER;
-			if (FP_current_mode == FP_MODE_REC){
+			if (FP_time_for_rec){
 				FP_current_step = FP_STEP_INPUT;
 				send_command_to_FP(FP_CMD_GET_EMPTY_ID);
 				FP_current_mode = FP_MODE_REC;
@@ -91,10 +93,12 @@ char FP_check(){
 			led_on_mode(5);
 			FP_detect_time = 10;
 			FP_try = 0;
+			alarm_flag[ALARM_FLAG_FP_TRY] = 0;
 			FP_current_step = FP_STEP_DETETCT_FINGER;
 		}
 /////////////          STORE SUCC
 		if ((response == FP_RESPONSE_STORE_SUCC)){
+			FP_time_for_rec = 0;
 			empty_id[0] = 0;
 			empty_id[1] = 0;
 			FP_current_mode = FP_MODE_MAIN;
