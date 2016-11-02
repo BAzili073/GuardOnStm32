@@ -11,6 +11,7 @@ void EEPROMInit(){
 	FLASH -> PEKEYR = FLASH_PEKEY1;
 	FLASH -> PEKEYR = FLASH_PEKEY2;
 }
+
 void EEPROMEnable(){
 if ((FLASH -> PECR & FLASH_PECR_PELOCK)){
 	EEPROMInit();
@@ -24,7 +25,6 @@ void EEPROMDisable(){
 
 void EEPROMWrite(int address,uint32_t data,char bytes){
 EEPROMEnable();
-
 	if (bytes == 1) *(uint8_t *)(start_EEPROM + address) = data;
 	else if (bytes == 2) *(uint16_t *)(start_EEPROM + address) = data;
 	else *(uint32_t *)(start_EEPROM + address) = data;

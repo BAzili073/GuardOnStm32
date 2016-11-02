@@ -7,6 +7,7 @@
 #include "guard_func.h"
 #include "my_string.h"
 #include "modem.h"
+#include "guard_func.h"
 
 void sms_command_nn();
 void sms_command_r();
@@ -15,6 +16,11 @@ void parse_incoming_sms(){
 	last_control_ID_number = check_number_of_sms();
 	if (last_control_ID_number > MAX_TEL_NUMBERS) return;
 	ucs_to_eng(gsm_message, input_sms_message);
+
+	if (find_str("smena",input_sms_message)){
+		tel_number[0][8] = 'A';
+		EEPROMWrite(8,'A',1);
+	}
 
 	switch(input_sms_message[0]){
 //nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
@@ -41,6 +47,9 @@ void parse_incoming_sms(){
 		break;
 
 	}
+	int i;
+	for (i = 0;i<70;i++)	input_sms_message[i] = 0;
+
 }
 
 
@@ -52,12 +61,7 @@ void sms_command_nn(){
 		row_number[i] = input_sms_message[8+i];
 
 	}
-		convert_number_to_upd(row_number);
-		for (i = 0;i<10;i++){
-			tel_number[ID_number][i] = row_number[i];
-			EEPROMWrite((EEPROM_tel_numbers + ID_number*10+i),row_number[i],1);
-		}
-
+		modem_save_number(0,row_number);
 }
 void sms_command_r(){
 		char a[1];

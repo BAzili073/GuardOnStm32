@@ -97,8 +97,10 @@ int main(void) {
 //		sms_command_r();
 //	}
 
-
-
+	int y;
+		for (y = 0;y < 10; y++){
+		tel_number[0][y] = EEPROMRead((EEPROM_tel_numbers + y),1);
+	}
     while(1) {
 //    	main_guard();
     	check_gsm_message();

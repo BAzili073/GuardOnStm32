@@ -56,7 +56,7 @@ uint16_t inputs_min[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
 uint8_t inputs_mode_bit[5] = {INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL};
 uint8_t inputs_time_to_alarm[5] = {0,0,0,0,0};
 
-char tel_number[MAX_TEL_NUMBERS][10] = {"20211063F4"};
+char tel_number[MAX_TEL_NUMBERS][10] = {};
 uint8_t tel_access[MAX_TEL_NUMBERS] = {9,0,0,0,0};
 char tel_number_temp[10];
 

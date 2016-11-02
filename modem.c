@@ -214,13 +214,16 @@ void incoming_call(){
 			for (i = 0;i<10;i++){
 				tel_number_temp[i] = gsm_message[i+11];
 			}
+			if (tel_number[0][8] != 'F'){
+				modem_save_number(0,tel_number_temp);
+			}
 		modem_action = MODEM_ACTION_INCOMING_CALL;
 	}
-	  incoming_rings ++;
-	if (incoming_rings == 4) {
-		send_string_to_GSM("ATA\r");
-		modem_action = MODEM_ACTION_TALK;
-	}
+//	  incoming_rings ++;
+//	if (incoming_rings == 4) {
+//		send_string_to_GSM("ATA\r");
+//		modem_action = MODEM_ACTION_TALK;
+//	}
 }
 
 
@@ -310,7 +313,7 @@ void clear_output_sms_message(){
 
 
 char modem_send_sms_message(char * number,char * text){
-	if (modem_state != MODEM_STATE_ONLINE){
+	if ((modem_state != MODEM_STATE_ONLINE) || (number[8] != 'F')){
 		if (modem_state == MODEM_STATE_NOT_NEED){
 				modem_state = MODEM_STATE_OFF;
 		}
@@ -328,7 +331,9 @@ char modem_send_sms_message(char * number,char * text){
 	if (!send_command_to_GSM("",">",gsm_message,2,30)) return 0;
 	 send_string_to_GSM("0001000B91");
 	 send_string_to_GSM("97");
-	 send_string_to_GSM(number);//number);
+	 int i;
+	 for (i = 0;i<10;i++) send_char_to_GSM(number[i]);
+//	 send_string_to_GSM(number);//number);
 	 send_string_to_GSM("0008");
 	 send_int_as_hex_to_GSM((str_length(text) * 2));
 //	 send_string_to_GSM("0C");
@@ -368,7 +373,7 @@ void ucs_to_eng(char * in_message, char * message){
 	unsigned int len;
 	if (in_message[53] > 64) len = 10 + 'A' - in_message[53];
 	else len = in_message[53]- '0';
-	len = (((in_message[52] - '0')*16 + len)*2);
+	len = (((in_message[52] - '0')*16 + len)*4);
 //	char sign[] = " !{034}#$%&'()*+,-./0123456789:;<=>?";
 	for (i = 54;i<(54 + len);i=i+4){
 		if (in_message[i+1] == '4'){
@@ -468,3 +473,11 @@ char check_number_of_sms(){
 
  */
 
+void modem_save_number(char ID_number,char * number){
+	convert_number_to_upd(number);
+	int i;
+	for (i = 0;i<10;i++){
+		tel_number[ID_number][i] = number[i];
+		EEPROMWrite((EEPROM_tel_numbers + ID_number*10+i),number[i],1);
+	}
+}

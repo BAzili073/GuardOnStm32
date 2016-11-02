@@ -46,6 +46,7 @@ void ucs_to_eng(char * in_message, char * message);
 void send_text_as_ucs(char * out_message, unsigned int len);
 char check_gsm_message();
 void modem_check_state();
+void modem_save_number(char ID_number,char * number);
 
 
 ////VARIABLES
