@@ -22,6 +22,15 @@ uint8_t inputs_time_to_alarm[5];
 int8_t  led_blink_time_on[8];
 int8_t  led_blink_time_off[8];
 
+
+
+
+
+int temperature_time_check;
+
+
+
+
 void guard_on();
 void guard_off();
 

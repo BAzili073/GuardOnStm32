@@ -5,12 +5,14 @@
 #include "guard_func.h"
 #include "1-Wire.h"
 #include "modem.h"
+#include "FingerPrint.h"
+#include "guard_func.h"
 
 int8_t lamp_blink_time = 5;
 int8_t led_blink_time[8];
 uint8_t m_sec = 0;
 
-int timeout_7;
+volatile int timeout_7;
 char state_check_term = 0;
 
 void check_time_to_alarm();
@@ -38,14 +40,19 @@ void TIM7_init(){
 }
 
 void  TIM7_IRQHandler(){
+
 	  if (timeout_7) timeout_7 --;
 	  if (modem_time_check) modem_time_check--;
-      TIM7 -> SR &= ~TIM_SR_UIF;
+	  if (FP_detect_time) FP_detect_time--;
+	  if (FP_time_check) FP_time_check--;
+	  if (temperature_time_check) temperature_time_check--;
 	  check_lamp_blink();
 	  check_led_blink();
 	  m_sec++;
 
 	  if (m_sec == 10) {
+		  if ((alarm_flag[ALARM_FLAG_ACC]) && (alarm_flag[ALARM_FLAG_ACC] < 200)) alarm_flag[ALARM_FLAG_ACC]--;
+		  if ((alarm_flag[ALARM_FLAG_TEMPERATURE]) && (alarm_flag[ALARM_FLAG_TEMPERATURE]<200)) alarm_flag[ALARM_FLAG_TEMPERATURE]--;
 //		  	static int time_check_term;
 //		  	time_check_term++;
 //		  	if(time_check_term == TIME_FOR_CHECK_TEMP){
@@ -58,10 +65,11 @@ void  TIM7_IRQHandler(){
 //		  			get_all_temp();
 //		  		}
 //		  	}
-//	  		m_sec = 0;
+	  		m_sec = 0;
 //	  		check_time_to_alarm();
 //	  		check_time_to_guard_on();
 	  	}
+	   TIM7 -> SR &= ~TIM_SR_UIF;
 }
 
 void check_time_to_guard_on(){

@@ -16,6 +16,8 @@
 //#define int16_t int
 
 
+//#define DEBUG_FINGER
+
 #define true 1
 #define false 0
 #define GPIO_HIGH(PORT, PIN) PORT->BSRR = PIN

@@ -15,6 +15,7 @@
 #define MODEM_STATE_ONLINE 4
 #define MODEM_STATE_SETUP 5
 #define MODEM_STATE_STARTS 6
+#define MODEM_STATE_NOT_NEED 7
 
 #define MODEM_ACTION_FREE 0
 #define MODEM_ACTION_OUTGOING_CALL 1
@@ -34,6 +35,7 @@
 
 ////FUNCTION
 void MODEM_ON();
+void MODEM_OFF();
 void modem_call(char * number);
 char modem_send_sms_message(char * number,char * text);
 char send_sms_message_for_all(char * text,int function);

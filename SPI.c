@@ -103,7 +103,7 @@ void SPI_write_reg(char reg, char value)
 void ADXL_setup(){
 	SPI_write_reg(0x2d,0b00001000); //POWER_CTL
 	SPI_write_reg(0x27,0b01110000); //ACT_INACT_CTL
-	SPI_write_reg(0x24,30); //TRESH_ACT 62.5mg/lsb
+	SPI_write_reg(0x24,40); //TRESH_ACT 62.5mg/lsb
 	SPI_write_reg(0x2f,0b00000000);//INT_MAP
 	SPI_write_reg(0x31,0b00000000);//DATA_FORMAT
 	SPI_write_reg(0x2e,0b00010000);//INT_ENABLE

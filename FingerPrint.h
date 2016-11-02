@@ -1,12 +1,7 @@
-const char FP_FINGER_DETECT[26];
-char FP_TestConnection[26];
-char FP_GET_IMAGE[26];
-char FP_AFM_GO_TO_STANDBYMODE[26];
-char FP_GENERATE[26];
-char FP__MERGE[26];
-char FP_SEARCH[26];
-char FP_GET_EMPTY_ID[26];
-char  FP_GET_ENROLL_COUNT[26];
-char FP_DEL_CHAR[26];
-char FP_GENERATE_FOR_ENROLL[26];
-char FP_SET_PARAM[26];
+int FP_detect_time;
+
+int alarm_flag[3];
+int FP_time_check;
+#define ALARM_FLAG_TEMPERATURE 0
+#define ALARM_FLAG_ACC 1
+#define ALARM_FLAG_FP_TRY 2

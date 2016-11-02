@@ -121,14 +121,20 @@ void send_int_to_GSM(uint16_t num){
 char UART2_get_next_data(){
 	if (uart2_buffer_char_counter == uart2_check_counter) return 0;
 	int i;
-	for (i = 0;i<26;i++){
-		if (uart2_buffer_char_counter == uart2_check_counter) return 1;
-		UART2_message[i] = uart2_buffer[uart2_check_counter];
+	while (!((uart2_buffer[uart2_check_counter] == 0xAA) & (uart2_buffer[uart2_check_counter+1] == 0x55))){
 		uart2_check_counter++;
 		if (uart2_check_counter == UART2_BUFFER_SIZE) uart2_check_counter = 0;
-		//if (gsm_buffer_char_counter == (uart2_check_counter)) return 0;
-	}
-	return 1;
+		if (uart2_buffer_char_counter == uart2_check_counter) return 0;
+}
+		for (i = 0;i<26;i++){
+			if (uart2_buffer_char_counter == uart2_check_counter) return 1;
+			UART2_message[i] = uart2_buffer[uart2_check_counter];
+			uart2_check_counter++;
+			if (uart2_check_counter == UART2_BUFFER_SIZE) uart2_check_counter = 0;
+			//if (gsm_buffer_char_counter == (uart2_check_counter)) return 0;
+		}
+		return 1;
+
 }
 
 void UART2_clear_message(){

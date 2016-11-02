@@ -32,9 +32,17 @@ char number_call[10] = {"9021201364"};
 //	EXTI -> PR |= EXTI_PR_PR5;
 //}
 
+void EXTI0_IRQHandler(){
+	if (!alarm_flag[ALARM_FLAG_ACC]) alarm_flag[ALARM_FLAG_ACC] = 250;
+	SPI_read_reg(0x30);
+	EXTI -> PR |= EXTI_PR_PR0;
+}
+
+
+
+
+
 int main(void) {
-//	strncmp("asdfs13512", "asd413tv", 3);
-//	one_wire_interrupt_init();
 	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA;
@@ -46,6 +54,8 @@ int main(void) {
 	TIM7_init();
 	UART1_init();
 	UART2_init();
+	SPI1_Init();
+	ADXL_setup();
 	GPIO_interrupt_init();
 
 
@@ -63,138 +73,30 @@ int main(void) {
 //		str_add_str(output_sms_message,"ver:5.0 ");
 //		sms_command_r();
 //	}
-	uint16_t a;
-SPI1_Init();
-ADXL_setup();
+
+
+
     while(1) {
-
 //    	main_guard();
-//    	check_gsm_message();
-//    	modem_check_state();
-//
-    		a = ADC_read(ADC_CHANNEL_18);
-    		if (a>3000) GPIO_HIGH(GPIOB,GPIO_PIN_5);
-    		else GPIO_LOW(GPIOB,GPIO_PIN_5);
-//			a = SPI_read_reg(0x30);
-
-//    		send_string_to_GSM("\r\nINT = ");
-//    		send_int_to_GSM(a);
-    		if (modem_time_check) GPIO_HIGH(GPIOB,GPIO_PIN_4);
-    		else GPIO_LOW(GPIOB,GPIO_PIN_4);
-//
-//    		a = 0;
-//    		a = SPI_read_reg(0x35);
-//    		send_string_to_GSM("\r\nY = ");
-//    		send_int_to_GSM(a);
-//    		a = 0;
-//    		a = SPI_read_reg(0x37);
-//    		send_string_to_GSM("\r\nZ = ");
-//    		send_int_to_GSM(a);
-//    		a = 0;
-//    		send_command_to_FP(FP_SET_PARAM);
-    		send_command_to_FP(FP_FINGER_DETECT);
-    		a = FP_check();
-    		send_string_to_GSM("\r\nFINGER = ");
-			send_int_to_GSM(a);
-    		if (!a){
-//    			 modem_call("021201364");
-//    			 modem_call("061430141");
-//    		modem_send_sms_message(tel_number[0],"vse horowo 9?01573 1e 3 c ");
-
-
-//    		if (one_wire_start_conversion_temp()){
-//    		    					for (uint8_t f = 0;f<2;f++){
-//    		    						send_string_to_GSM("f");
-//    		    						send_char_to_GSM(48+f);
-//    		    						send_string_to_GSM(" = ");
-//    									send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
-//    									send_string_to_GSM("\n\r");
-//    		    					}
-//    		    				}else{
-//    		    					send_string_to_GSM("no dev");
-//    		    				}
+    	check_gsm_message();
+    	check_alarm();
+    	if (!FP_time_check){
+    		FP_check();
+    		FP_time_check = 3;
     	}
-
-		set_timeout_7(1);
-		while_timeout_7();
-//    	else{
-//    		if (!send_command_to_GSM("AT","OK",gsm_message,1000,3000)) modem_state = MODEM_STATE_OFF;
-//    	}
-//    	else{
-//    		modem_call("9021201364");
-//    	}
-
-//    	for (uint8_t i=0;i<100;i++){
-//        	    		set_timeout(15000);
-//        	    		while_timeout();
-//        	    	}
-//    	if (one_wire_check_keys()) GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
-//    				if (one_wire_start_conversion_temp()){
-//    					for (uint8_t f = 0;f<2;f++){
-//    						send_string_to_GSM("f");
-//    						send_char_to_GSM(48+f);
-//    						send_string_to_GSM(" = ");
-//							send_int_to_GSM(one_wire_read_temp_to_address(temp_address[f]));
-//							send_string_to_GSM("\n\r");
-//    					}
-//    				}else{
-//    					send_string_to_GSM("no dev");
-//    				}
-//    	one_wire_read_temp();
-//    				if (one_wire_send_presence()){
-//    					one_wire_write_byte(0x33);
-//    					uint8_t i;
-//    					for (i=0;i<8;i++){
-//    						address[i] = one_wire_read_byte();
-//    					}
-
-//    					char a = one_wire_read_bit();
-//    					char b = one_wire_read_bit();
-//
-//    					if(a) send_string_to_GSM("1");
-//						else send_string_to_GSM("0");
-//
-//    					if(b) send_string_to_GSM("1");
-//						else send_string_to_GSM("0");
-//    				uint8_t * p = one_wire_enum_next();
-//    				uint8_t d = *(p++);
-//        	    	if(p){
-//        	    		send_string_to_GSM("ID:");
-//        	    		uint8_t o;
-//        	    		for (o = 0;o<8;o++){
-//    							send_char_to_GSM((address[o] >> 4) + (((address[o] >> 4) >= 10) ? ('A' - 10) : '0'));
-//    							send_char_to_GSM((address[o] & 0x0F) + (((address[o] & 0x0F) >= 10) ? ('A' - 10) : '0'));
-//    							send_char_to_GSM(' ');
-//        	    		}
-////    //    	    		send_string_to_UART1(address);
-//        	    		send_string_to_GSM("\n\r");
-//        	    	}else{
-//        	    		send_string_to_GSM("HET\n\r");
-//        	    	}
-//    			one_wire_enum_init(); // Начало перечисления устройств
-//
-//
-//    			while(1){
-//    				uint8_t * p = one_wire_enum_next(); // Очередной адрес
-//    				        if (!p)
-//    				          break;
-//    				        // Вывод шестнадцатиричной записи адреса в UART и рассчёт CRC
-//    				        uint8_t d = *(p++);
-//    				        uint8_t family_code = d; // Сохранение первого байта (код семейства)
-//    				        for (uint8_t i = 0; i < 8; i++) {
-//    				          send_char_to_GSM((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
-//						      send_char_to_GSM((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
-//						      send_char_to_GSM(' ');
-//    				          d = *(p++);
-//    				        }
-//    				        send_string_to_GSM("\n\r");
-//    			}
-//    			send_string_to_GSM("BCE\n\r");
-//
-//
-    				}
+    	if (!modem_time_check){
+    		modem_check_state();
+    		modem_time_check = 30;
+    	}
+    	if (!temperature_time_check){
+			if (ADC_read(ADC_CHANNEL_18)>3100){
+				if (!alarm_flag[ALARM_FLAG_TEMPERATURE]) alarm_flag[ALARM_FLAG_TEMPERATURE] = 250;
+			}
+			temperature_time_check = 5;
+    	}
+	}
     return 0;
-};
+}
 
 void BusFault_Handler(){
 	int x = 3 * 3;
@@ -255,3 +157,24 @@ volatile uint32_t psr;/* Program status register. */
  //   for( ;; );
 }
 
+
+void check_alarm(){
+	if (alarm_flag[ALARM_FLAG_ACC] == 250){
+		if (modem_send_sms_message(tel_number[0],"akselerometr srabotal")){
+					alarm_flag[ALARM_FLAG_ACC] = 180;
+					MODEM_OFF();
+		}
+	}
+	if (alarm_flag[ALARM_FLAG_TEMPERATURE] == 250){
+		if (modem_send_sms_message(tel_number[0],"temperatura prevBwena")){
+					alarm_flag[ALARM_FLAG_TEMPERATURE] = 180;
+					MODEM_OFF();
+		}
+	}
+	if (alarm_flag[ALARM_FLAG_FP_TRY] == 250 ){
+		if (modem_send_sms_message(tel_number[0],"palec ne podowel 3 raza")){
+					alarm_flag[ALARM_FLAG_FP_TRY] = 180;
+					MODEM_OFF();
+		}
+	}
+}

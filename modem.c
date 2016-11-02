@@ -23,7 +23,7 @@ char modem_setup();
 void clear_output_sms_message();
 char check_number_of_sms();
 
-int modem_state = MODEM_STATE_OFF;
+int modem_state = MODEM_STATE_NOT_NEED;
 char get_next_gsm_message();
 volatile unsigned int gsm_message_check_counter = 0;
 char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int max_t);
@@ -44,6 +44,9 @@ char incoming_rings = 0;
 void modem_check_state(){
 	if (modem_action == MODEM_ACTION_FREE){
 		switch (modem_state){
+			case MODEM_STATE_NOT_NEED:
+
+			break;
 			case MODEM_STATE_NO_SIM:
 
 			break;
@@ -86,6 +89,21 @@ void MODEM_ON(){
 	}
 }
 
+void MODEM_OFF(){
+	check_gsm_message();
+	while(modem_state != MODEM_STATE_NOT_NEED){
+		GPIO_LOW(MODEM_ON_PORT,MODEM_ON_PIN);
+		set_timeout_7(10);
+		while_timeout_7();
+		GPIO_HIGH(MODEM_ON_PORT,MODEM_ON_PIN);
+		set_timeout_7(20);
+		while_timeout_7();
+		if (!send_command_to_GSM("AT","OK",gsm_message,2,16)){
+			modem_state = MODEM_STATE_NOT_NEED;
+		}
+	}
+}
+
 
 void modem_check_online(){
 	if (!modem_time_check) {
@@ -107,6 +125,7 @@ char get_next_gsm_message(){
 		if ((gsm_message_check_counter == gsm_buffer_char_counter)) {
 			break;
 		}else if((gsm_buffer[gsm_message_check_counter-1] == '>') && (gsm_buffer[gsm_message_check_counter] == ' ')){
+			gsm_message_check_counter++;
 			break;
 		}else if((gsm_buffer[gsm_message_check_counter] == 10) || (gsm_buffer[gsm_message_check_counter] == 13)){
 			while((gsm_buffer[gsm_message_check_counter] == 13) || (gsm_buffer[gsm_message_check_counter] == 10)){
@@ -238,7 +257,6 @@ void clear_gsm_message(){
 
 
 char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, int max_t){
-
 	send_string_to_GSM(s);
 	send_char_to_GSM('\r');
 	while(max_t > 0){
@@ -281,6 +299,7 @@ char send_sms_message_for_all(char * text,int function){
 	clear_output_sms_message();
 	return 1;
 }
+
 void clear_output_sms_message(){
 	unsigned int i;
 	for (i=0;i<70;i++) {
@@ -291,6 +310,14 @@ void clear_output_sms_message(){
 
 
 char modem_send_sms_message(char * number,char * text){
+	set_timeout_7(2);
+	while_timeout_7();
+	if (modem_state != MODEM_STATE_ONLINE){
+		if (modem_state == MODEM_STATE_NOT_NEED){
+				modem_state = MODEM_STATE_OFF;
+		}
+		return 0;
+	}
 #ifdef MODEM_TEXT_MODE
 	send_string_to_GSM("AT+CMGS=\"+7");
 	send_string_to_GSM(number);
@@ -300,7 +327,7 @@ char modem_send_sms_message(char * number,char * text){
 #else
 	send_string_to_GSM("AT+CMGS=");
 	send_int_to_GSM(((str_length(text) * 2)+13));
-	if (!send_command_to_GSM("",">",gsm_message,2,12)) return 0;
+	if (!send_command_to_GSM("",">",gsm_message,2,30)) return 0;
 	 send_string_to_GSM("0001000B91");
 	 send_string_to_GSM("97");
 	 send_string_to_GSM(number);//number);
@@ -314,10 +341,9 @@ char modem_send_sms_message(char * number,char * text){
 	 send_char_to_GSM(0x1a);
 //	 if (!send_command_to_GSM(0x1a,">",gsm_message,2,12)) return 0;
 //	 if (!send_command_to_GSM("\x1a",">",gsm_message,2,12)) return 0;
-	 if (!send_command_to_GSM("","+CMGS:",gsm_message,2,40)) return 0;
-	 return 1;
-
-
+	 if (!send_command_to_GSM("","+CMGS:",gsm_message,2,50)) {
+		 return 0;
+	 }
 #endif
 	return 1;
 }

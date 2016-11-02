@@ -62,7 +62,7 @@ char tel_number_temp[10];
 
 uint8_t last_control_ID_number = 254;
 char last_control_guard[13];
-
+int temperature_time_check = 5;
 
 void main_guard(){
 	int current_TM = one_wire_check_keys();
