@@ -8,6 +8,7 @@
 #include "my_string.h"
 #include "modem.h"
 #include "guard_func.h"
+#include "FingerPrint.h"
 
 void sms_command_nn();
 void sms_command_r();
@@ -18,8 +19,11 @@ void parse_incoming_sms(){
 	ucs_to_eng(gsm_message, input_sms_message);
 
 	if (find_str("smena",input_sms_message)){
-		tel_number[0][8] = 'A';
-		EEPROMWrite(8,'A',1);
+		tel_number[0][0] = 0;
+		EEPROMWrite(EEPROM_tel_numbers,0,1);
+	}
+	if (find_str("udalitB",input_sms_message)){
+		FP_del_base = 1;
 	}
 
 	switch(input_sms_message[0]){

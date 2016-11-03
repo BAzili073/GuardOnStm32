@@ -66,7 +66,7 @@ void EXTI15_10_IRQHandler(){
 
 
 int main(void) {
-	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
+SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA;
 	set_core_clock();
@@ -85,6 +85,7 @@ int main(void) {
 
 
 
+//	EEPROMWrite(3,0,1);
 //	led_blink(7,1,1);
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
 	//MODEM_ON();

@@ -278,6 +278,8 @@ char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, i
 	}
 	return NO_ANSWER;
 }
+
+
 //#define MODEM_TEXT_MODE
 char modem_setup(){
 #ifdef MODEM_TEXT_MODE
@@ -313,12 +315,13 @@ void clear_output_sms_message(){
 
 
 char modem_send_sms_message(char * number,char * text){
-	if ((modem_state != MODEM_STATE_ONLINE) || (number[8] != 'F')){
+	if ((modem_state != MODEM_STATE_ONLINE) || (number[0] == 0) || (modem_action != MODEM_ACTION_FREE)){
 		if (modem_state == MODEM_STATE_NOT_NEED){
 				modem_state = MODEM_STATE_OFF;
 		}
 		return 0;
 	}
+	modem_action = MODEM_ACTION_SMS;
 #ifdef MODEM_TEXT_MODE
 	send_string_to_GSM("AT+CMGS=\"+7");
 	send_string_to_GSM(number);
@@ -344,12 +347,16 @@ char modem_send_sms_message(char * number,char * text){
 	 send_char_to_GSM(0x1a);
 //	 if (!send_command_to_GSM(0x1a,">",gsm_message,2,12)) return 0;
 //	 if (!send_command_to_GSM("\x1a",">",gsm_message,2,12)) return 0;
-	 if (!send_command_to_GSM("","+CMGS:",gsm_message,2,50)) {
+	 if (!send_command_to_GSM("","+CMGS:",gsm_message,2,80)) {
+		 modem_free();
 		 return 0;
 	 }
 #endif
+	 modem_free();
 	return 1;
 }
+
+
 void send_int_as_hex_to_GSM(int x){
 	char a;
 	a = x / 16;

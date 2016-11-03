@@ -10,6 +10,8 @@
 #define FP_CMD_RESPONSE_MERGE 0x61
 #define FP_CMD_RESPONSE_GET_EMPTE_ID 0x45
 #define FP_CMD_RESPONSE_STORE_CHAR 0x40
+#define FP_CMD_RESPONSE_DELETE 0x44
+
 
 #define FP_RESPONSE_NO 0
 #define FP_RESPONSE_FINGER_DETECT 1
@@ -20,6 +22,7 @@
 #define FP_RESPONSE_GET_IMAGE 6
 #define FP_RESPONSE_GET_EMPTY_ID 7
 #define FP_RESPONSE_STORE_SUCC 8
+#define FP_RESPONSE_DELETE_SUCC 9
 
 #define FP_STEP_OFF 0
 #define FP_STEP_WAIT 1
@@ -45,6 +48,7 @@ char FP_try = 0;
 int FP_time_check = 2;
 char FP_check_allow;
 char FP_time_for_rec = 0;
+char FP_del_base = 0;
 
 const char FP_CMD_FINGER_DETECT[26] = 	{0x55,0xAA,0x00,0x00,0x21,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x01};
 char FP_CMD_TEST_CONNECTION[26] = 		{0x55,0xAA,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01};
@@ -79,13 +83,11 @@ char FP_check(){
 				FP_current_step = FP_STEP_INPUT;
 				send_command_to_FP(FP_CMD_GET_EMPTY_ID);
 				FP_current_mode = FP_MODE_REC;
-			}else if(FP_current_mode == FP_MODE_MAIN){
+			}else{
 				if (FP_try<4) FP_try ++;
 				if (FP_try == 3) {
 						alarm_flag[ALARM_FLAG_FP_TRY] = 250;
 				}
-			}else if(FP_current_mode == FP_MODE_DEL){
-
 			}
 		}
 /////////////          FINGER IN BASE
@@ -94,6 +96,10 @@ char FP_check(){
 			FP_detect_time = 10;
 			FP_try = 0;
 			alarm_flag[ALARM_FLAG_FP_TRY] = 0;
+			if (FP_del_base){
+				send_command_to_FP(FP_CMD_DEL_CHAR);
+				FP_detect_time = 30;
+			}
 			FP_current_step = FP_STEP_DETETCT_FINGER;
 		}
 /////////////          STORE SUCC
@@ -111,6 +117,11 @@ char FP_check(){
 		}
 		if (response == FP_RESPONSE_GET_EMPTY_ID){
 			send_command_to_FP(FP_CMD_FINGER_DETECT);
+		}
+		if (response == FP_RESPONSE_DELETE_SUCC){
+					FP_del_base = 0;
+					FP_detect_time = 3;
+					FP_current_step = FP_STEP_DETETCT_FINGER;
 		}
 		if (response == FP_RESPONSE_NO){
 #ifdef DEBUG_FINGER
@@ -278,7 +289,22 @@ int FP_parse_data(){
 				return FP_RESPONSE_FINGER_NOT_DETECT;
 			}
 		break;
+///////////////////////////////////////////////////////////////////////////////////  			DELETE BASE
+		case FP_CMD_RESPONSE_DELETE:
+			if ((UART2_message[6] == 0x02) && (UART2_message[8] == 0x00)){
+#ifdef DEBUG_FINGER
+	send_string_to_GSM("DELETE OK!!!!");
+#endif
+				return FP_RESPONSE_DELETE_SUCC;
+			}else{
+#ifdef DEBUG_FINGER
+	send_string_to_GSM("DELETE ERROR$$$$$$$$$$$$$\n\r");
+#endif
+				return FP_RESPONSE_FINGER_NOT_DETECT;
+			}
+		break;
 ///////////////////////////////////////////////////////////////////////////////////
+
 		}
 		FP_current_step = FP_STEP_DETETCT_FINGER;
 	UART2_clear_message();
