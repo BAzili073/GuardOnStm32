@@ -90,6 +90,7 @@ void MODEM_ON(){
 }
 
 void MODEM_OFF(){
+	modem_time_on = 0;
 	check_gsm_message();
 	while(modem_state != MODEM_STATE_NOT_NEED){
 		GPIO_LOW(MODEM_ON_PORT,MODEM_ON_PIN);
@@ -202,6 +203,8 @@ char parse_gsm_message(){
 		return_gsm_message = GSM_MESSAGE_OK;
 	}else if (find_str("ERROR\r\n",gsm_message)){
 		return_gsm_message = GSM_MESSAGE_ERROR;
+	}else if (find_str("+QTONEDET\r\n"),gsm_message){
+
 	}
 	clear_gsm_message();
 	return return_gsm_message;
@@ -214,11 +217,15 @@ void incoming_call(){
 			for (i = 0;i<10;i++){
 				tel_number_temp[i] = gsm_message[i+11];
 			}
-			if (tel_number[0][8] != 'F'){
+			if (tel_number[0][0] == 0){
 				modem_save_number(0,tel_number_temp);
 			}
 		modem_action = MODEM_ACTION_INCOMING_CALL;
 	}
+	if (send_command_to_GSM("ATH0","OK",gsm_message,2,20)){
+		modem_free();
+	}
+
 //	  incoming_rings ++;
 //	if (incoming_rings == 4) {
 //		send_string_to_GSM("ATA\r");
@@ -288,6 +295,7 @@ char modem_setup(){
 	if (!send_command_to_GSM("AT+CMGF=0","OK",gsm_message,2,5)) return 0;
 #endif
 
+	if (!send_command_to_GSM("AT+QTONEDET=1","OK",gsm_message,2,5)) return 0;
 	if (!send_command_to_GSM("AT+CSCS=\"GSM\"","OK",gsm_message,2,5)) return 0;
 	if (!send_command_to_GSM("AT+CLIP=1","OK",gsm_message,2,5)) return 0;   // for AON
 	if (!send_command_to_GSM("AT+CPBS=\"SM\"","OK",gsm_message,2,5)) return 0;   // select sim as memory

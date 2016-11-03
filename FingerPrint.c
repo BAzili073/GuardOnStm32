@@ -23,6 +23,7 @@
 #define FP_RESPONSE_GET_EMPTY_ID 7
 #define FP_RESPONSE_STORE_SUCC 8
 #define FP_RESPONSE_DELETE_SUCC 9
+#define FP_RESPONSE_EMPTY_BASE 10
 
 #define FP_STEP_OFF 0
 #define FP_STEP_WAIT 1
@@ -39,6 +40,7 @@
 #define FP_MODE_REC 2
 #define FP_MODE_DEL 3
 
+int FP_time_reset = 70;
 int FP_detect_time;
 int FP_current_step = FP_STEP_DETETCT_FINGER;
 int FP_current_mode = FP_MODE_MAIN;
@@ -64,6 +66,7 @@ char FP_CMD_GENERATE_FOR_ENROLL[26] = 	{0x55,0xAA,0x00,0x00,0x60,0x00,0x02,0x00,
 char FP_CMD_SET_PARAM[26] = 			{0x55,0xAA,0x00,0x00,0x02,0x00,0x05,0x00,0x03,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x11,0x01};
 char FP_CMD_STORE_CHAR[26] = 			{0x55,0xAA,0x00,0x00,0x40,0x00,0x04,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
 
+int time_LED[2] = {0,0};
 
 
 #define ALARM_FLAG_TEMPERATURE 0
@@ -75,11 +78,13 @@ char FP_check(){
 		int response = FP_parse_data();
 
 /////////////          FINGER NOT IN BASE
-		if ((response == FP_RESPONSE_FINGER_NOT_IN_BASE)){
+		if ((response == FP_RESPONSE_FINGER_NOT_IN_BASE) || (response == FP_RESPONSE_EMPTY_BASE)){
 			FP_detect_time = 20;
-			led_on_mode(6);
+			time_LED[1] = 10;
 			FP_current_step = FP_STEP_DETETCT_FINGER;
 			if (FP_time_for_rec){
+				time_LED[0] = 60;
+				time_LED[1] = 60;
 				FP_current_step = FP_STEP_INPUT;
 				send_command_to_FP(FP_CMD_GET_EMPTY_ID);
 				FP_current_mode = FP_MODE_REC;
@@ -92,7 +97,7 @@ char FP_check(){
 		}
 /////////////          FINGER IN BASE
 		if ((response == FP_RESPONSE_FINGER_IN_BASE)){
-			led_on_mode(5);
+			time_LED[0] = 10;
 			FP_detect_time = 10;
 			FP_try = 0;
 			alarm_flag[ALARM_FLAG_FP_TRY] = 0;
@@ -104,6 +109,8 @@ char FP_check(){
 		}
 /////////////          STORE SUCC
 		if ((response == FP_RESPONSE_STORE_SUCC)){
+			time_LED[0] = 0;
+			time_LED[1] = 10;
 			FP_time_for_rec = 0;
 			empty_id[0] = 0;
 			empty_id[1] = 0;
@@ -119,6 +126,8 @@ char FP_check(){
 			send_command_to_FP(FP_CMD_FINGER_DETECT);
 		}
 		if (response == FP_RESPONSE_DELETE_SUCC){
+					time_LED[0] = 10;
+					time_LED[1] = 10;
 					FP_del_base = 0;
 					FP_detect_time = 3;
 					FP_current_step = FP_STEP_DETETCT_FINGER;
@@ -130,9 +139,9 @@ char FP_check(){
 		}
 		return response;
 	}else{
+		//if (!FP_time_reset) FP_current_step = FP_STEP_DETETCT_FINGER;
 		if ((FP_current_step == FP_STEP_DETETCT_FINGER) & (!FP_detect_time)){
-			led_off_mode(6);
-			led_off_mode(5);
+			FP_time_reset = 70;
 			FP_detect_time = 5;
 			send_command_to_FP(FP_CMD_FINGER_DETECT);
 //			FP_current_step = FP_STEP_WAIT;
@@ -256,6 +265,11 @@ int FP_parse_data(){
 	send_string_to_GSM("FINGER NOT IN BASE!\n\r");
 #endif
 					return FP_RESPONSE_FINGER_NOT_IN_BASE;
+				}else if (UART2_message[8] == 0x14){
+#ifdef DEBUG_FINGER
+	send_string_to_GSM("EMPTY BASE!\n\r");
+#endif
+					return FP_RESPONSE_EMPTY_BASE;
 				}
 			}
 		break;
@@ -306,7 +320,7 @@ int FP_parse_data(){
 ///////////////////////////////////////////////////////////////////////////////////
 
 		}
-		FP_current_step = FP_STEP_DETETCT_FINGER;
+	FP_current_step = FP_STEP_DETETCT_FINGER;
 	UART2_clear_message();
 	return FP_RESPONSE_NO;
 }

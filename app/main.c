@@ -33,7 +33,7 @@ char number_call[10] = {"9021201364"};
 //}
 
 void EXTI0_IRQHandler(){
-//	if (!alarm_flag[ALARM_FLAG_ACC]) alarm_flag[ALARM_FLAG_ACC] = 250;
+	if (!alarm_flag[ALARM_FLAG_ACC]) alarm_flag[ALARM_FLAG_ACC] = 250;
 	EXTI -> PR |= EXTI_PR_PR0;
 	SPI_read_reg(0x30);
 }
@@ -45,6 +45,7 @@ void EXTI9_5_IRQHandler(){
 			modem_time_on = 250;
 		}
 	}
+
 }
 
 void EXTI15_10_IRQHandler(){
@@ -66,7 +67,7 @@ void EXTI15_10_IRQHandler(){
 
 
 int main(void) {
-SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
+	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA;
 	set_core_clock();
@@ -106,6 +107,14 @@ SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 //    	main_guard();
     	check_gsm_message();
     	check_alarm();
+
+
+    	if (time_LED[0]) led_on_mode(5);
+    	else led_off_mode(5);
+
+    	if (time_LED[1]) led_on_mode(6);
+		else led_off_mode(6);
+
 
     	if (FP_check_allow){
 			if (!FP_time_check){
@@ -202,23 +211,24 @@ void check_alarm(){
 		}
 	}
 
-
-	if (alarm_flag[ALARM_FLAG_ACC] == 250){
-		if (modem_send_sms_message(tel_number[0],"akselerometr srabotal")){
-					alarm_flag[ALARM_FLAG_ACC] = 180;
-					MODEM_OFF();
-		}
-	}
-	if (alarm_flag[ALARM_FLAG_TEMPERATURE] == 250){
-		if (modem_send_sms_message(tel_number[0],"temperatura prevBwena")){
-					alarm_flag[ALARM_FLAG_TEMPERATURE] = 180;
-					MODEM_OFF();
-		}
-	}
-	if (alarm_flag[ALARM_FLAG_FP_TRY] == 250 ){
-		if (modem_send_sms_message(tel_number[0],"palec ne podowel 3 raza")){
-					alarm_flag[ALARM_FLAG_FP_TRY] = 180;
-					MODEM_OFF();
-		}
+	if (tel_number[0][0] != 0){
+			if (alarm_flag[ALARM_FLAG_ACC] == 250){
+				if (modem_send_sms_message(tel_number[0],"akselerometr srabotal")){
+							alarm_flag[ALARM_FLAG_ACC] = 180;
+							MODEM_OFF();
+				}
+			}
+			if (alarm_flag[ALARM_FLAG_TEMPERATURE] == 250){
+				if (modem_send_sms_message(tel_number[0],"temperatura prevBwena")){
+							alarm_flag[ALARM_FLAG_TEMPERATURE] = 180;
+							MODEM_OFF();
+				}
+			}
+			if (alarm_flag[ALARM_FLAG_FP_TRY] == 250 ){
+				if (modem_send_sms_message(tel_number[0],"palec ne podowel 3 raza")){
+							alarm_flag[ALARM_FLAG_FP_TRY] = 180;
+							MODEM_OFF();
+				}
+			}
 	}
 }

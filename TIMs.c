@@ -44,6 +44,8 @@ void  TIM7_IRQHandler(){
 	  if (timeout_7) timeout_7 --;
 	  if (modem_time_check) modem_time_check--;
 	  if (FP_detect_time) FP_detect_time--;
+	  if (time_LED[0])  time_LED[0]--;
+	  if (time_LED[1])  time_LED[1]--;
 	  if (FP_time_check) FP_time_check--;
 	  if (temperature_time_check) temperature_time_check--;
 	  check_lamp_blink();
@@ -51,6 +53,7 @@ void  TIM7_IRQHandler(){
 	  m_sec++;
 
 	  if (m_sec == 10) {
+		  if (FP_time_reset) FP_time_reset--;
 		  if (FP_time_for_rec) FP_time_for_rec--;
 		  if (modem_time_on && (modem_time_on<200)) modem_time_on--;
 		  if ((alarm_flag[ALARM_FLAG_ACC]) && (alarm_flag[ALARM_FLAG_ACC] < 200)) alarm_flag[ALARM_FLAG_ACC]--;
