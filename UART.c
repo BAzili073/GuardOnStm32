@@ -19,6 +19,7 @@ uint16_t uart_digit(uint16_t dig, uint16_t sub);
 
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart3;
 
 
 void UART1_init(){
@@ -51,6 +52,21 @@ void UART2_init(){
 	USART2->CR1 |= USART_CR1_RXNEIE;
 }
 
+void UART3_init(){
+	RCC -> APB1ENR |= RCC_APB1ENR_USART3EN;
+//	NVIC_EnableIRQ(USART3_IRQn);
+	huart3.Instance = USART3;
+	huart3.Init.BaudRate = 9600;
+	huart3.Init.WordLength = UART_WORDLENGTH_8B;
+	huart3.Init.StopBits = UART_STOPBITS_1;
+	huart3.Init.Parity = UART_PARITY_NONE;
+	huart3.Init.Mode = UART_MODE_TX_RX;
+	huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+	HAL_UART_Init(&huart3);
+	USART3->CR1 |= USART_CR1_RXNEIE;
+}
+
 
 void send_string_to_GSM(char * s){
 	int i = 0;
@@ -79,6 +95,22 @@ void send_string_to_UART2(char * s){
 	}
 }
 
+void send_char_to_UART3(char c){
+	while((USART3->SR & USART_SR_TXE) == 0);
+	USART3->DR = c;
+}
+
+void send_string_to_UART3(char * s){
+	int i = 0;
+	while(s[i] != '\0')
+	{
+		send_char_to_UART3(s[i]);
+		i++;
+	}
+}
+
+
+
 void USART1_IRQHandler(){
 		 USART_get_message();
 		 USART1->SR &= ~(USART_IT_RXNE | USART_SR_ORE);
@@ -87,6 +119,9 @@ void USART1_IRQHandler(){
 void USART2_IRQHandler(){
 		 USART2_get_message();
 		 USART2->SR &= ~(USART_IT_RXNE | USART_SR_ORE);
+}
+void USART3_IRQHandler(){
+		 USART3->SR &= ~(USART_IT_RXNE | USART_SR_ORE);
 }
 
 void USART_get_message(){
@@ -117,6 +152,18 @@ void send_int_to_GSM(uint16_t num){
 	send_char_to_GSM((d4 + '0'));
 }
 
+void send_int_to_UART3(uint16_t num){
+	char d1,d2,d3,d4;
+	d1 = (num/1000);
+	if (num>999) send_char_to_UART3((d1+'0'));
+	d2 = ((num - d1 * 1000)/100);
+	if (num>99) send_char_to_UART3((d2 + '0'));
+	d3 = ((num - d1*1000 - d2*100)/10);
+	if (num>9) send_char_to_UART3((d3 + '0'));
+	d4 = ((num - d1*1000 - d2*100 - d3*10));
+	send_char_to_UART3((d4 + '0'));
+}
+
 
 char UART2_get_next_data(){
 	if (uart2_buffer_char_counter == uart2_check_counter) return 0;
@@ -135,6 +182,16 @@ char UART2_get_next_data(){
 		}
 		return 1;
 
+}
+
+
+void UART2_clear_buffer(){
+	uart2_buffer_char_counter = uart2_check_counter;
+}
+
+char UART2_check_buffer(){
+	if (uart2_buffer_char_counter == uart2_check_counter) return  0;
+	return 1;
 }
 
 void UART2_clear_message(){

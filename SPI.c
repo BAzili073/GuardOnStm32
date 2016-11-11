@@ -109,3 +109,11 @@ void ADXL_setup(){
 	SPI_write_reg(0x2e,0b00010000);//INT_ENABLE
 	SPI_read_reg(0x30);
 }
+
+void ADXL_int_enable(){
+	SPI_write_reg(0x2e,0b00010000);//INT_ENABLE
+	SPI_read_reg(0x30);
+}
+void ADXL_int_disable(){
+	SPI_write_reg(0x2e,0b00000000);//INT_DISABLE
+}

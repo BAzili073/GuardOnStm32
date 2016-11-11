@@ -27,15 +27,11 @@ char number_call[10] = {"9021201364"};
 
 
 
-//void EXTI9_5_IRQHandler(){
-//	if (one_wire_check_keys()) GPIO_TOGGLE(GPIOB,GPIO_PIN_7);
-//	EXTI -> PR |= EXTI_PR_PR5;
-//}
 
 void EXTI0_IRQHandler(){
 	if (!alarm_flag[ALARM_FLAG_ACC]) alarm_flag[ALARM_FLAG_ACC] = 250;
-	EXTI -> PR |= EXTI_PR_PR0;
 	SPI_read_reg(0x30);
+	EXTI -> PR |= EXTI_PR_PR0;
 }
 
 void EXTI9_5_IRQHandler(){
@@ -57,9 +53,8 @@ void EXTI15_10_IRQHandler(){
 			FP_check_allow = 1;
 		}
 	}else if(EXTI -> PR & EXTI_PR_PR12){
-		EXTI -> PR |= EXTI_PR_PR12;
 		FP_time_for_rec = 60;
-
+		EXTI -> PR |= EXTI_PR_PR12;
 	}
 }
 
@@ -78,6 +73,7 @@ int main(void) {
 	TIM7_init();
 	UART1_init();
 	UART2_init();
+	UART3_init();
 	SPI1_Init();
 	ADXL_setup();
 	GPIO_interrupt_init();
@@ -108,20 +104,21 @@ int main(void) {
     	check_gsm_message();
     	check_alarm();
 
-
-    	if (time_LED[0]) led_on_mode(5);
-    	else led_off_mode(5);
-
-    	if (time_LED[1]) led_on_mode(6);
-		else led_off_mode(6);
-
-
-    	if (FP_check_allow){
-			if (!FP_time_check){
-				FP_check();
-				FP_time_check = 3;
-			}
+    	if (FP_time_for_rec == 59){
+		time_LED[LED_BLUE_FOR_TIME] = 60;
+#ifdef DEBUG_FINGER
+	send_string_to_UART3("FP: RECORD FINGER ON!\n\r");
+#endif
+//			led_blink(5,5,5);
+//			led_blink(6,5,5);
+			FP_time_for_rec--;
     	}
+
+
+
+
+
+    	FP_check_function();
 
     	if (!modem_time_check){
     		modem_check_state();
@@ -203,32 +200,68 @@ void check_alarm(){
 	if (modem_time_on){
 		if (modem_time_on == 250){
 			if (modem_send_sms_message(tel_number[0],"vklUCenie modema")){
-					modem_time_on = 180;
-			}
+				modem_time_on = 180;
+		  }
 		}
 		if ((modem_time_on == 1) && (modem_state == MODEM_STATE_ONLINE)){
+			ADXL_int_enable();
 			MODEM_OFF();
 		}
 	}
 
+	if (alarm_flag[ALARM_FLAG_TEMPERATURE] == 1){
+			alarm_flag[ALARM_FLAG_TEMPERATURE]--;
+	}
+
 	if (tel_number[0][0] != 0){
-			if (alarm_flag[ALARM_FLAG_ACC] == 250){
+
+#ifdef DEBUG_FINGER
+		if (alarm_flag[ALARM_FLAG_ACC] == 250){
+			alarm_flag[ALARM_FLAG_ACC]++;
+			send_string_to_UART3("ACC: Trigger!\n\r");
+		}
+#endif
+#ifdef DEBUG_FINGER
+		if (alarm_flag[ALARM_FLAG_TEMPERATURE] == 250){
+			alarm_flag[ALARM_FLAG_TEMPERATURE]++;
+			send_string_to_UART3("Temperatura previwena!\n\r");
+		}
+#endif
+#ifdef DEBUG_FINGER
+		if (alarm_flag[ALARM_FLAG_FP_TRY] == 250){
+			alarm_flag[ALARM_FLAG_FP_TRY]++;
+			send_string_to_UART3("FP: mnogo nepravilnih popitok!\n\r");
+		}
+#endif
+
+			if (alarm_flag[ALARM_FLAG_ACC] >= 250){
+				ADXL_int_disable();
 				if (modem_send_sms_message(tel_number[0],"akselerometr srabotal")){
-							alarm_flag[ALARM_FLAG_ACC] = 180;
-							MODEM_OFF();
+							alarm_flag[ALARM_FLAG_ACC] = 10;
+							modem_time_on = 10;
 				}
 			}
-			if (alarm_flag[ALARM_FLAG_TEMPERATURE] == 250){
-				if (modem_send_sms_message(tel_number[0],"temperatura prevBwena")){
+			if (alarm_flag[ALARM_FLAG_TEMPERATURE] >= 250){
+				if (modem_send_sms_message(tel_number[0],"temperatura prevQwena")){
 							alarm_flag[ALARM_FLAG_TEMPERATURE] = 180;
-							MODEM_OFF();
+							modem_time_on = 60;
 				}
 			}
-			if (alarm_flag[ALARM_FLAG_FP_TRY] == 250 ){
+			if (alarm_flag[ALARM_FLAG_FP_TRY] >= 250 ){
 				if (modem_send_sms_message(tel_number[0],"palec ne podowel 3 raza")){
 							alarm_flag[ALARM_FLAG_FP_TRY] = 180;
-							MODEM_OFF();
+							modem_time_on = 60;
 				}
 			}
 	}
+}
+
+void clear_all_allarm(){
+	alarm_flag[ALARM_FLAG_ACC] = 30;
+	alarm_flag[ALARM_FLAG_TEMPERATURE] = 30;
+	alarm_flag[ALARM_FLAG_FP_TRY] = 30;
+	modem_errors[MODEM_ERRORS_NO_CARRIER] = 0;
+	modem_errors[MODEM_ERRORS_SEND_SMS] = 0;
+	modem_time_on = 0;
+	MODEM_OFF();
 }

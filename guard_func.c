@@ -35,8 +35,7 @@ void changed_guard_sms(int status);
 uint8_t last_input_alarm = 0;
 
 uint16_t u_battary;
-int8_t  led_blink_time_on[8] = {-127,-127,-127,-127,-127,-127,-127,-127};
-int8_t  led_blink_time_off[8] = {127,127,127,127,127,127,127,127};
+
 
 int16_t time_to_alarm = -1;
 uint16_t time_to_guard_on = -1;
@@ -45,15 +44,26 @@ uint8_t alarm_st = 0;
 uint8_t device_settings = 0;
 uint8_t last_alarm = 0;
 uint8_t guard_st = 0;
-uint16_t outputs[5] = {OUTPUT_1,OUTPUT_2,OUTPUT_3,OUTPUT_4,OUTPUT_5};
-uint8_t outputs_mode[5] = {0,1,2,3,4};
-uint16_t leds[8] = {LED_1,LED_2,LED_3,LED_4,LED_5,LED_6,LED_7,LED_8};
-uint8_t led_mode[8] = {1,2,3,4,5,6,7,7};
 
-uint16_t inputs[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
+
+const uint16_t outputs[5] = {OUTPUT_1,OUTPUT_2,OUTPUT_3,OUTPUT_4,OUTPUT_5};
+ GPIO_TypeDef * outputs_port[5] = {OUTPUT_1_PORT,OUTPUT_2_PORT,OUTPUT_3_PORT,OUTPUT_4_PORT,OUTPUT_5_PORT};
+uint8_t outputs_mode[5] = {0,1,2,3,4};
+
+
+const uint16_t leds[5] = {LED_1,LED_2,LED_3,LED_4,LED_5}; GPIO_TypeDef * leds_port[5] = {LED_1_PORT,LED_2_PORT,LED_3_PORT,LED_4_PORT,LED_5_PORT};
+
+
+uint8_t led_mode[8] = {1,2,3,4,5,6,7,7};
+int8_t  led_blink_time_on[8] = {-127,-127,-127,-127,-127,-127,-127,-127};
+int8_t  led_blink_time_off[8] = {127,127,127,127,127,127,127,127};
+
+
+const uint16_t inputs[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
 uint16_t inputs_max[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
 uint16_t inputs_min[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
 uint8_t inputs_mode_bit[5] = {INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL};
+
 uint8_t inputs_time_to_alarm[5] = {0,0,0,0,0};
 
 char tel_number[MAX_TEL_NUMBERS][10] = {};
@@ -82,7 +92,7 @@ void main_guard(){
 	check_gsm_message();
 }
 
-
+/////////////////////////////////                      GUARD
 void guard_on_TM(){
 	if (time_set_to_guard_on){
 		if (!time_to_guard_on){
@@ -114,50 +124,6 @@ void changed_guard_sms(int status){
 	clear_last_control_guard();
 }
 
-
-void output_on_mode(uint8_t mode){
-	for (int i = 1;i<=5;i++){
-		if (outputs_mode[i-1] == mode) output_on(outputs[i-1]);
-	}
-}
-
-void output_off_mode(uint8_t mode){
-	for (int i = 1;i<=5;i++){
-			if (outputs_mode[i-1] == mode) output_off(outputs[i-1]);
-	}
-}
-
-void output_on_hand(uint8_t output){
-	if (outputs_mode[output] == OUTPUT_MODE_HAND) output_on(output);
-}
-
-void output_off_hand(uint8_t output){
-	if (outputs_mode[output] == OUTPUT_MODE_HAND) output_off(output);
-}
-
-void led_on_mode(uint8_t mode){
-	int i;
-	for (i = 1;i<=8;i++){
-		if (led_mode[i-1] == mode) GPIO_HIGH(LED_PORT,(leds[i-1]));
-	}
-}
-
-void led_off_mode(uint8_t mode){
-	int i;
-	for (i = 1;i<=8;i++){
-		if (led_mode[i-1] == mode) GPIO_LOW(LED_PORT,(leds[i-1]));
-	}
-}
-
-void output_on(uint8_t output){
-	GPIO_HIGH(OUTPUT_PORT,(outputs[output-1]));
-}
-
-void output_off(uint8_t output){
-	GPIO_LOW(OUTPUT_PORT,(outputs[output-1]));
-}
-
-
 void alarm_on(){
 	output_on_mode(OUTPUT_MODE_ALARM);
 	alarm_st = ALARM_ON;
@@ -169,6 +135,23 @@ void alarm_off(){
 		alarm_st = ALARM_OFF;
 }
 
+
+
+/////////////////////////////////                      LEDS
+void led_on_mode(uint8_t mode){
+	int i;
+	for (i = 1;i<=8;i++){
+		if (led_mode[i-1] == mode) GPIO_HIGH(leds_port[i-1],(leds[i-1]));
+	}
+}
+
+void led_off_mode(uint8_t mode){
+	int i;
+	for (i = 1;i<=8;i++){
+		if (led_mode[i-1] == mode) GPIO_LOW(leds_port[i-1],(leds[i-1]));
+	}
+}
+
 void led_blink(uint8_t led_mode, int8_t time_on,int8_t time_off){
 	led_blink_time_on[led_mode - 1] = time_on;
 	led_blink_time_off[led_mode - 1] = time_off;
@@ -178,6 +161,41 @@ void led_blink_stop(uint8_t mode){
 	led_blink_time_on[mode - 1] = LED_BLINK_STOP;
 	led_off_mode(mode);
 }
+
+/////////////////////////////////                      OUTPUT
+void output_on(uint8_t output){
+	GPIO_HIGH(outputs_port[output-1],(outputs[output-1]));
+}
+
+void output_off(uint8_t output){
+	GPIO_LOW((outputs_port[output-1]),(outputs[output-1]));
+}
+
+void output_on_mode(uint8_t mode){
+	for (int i = 1;i<=5;i++){
+		if (outputs_mode[i-1] == mode) output_on(i);
+	}
+}
+
+void output_off_mode(uint8_t mode){
+	for (int i = 1;i<=5;i++){
+			if (outputs_mode[i-1] == mode) output_off(i);
+	}
+}
+
+void output_on_hand(uint8_t output){
+	if (outputs_mode[output] == OUTPUT_MODE_HAND) output_on(output);
+}
+
+void output_off_hand(uint8_t output){
+	if (outputs_mode[output] == OUTPUT_MODE_HAND) output_off(output);
+}
+
+///////////////////////////////////////////////////////////////////
+
+
+
+
 
 void check_battery(){
 	if (ADC_read(PIN_220) < u_battary); // измерение со входа
@@ -255,6 +273,7 @@ void clear_last_control_guard(){
 		last_control_guard[i] = 0;
 	}
 }
+
 
 #endif
 

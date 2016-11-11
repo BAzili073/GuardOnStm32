@@ -26,18 +26,39 @@ void GPIO_init(){
 		initSrtuct.Alternate = GPIO_AF7_USART1;
 		initSrtuct.Mode = GPIO_MODE_AF_PP;
 		initSrtuct.Pull = GPIO_NOPULL;
-		initSrtuct.Pin = GPIO_PIN_9 | GPIO_PIN_10;
+		initSrtuct.Pin = UART1_PIN_RX | UART1_PIN_TX;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( GPIOA, &initSrtuct);
+		HAL_GPIO_Init( UART1_PORT, &initSrtuct);
 
 
 		//UART2
 		initSrtuct.Alternate = GPIO_AF7_USART2;
 		initSrtuct.Mode = GPIO_MODE_AF_PP;
 		initSrtuct.Pull = GPIO_NOPULL;
-		initSrtuct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
+		initSrtuct.Pin = UART2_PIN_RX | UART2_PIN_TX;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( GPIOA, &initSrtuct);
+		HAL_GPIO_Init( UART2_PORT, &initSrtuct);
+
+		//UART3
+		initSrtuct.Alternate = GPIO_AF7_USART3;
+		initSrtuct.Mode = GPIO_MODE_AF_PP;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = UART3_PIN_RX | UART3_PIN_TX;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( UART3_PORT, &initSrtuct);
+		//LEDS
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pin = LED_3 ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( LED_3_PORT, &initSrtuct);
+
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pin = (LED_4 | LED_5) ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( GPIOB, &initSrtuct);
+
 
 
 
@@ -69,11 +90,7 @@ void GPIO_init(){
 
 
 
-		initSrtuct.Alternate = 0;
-		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
-		initSrtuct.Pin = (LED_7 | LED_8) ;
-		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( GPIOB, &initSrtuct);
+
 
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_ANALOG;

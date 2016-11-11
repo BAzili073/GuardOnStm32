@@ -14,14 +14,19 @@ uint16_t outputs[5];
 uint8_t outputs_mode[5];
 uint16_t leds[8];
 uint8_t leds_mode[8];
-uint16_t inputs[5];
+
+const uint16_t inputs[5];
 uint16_t inputs_max[5];
 uint16_t inputs_min[5];
 uint16_t inputs_mode[5];
 uint8_t inputs_time_to_alarm[5];
+
+
+const uint16_t leds_port[8];
 int8_t  led_blink_time_on[8];
 int8_t  led_blink_time_off[8];
 
+ GPIO_TypeDef * outputs_port[5];
 
 
 

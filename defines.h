@@ -16,25 +16,20 @@
 //#define int16_t int
 
 
-//#define DEBUG_FINGER
+#define DEBUG_FINGER
+#define DEBUG_MODEM
 
 #define true 1
 #define false 0
-#define GPIO_HIGH(PORT, PIN) PORT->BSRR = PIN
-#define GPIO_LOW(PORT, PIN) PORT->BSRR = ((PIN)<<16)
-#define GPIO_READ(PORT, PIN) PORT->IDR&PIN
-#define GPIO_TOGGLE(PORT, PIN) PORT->ODR ^= PIN
+#define GPIO_HIGH(PORT, PIN) ((PORT)->BSRR) = (PIN)
+#define GPIO_LOW(PORT, PIN) ((PORT)->BSRR) = ((PIN)<<16)
+#define GPIO_READ(PORT, PIN) (PORT)->IDR&PIN
+#define GPIO_TOGGLE(PORT, PIN) ((PORT)->ODR) ^= (PIN)
 
 #define time_out ((TIM6->SR & TIM_SR_UIF) != 0)
 
-#define DEVICE_SETTING_SMS_AT_STARTUP 1<<7
-#define DEVICE_SETTING_SMS_AT_CHANGE_GUARD 1<<6
-#define DEVICE_SETTING_SMS_AT_SMS_COMMAND 1<<5
-#define DEVICE_SETTING_BAN_OUTPUT_CALL 1<<4
-#define DEVICE_SETTING_CHANGE_GUARD_USE_CALL 1<<3
-#define DEVICE_SETTING_SMS_AT_ALARM 1<<2
-#define DEVICE_SETTING_AUTO_GUARD_AT_START 1<<1
-#define DEVICE_SETTING_SMS_AT_UNCORRECT_SMS 1<<0
+#define MAX_INPUT 5
+#define MAX_INPUT_B 3
 
 #define INPUT_1 1
 #define INPUT_2 4
@@ -42,9 +37,18 @@
 #define INPUT_4 6
 #define INPUT_5 7
 
+#define INPUT_B_1 7
+#define INPUT_B_2 7
+#define INPUT_B_3 7
+
 #define PIN_220 10
 
-#define OUTPUT_PORT GPIOC
+#define OUTPUT_1_PORT GPIOC
+#define OUTPUT_2_PORT GPIOC
+#define OUTPUT_3_PORT GPIOC
+#define OUTPUT_4_PORT GPIOC
+#define OUTPUT_5_PORT GPIOC
+
 #define OUTPUT_1 GPIO_PIN_4
 #define OUTPUT_2 GPIO_PIN_5
 #define OUTPUT_3 GPIO_PIN_6
@@ -67,17 +71,25 @@
 #define OUTPUT_MODE_INPUTS 95 // 95 - 99
 
 
-#define LED_PORT GPIOB
+#define LED_1_PORT GPIOB
+#define LED_2_PORT GPIOB
+#define LED_3_PORT GPIOA
+#define LED_4_PORT GPIOB
+#define LED_5_PORT GPIOB
+
+
+
 
 #define LED_1 GPIO_PIN_0
 #define LED_2 GPIO_PIN_1
-#define LED_3 GPIO_PIN_2
-#define LED_4 GPIO_PIN_3
-#define LED_5 GPIO_PIN_4
-#define LED_6 GPIO_PIN_5
+#define LED_3 GPIO_PIN_4
+#define LED_4 GPIO_PIN_4
+#define LED_5 GPIO_PIN_5
 
-#define LED_7 GPIO_PIN_4// GPIO_PIN_6
-#define LED_8 GPIO_PIN_5 //GPIO_PIN_7
+
+#define  LED_RED 3
+#define  LED_BLUE 4
+#define  LED_GREEN 5
 //DEBUG
 //#define LED_7 GPIO_PIN_8
 //#define LED_8 GPIO_PIN_9

@@ -41,6 +41,9 @@ int gsm_signal_quality;
 char modem_setup_ok = 0;
 char modem_time_check = 0;
 char incoming_rings = 0;
+
+char modem_errors[2];
+
 void modem_check_state(){
 	if (modem_action == MODEM_ACTION_FREE){
 		switch (modem_state){
@@ -74,6 +77,10 @@ void modem_check_state(){
 
 }
 void MODEM_ON(){
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: ON? ");
+	send_string_to_UART3(" \n\r");
+#endif
 	modem_setup_ok = 0;
 	check_gsm_message();
 	while(modem_state == MODEM_STATE_OFF){
@@ -84,12 +91,20 @@ void MODEM_ON(){
 		set_timeout_7(20);
 		while_timeout_7();
 		if (send_command_to_GSM("AT","OK",gsm_message,10,30)){
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: ON OK ");
+	send_string_to_UART3(" \n\r");
+#endif
 			modem_state = MODEM_STATE_ON;
 		}
 	}
 }
 
 void MODEM_OFF(){
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: OFF? ");
+	send_string_to_UART3(" \n\r");
+#endif
 	modem_time_on = 0;
 	check_gsm_message();
 	while(modem_state != MODEM_STATE_NOT_NEED){
@@ -100,6 +115,10 @@ void MODEM_OFF(){
 		set_timeout_7(20);
 		while_timeout_7();
 		if (!send_command_to_GSM("AT","OK",gsm_message,2,16)){
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: OFF OK ");
+	send_string_to_UART3(" \n\r");
+#endif
 			modem_state = MODEM_STATE_NOT_NEED;
 		}
 	}
@@ -172,20 +191,37 @@ char parse_gsm_message(){
 //			return_gsm_message = GSM_MESSAGE_NO_SIM;
 		}
 		if (find_str("NOT INSERTED",gsm_message)){
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: SIM NOT INSERTED");
+	send_string_to_UART3(" \n\r");
+#endif
 			modem_state = MODEM_STATE_NO_SIM;
 			return_gsm_message = GSM_MESSAGE_NO_SIM;
 		}
 
 	} else if (find_str("+COPS:",gsm_message)){
 		if (str_length(gsm_message) > 15) {
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: ");
+	send_string_to_UART3(gsm_message);
+	send_string_to_UART3(" \n\r");
+#endif
 			modem_state = MODEM_STATE_SETUP;
 		}else{
 			modem_state = MODEM_STATE_OFFLINE;
 		}
 	}else if (find_str("BUSY",gsm_message)){
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: CALL BUSY ");
+	send_string_to_UART3(" \n\r");
+#endif
 			modem_free();
 			return_gsm_message = GSM_MESSAGE_CALL_BUSY;
 	}else if (find_str("NO ANSWER",gsm_message)){
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: CALL NO ANSWER ");
+	send_string_to_UART3(" \n\r");
+#endif
 				modem_free();
 			return_gsm_message = GSM_MESSAGE_CALL_NO_ANSWER;
 	}else if (find_str("+CSQ:",gsm_message)){
@@ -194,16 +230,25 @@ char parse_gsm_message(){
 		}else{
 			gsm_signal_quality = (gsm_message[6] - 48) * 10 + (gsm_message[7] - 48);
 		}
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM : QUALITY = ");
+	send_int_to_UART3(gsm_signal_quality);
+	send_string_to_UART3(" \n\r");
+#endif
 	}else if(find_str("NO CARRIER",gsm_message)){
 		modem_no_carrier();
-
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM : NO CARRIER = ");
+	send_int_to_UART3(modem_errors[MODEM_ERRORS_NO_CARRIER]);
+	send_string_to_UART3(" \n\r");
+#endif
 	}else if(find_str("+CLIP:",gsm_message)){
 		incoming_call();
 	}else if (find_str("OK\r\n",gsm_message)){
 		return_gsm_message = GSM_MESSAGE_OK;
 	}else if (find_str("ERROR\r\n",gsm_message)){
 		return_gsm_message = GSM_MESSAGE_ERROR;
-	}else if (find_str("+QTONEDET\r\n"),gsm_message){
+	}else if (find_str("+QTONEDET\r\n",gsm_message)){
 
 	}
 	clear_gsm_message();
@@ -213,24 +258,40 @@ char parse_gsm_message(){
 
 void incoming_call(){
 	if (modem_action == MODEM_ACTION_FREE){
+		modem_action = MODEM_ACTION_INCOMING_CALL;
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("INCOMING CALL! NUMBER: ");
+	send_string_to_UART3(tel_number_temp);
+	send_string_to_UART3(" ID: ");
+	send_int_to_UART3(last_control_ID_number);
+	send_string_to_UART3(" \n\r");
+#endif
 		int i;
 			for (i = 0;i<10;i++){
 				tel_number_temp[i] = gsm_message[i+11];
 			}
-			if (tel_number[0][0] == 0){
-				modem_save_number(0,tel_number_temp);
+			convert_number_to_upd(tel_number_temp);
+			last_control_ID_number = check_number(tel_number_temp);
+			if (last_control_ID_number > MAX_TEL_NUMBERS){
+				if (send_command_to_GSM("ATH0","OK",gsm_message,2,50)){
+					modem_free();
+				}
+				if (tel_number[0][0] == 0){
+					modem_save_number(0,tel_number_temp);
+					modem_send_sms_message(tel_number[0],"vaw nomer dobavlen v sistemu");
+				}
+				modem_free();
 			}
-		modem_action = MODEM_ACTION_INCOMING_CALL;
-	}
-	if (send_command_to_GSM("ATH0","OK",gsm_message,2,20)){
-		modem_free();
+
+
+
 	}
 
-//	  incoming_rings ++;
-//	if (incoming_rings == 4) {
-//		send_string_to_GSM("ATA\r");
-//		modem_action = MODEM_ACTION_TALK;
-//	}
+	  incoming_rings ++;
+	if (incoming_rings == 4) {
+		send_string_to_GSM("ATA\r");
+		modem_action = MODEM_ACTION_TALK;
+	}
 }
 
 
@@ -249,10 +310,11 @@ void modem_free(){
 void modem_no_carrier(){
 	if (modem_action == MODEM_ACTION_INCOMING_CALL){
 		if (incoming_rings == 2){
-
+			incoming_rings = 0;
 		}
+	}else if (modem_action == MODEM_ACTION_OUTGOING_CALL){
+		modem_errors[MODEM_ERRORS_NO_CARRIER]++;
 	}
-	incoming_rings = 0;
 	modem_free();
 }
 
@@ -299,6 +361,13 @@ char modem_setup(){
 	if (!send_command_to_GSM("AT+CSCS=\"GSM\"","OK",gsm_message,2,5)) return 0;
 	if (!send_command_to_GSM("AT+CLIP=1","OK",gsm_message,2,5)) return 0;   // for AON
 	if (!send_command_to_GSM("AT+CPBS=\"SM\"","OK",gsm_message,2,5)) return 0;   // select sim as memory
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: setup ok! ");
+	send_string_to_UART3(" \n\r");
+	if (tel_number[0][0] == 0){
+		send_string_to_UART3("MODEM: Vnimanie nety osnovnogo nomera! \n\r ");
+	}
+#endif
 	return 1;
 }
 
@@ -323,6 +392,10 @@ void clear_output_sms_message(){
 
 
 char modem_send_sms_message(char * number,char * text){
+	if ((modem_errors[MODEM_ERRORS_SEND_SMS] > 3)){
+		modem_call(number);
+		return 0;
+	}
 	if ((modem_state != MODEM_STATE_ONLINE) || (number[0] == 0) || (modem_action != MODEM_ACTION_FREE)){
 		if (modem_state == MODEM_STATE_NOT_NEED){
 				modem_state = MODEM_STATE_OFF;
@@ -355,11 +428,26 @@ char modem_send_sms_message(char * number,char * text){
 	 send_char_to_GSM(0x1a);
 //	 if (!send_command_to_GSM(0x1a,">",gsm_message,2,12)) return 0;
 //	 if (!send_command_to_GSM("\x1a",">",gsm_message,2,12)) return 0;
-	 if (!send_command_to_GSM("","+CMGS:",gsm_message,2,80)) {
+	 if (!send_command_to_GSM("","+CMGS:",gsm_message,5,50)) {
+
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: SEND SMS ERROR!");
+	send_string_to_UART3(" \n\r");
+#endif
+
 		 modem_free();
+		 modem_errors[MODEM_ERRORS_SEND_SMS]++;
 		 return 0;
 	 }
 #endif
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: SEND SMS OK! NUMBER:  ");
+	send_string_to_UART3(number);
+	send_string_to_UART3(" TEXT: ");
+		send_string_to_UART3(text);
+	send_string_to_UART3(" \n\r");
+#endif
+	modem_errors[MODEM_ERRORS_SEND_SMS] = 0;
 	 modem_free();
 	return 1;
 }
@@ -457,23 +545,40 @@ void convert_number_to_eng(char * number){
 }
 
 void modem_call(char * number){
+	if (modem_errors[MODEM_ERRORS_NO_CARRIER] > 3){
+		clear_all_allarm();
+		return;
+	}
 	if (modem_action == MODEM_ACTION_FREE){
+		int i;
+		for (i=0;i<11;i++){
+			tel_number_temp[i] = number[i];
+		}
+		convert_number_to_eng(tel_number_temp);
 		send_string_to_GSM("ATD+79");
-		send_string_to_GSM(number);
+		send_string_to_GSM(tel_number_temp);
 		send_string_to_GSM(";\n\r");
 		modem_action = MODEM_ACTION_OUTGOING_CALL;
+
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM : CALL! Number:  ");
+	send_string_to_UART3("+79");
+	send_string_to_UART3(tel_number_temp);
+	send_string_to_UART3(" \n\r");
+#endif
+
 	}
 }
 
 
-char check_number_of_sms(){
+char check_number(char * number){
 	unsigned int i = 0;
 	unsigned int y = 0;
 	char access;
 	for (y = 0;y<MAX_TEL_NUMBERS;y++){
 		access = 1;
-		for (i = 24;i < 34;i++){
-			if (tel_number[y][i-24] != gsm_message[i]){
+		for (i = 0;i < 10;i++){
+			if (tel_number[y][i] != number[i]){
 				access = 0;
 				break;
 			}
@@ -482,6 +587,9 @@ char check_number_of_sms(){
 	}
 	return TEL_NUMBER_DENY;
 }
+
+
+
 /*AT COMMANDS
  AT+COPS?   GET OPERATOR
  AT+CSQ     GET SIGNAL QUALITY
@@ -489,10 +597,17 @@ char check_number_of_sms(){
  */
 
 void modem_save_number(char ID_number,char * number){
-	convert_number_to_upd(number);
 	int i;
 	for (i = 0;i<10;i++){
 		tel_number[ID_number][i] = number[i];
 		EEPROMWrite((EEPROM_tel_numbers + ID_number*10+i),number[i],1);
 	}
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM : Save number! ID:  ");
+	send_int_to_UART3(ID_number);
+	send_string_to_UART3(" Number: ");
+	send_string_to_UART3(number);
+	send_string_to_UART3(" \n\r");
+#endif
+
 }

@@ -33,6 +33,10 @@
 #define GSM_MESSAGE_CALL_BUSY 6
 #define GSM_MESSAGE_CALL_NO_ANSWER 7
 
+char modem_errors[2];
+#define MODEM_ERRORS_SEND_SMS 0
+#define MODEM_ERRORS_NO_CARRIER 1
+
 ////FUNCTION
 void MODEM_ON();
 void MODEM_OFF();
@@ -40,7 +44,7 @@ void modem_call(char * number);
 char modem_send_sms_message(char * number,char * text);
 char send_sms_message_for_all(char * text,int function);
 char modem_setup();
-char check_number_of_sms();
+char check_number(char * number);
 void convert_number_to_upd(char * number);
 void ucs_to_eng(char * in_message, char * message);
 void send_text_as_ucs(char * out_message, unsigned int len);

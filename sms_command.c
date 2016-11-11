@@ -14,17 +14,33 @@ void sms_command_nn();
 void sms_command_r();
 
 void parse_incoming_sms(){
-	last_control_ID_number = check_number_of_sms();
+
+	int i;
+	for (i = 0;i<11;i++) tel_number_temp[i] = gsm_message[i+24];
+	last_control_ID_number = check_number(tel_number_temp);
+
 	if (last_control_ID_number > MAX_TEL_NUMBERS) return;
 	ucs_to_eng(gsm_message, input_sms_message);
-
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("INCOMING SMS! NUMBER: ");
+	send_string_to_UART3(tel_number_temp);
+	send_string_to_UART3(" ID: ");
+	send_int_to_UART3(last_control_ID_number);
+	send_string_to_UART3(" \n\r");
+	send_string_to_UART3(" SMS: ");
+	send_string_to_UART3(input_sms_message);
+	send_string_to_UART3(" \n\r");
+#endif
 	if (find_str("smena",input_sms_message)){
+		modem_send_sms_message(tel_number[0],"vaw nomer udalen iz sistemQ");
 		tel_number[0][0] = 0;
 		EEPROMWrite(EEPROM_tel_numbers,0,1);
 	}
 	if (find_str("udalitB",input_sms_message)){
 		FP_del_base = 1;
 	}
+
+
 
 	switch(input_sms_message[0]){
 //nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
@@ -51,7 +67,6 @@ void parse_incoming_sms(){
 		break;
 
 	}
-	int i;
 	for (i = 0;i<70;i++)	input_sms_message[i] = 0;
 
 }
@@ -65,7 +80,7 @@ void sms_command_nn(){
 		row_number[i] = input_sms_message[8+i];
 
 	}
-		modem_save_number(0,row_number);
+		modem_save_number(ID_number,row_number);
 }
 void sms_command_r(){
 		char a[1];
@@ -79,7 +94,7 @@ void sms_command_r(){
 		str_add_str(output_sms_message," ");
 		str_add_str(output_sms_message,"vQh:");
 		for (i = 1;i<6;i++) {
-			a[0] = ('1' - (GPIO_READ(OUTPUT_PORT,(outputs[i-1]))*2));
+			a[0] = ('1' - (GPIO_READ((outputs_port[(i-1)]),(outputs[i-1]))*2));
 			str_add_str(output_sms_message,a);
 		}
 		str_add_str(output_sms_message," ");
