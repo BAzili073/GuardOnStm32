@@ -13,13 +13,12 @@
 #include "modem.h"
 #include "string.h"
 #include "EEPROMfunc.h"
-#include "SPI.h"
 #include "FingerPrint.h"
+
 
 //#include <strings.h>
 
 char temp_address[2][8] = {{0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40},{0x28,0xB8,0xa3,0xA0,0x04,0x00,0x00,0xf2}};
-char number_call[10] = {"9021201364"};
 //void Delay(void) {
 //volatile uint32_t i;
 //    for (i=0; i != 0x80000; i++);
@@ -30,8 +29,8 @@ char number_call[10] = {"9021201364"};
 
 void EXTI0_IRQHandler(){
 	if (!alarm_flag[ALARM_FLAG_ACC]) alarm_flag[ALARM_FLAG_ACC] = 250;
-	SPI_read_reg(0x30);
 	EXTI -> PR |= EXTI_PR_PR0;
+	SPI_read_reg(0x30);
 }
 
 void EXTI9_5_IRQHandler(){
@@ -47,14 +46,15 @@ void EXTI9_5_IRQHandler(){
 void EXTI15_10_IRQHandler(){
 	if (EXTI -> PR & EXTI_PR_PR11){
 		EXTI -> PR |= EXTI_PR_PR11;
-		if (GPIO_READ(GPIOA,GPIO_PIN_11)){
-			FP_check_allow = 0;
-		}else{
-			FP_check_allow = 1;
-		}
-	}else if(EXTI -> PR & EXTI_PR_PR12){
 		FP_time_for_rec = 60;
+	}else if(EXTI -> PR & EXTI_PR_PR12){
 		EXTI -> PR |= EXTI_PR_PR12;
+		if (GPIO_READ(GPIOA,GPIO_PIN_12)){
+			FP_check_allow = 1;
+		}else{
+			FP_check_allow = 0;
+		}
+
 	}
 }
 
@@ -62,7 +62,7 @@ void EXTI15_10_IRQHandler(){
 
 
 int main(void) {
-	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
+ 	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA;
 	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA;
 	set_core_clock();
@@ -103,6 +103,13 @@ int main(void) {
 //    	main_guard();
     	check_gsm_message();
     	check_alarm();
+
+    	if (time_access_lock){
+    		GPIO_HIGH(LOCK_ACCESS_PORT,LOCK_ACCESS_PIN);
+    	}else{
+    		GPIO_LOW(LOCK_ACCESS_PORT,LOCK_ACCESS_PIN);
+    	}
+
 
     	if (FP_time_for_rec == 59){
 		time_LED[LED_BLUE_FOR_TIME] = 60;
@@ -195,7 +202,6 @@ volatile uint32_t psr;/* Program status register. */
  //   for( ;; );
 }
 
-
 void check_alarm(){
 	if (modem_time_on){
 		if (modem_time_on == 250){
@@ -203,8 +209,8 @@ void check_alarm(){
 				modem_time_on = 180;
 		  }
 		}
-		if ((modem_time_on == 1) && (modem_state == MODEM_STATE_ONLINE)){
-			ADXL_int_enable();
+		if ((modem_time_on == 1) && (modem_state == MODEM_STATE_ONLINE || modem_state == MODEM_STATE_NO_SIM)){
+//			ADXL_int_enable();
 			MODEM_OFF();
 		}
 	}
@@ -235,10 +241,10 @@ void check_alarm(){
 #endif
 
 			if (alarm_flag[ALARM_FLAG_ACC] >= 250){
-				ADXL_int_disable();
+//				ADXL_int_disable();
 				if (modem_send_sms_message(tel_number[0],"akselerometr srabotal")){
-							alarm_flag[ALARM_FLAG_ACC] = 10;
-							modem_time_on = 10;
+							alarm_flag[ALARM_FLAG_ACC] = 180;
+							modem_time_on = 60;
 				}
 			}
 			if (alarm_flag[ALARM_FLAG_TEMPERATURE] >= 250){
@@ -262,6 +268,7 @@ void clear_all_allarm(){
 	alarm_flag[ALARM_FLAG_FP_TRY] = 30;
 	modem_errors[MODEM_ERRORS_NO_CARRIER] = 0;
 	modem_errors[MODEM_ERRORS_SEND_SMS] = 0;
-	modem_time_on = 0;
-	MODEM_OFF();
+	modem_time_on = 3;
 }
+
+

@@ -49,7 +49,7 @@ void UART2_init(){
 	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
 	HAL_UART_Init(&huart2);
-	USART2->CR1 |= USART_CR1_RXNEIE;
+	USART2->CR1 |= USART_CR1_RXNEIE ;
 }
 
 void UART3_init(){
@@ -82,8 +82,8 @@ void send_char_to_GSM(char c){
 	USART1->DR = c;
 }
 void send_char_to_UART2(char c){
-	while((USART2->SR & USART_SR_TXE) == 0);
 	USART2->DR = c;
+	while((USART2->SR & USART_SR_TXE) == 0);
 }
 
 void send_string_to_UART2(char * s){

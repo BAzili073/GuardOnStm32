@@ -18,5 +18,5 @@ int time_LED[3];
 #define LED_BLUE_FOR_TIME 2
 
 
-
+void give_access(int time);
 void FP_check_function();

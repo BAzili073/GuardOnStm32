@@ -59,6 +59,11 @@ void GPIO_init(){
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( GPIOB, &initSrtuct);
 
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pin = LOCK_ACCESS_PIN ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( LOCK_ACCESS_PORT, &initSrtuct);
 
 
 
@@ -143,7 +148,7 @@ void GPIO_interrupt_init(){
 	EXTI -> FTSR = 0;
 	EXTI -> RTSR = 0;
 	EXTI -> FTSR |= EXTI_FTSR_TR9 | EXTI_FTSR_TR11 |EXTI_FTSR_TR12;
-	EXTI -> RTSR |= EXTI_RTSR_TR12 | EXTI_RTSR_TR11  | EXTI_FTSR_TR0;//EXTI_RTSR_TR0 | EXTI_RTSR_TR9  |
+	EXTI -> RTSR |= EXTI_RTSR_TR12 | EXTI_RTSR_TR11  | EXTI_RTSR_TR0;//EXTI_RTSR_TR0 | EXTI_RTSR_TR9  |
 
 
 	NVIC_EnableIRQ(EXTI0_IRQn);

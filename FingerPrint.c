@@ -2,6 +2,7 @@
 #include "UART.h"
 #include "modem.h"
 #include "guard_func.h"
+#include "TIMs.h"
 
 #define FP_CMD_RESPONSE_DETECT_FINGER 0x21
 #define FP_CMD_RESPONSE_SEARCH 0x63
@@ -133,6 +134,7 @@ char FP_check(){
 				time_LED[LED_GREEN_FOR_TIME] = 30;
 				time_LED[LED_BLUE_FOR_TIME] = 0;
 			}else{
+				give_access(10);
 				time_LED[LED_RED_FOR_TIME] = 0;
 				time_LED[LED_GREEN_FOR_TIME] = 10;
 				time_LED[LED_BLUE_FOR_TIME] = 0;
@@ -194,10 +196,13 @@ char FP_check(){
 		return response;
 	}else{
 		if (!FP_time_reset) FP_current_step = FP_STEP_DETETCT_FINGER;
-		if ((FP_current_step == FP_STEP_DETETCT_FINGER) & (!FP_detect_time)){
+		if ((FP_current_step == FP_STEP_DETETCT_FINGER) && (!FP_detect_time) && (FP_check_allow == 1)){
 			FP_time_reset = 70;
 			FP_detect_time = 5;
 			send_command_to_FP(FP_CMD_FINGER_DETECT);
+#ifdef DEBUG_FINGER
+	send_string_to_UART3("FP: SEND REQUEST\n\r");
+#endif
 //			FP_current_step = FP_STEP_WAIT;
 		}
 	}
@@ -367,9 +372,14 @@ int FP_parse_data(){
 
 void send_command_to_FP(char * cmd){
 	int i;
+	GPIOA -> MODER |= GPIO_MODER_MODER2_1;
 	for (i = 0;i<26;i++){
 		send_char_to_UART2(cmd[i]);
 	}
+	while((USART2->SR & USART_SR_TC) == 0);
+	GPIOA -> MODER &= ~GPIO_MODER_MODER2;
 }
 
-
+void give_access(int time){
+	time_access_lock = time;
+}

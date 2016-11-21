@@ -60,3 +60,6 @@ char modem_time_check;
 char input_sms_message[70];
 char output_sms_message[70];
 char gsm_message[GSM_MESSAGE_SIZE];
+
+
+//

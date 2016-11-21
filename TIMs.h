@@ -13,5 +13,5 @@ void while_timeout();
 void set_timeout_7 (int m_sec);
 void while_timeout_7();
 int timeout_7;
-
+int time_access_lock;
 #endif

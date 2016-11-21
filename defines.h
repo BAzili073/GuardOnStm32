@@ -163,8 +163,8 @@
 #define SMS_FUNCTION_ALERT 0
 
 
-
-
+#define LOCK_ACCESS_PORT GPIOC
+#define LOCK_ACCESS_PIN GPIO_PIN_13
 
 #define MAX_TEL_NUMBERS 5
 #define MAX_TM 5

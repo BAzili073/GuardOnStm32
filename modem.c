@@ -51,7 +51,7 @@ void modem_check_state(){
 
 			break;
 			case MODEM_STATE_NO_SIM:
-
+				clear_all_allarm();
 			break;
 			case MODEM_STATE_OFF:
 				MODEM_ON();

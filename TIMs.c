@@ -11,6 +11,8 @@
 int8_t lamp_blink_time = 5;
 int8_t led_blink_time[8];
 uint8_t m_sec = 0;
+int time_access_lock = 0;
+
 
 volatile int timeout_7;
 char state_check_term = 0;
@@ -55,6 +57,7 @@ void  TIM7_IRQHandler(){
 	  m_sec++;
 
 	  if (m_sec == 10) {
+		  if (time_access_lock) time_access_lock--;
 		  if (FP_time_reset) FP_time_reset--;
 		  if (FP_time_for_rec) FP_time_for_rec--;
 		  if (modem_time_on && (modem_time_on<200)) modem_time_on--;
