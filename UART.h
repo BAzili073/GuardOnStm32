@@ -33,13 +33,18 @@ void send_string_to_GSM(char * s);
 void send_char_to_GSM(char c);
 void send_int_to_GSM(uint16_t num);
 
+
 void send_string_to_UART2(char * s);
 void send_char_to_UART2(char c);
 void UART2_clear_buffer();
 char UART2_check_buffer();
+void UART2_clear_message();
+char UART2_get_next_data();
+
 
 void send_string_to_UART3(char * s);
 void send_char_to_UART3(char c);
+void send_int_to_UART3(uint16_t num);
 
 
 

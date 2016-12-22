@@ -12,6 +12,7 @@ unsigned int uart2_buffer_char_counter = 0;
 
 void send_char_to_GSM(char c);
 void USART_get_message();
+void USART2_get_message();
 
 volatile unsigned int uart2_check_counter = 0;
 char UART2_message[UART2_MESSAGE_SIZE];

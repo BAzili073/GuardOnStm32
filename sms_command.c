@@ -31,16 +31,6 @@ void parse_incoming_sms(){
 	send_string_to_UART3(input_sms_message);
 	send_string_to_UART3(" \n\r");
 #endif
-	if (find_str("smena",input_sms_message)){
-		modem_send_sms_message(tel_number[0],"vaw nomer udalen iz sistemQ");
-		tel_number[0][0] = 0;
-		EEPROMWrite(EEPROM_tel_numbers,0,1);
-	}
-	if (find_str("udalitB",input_sms_message)){
-		FP_del_base = 1;
-	}
-
-
 
 	switch(input_sms_message[0]){
 //nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn

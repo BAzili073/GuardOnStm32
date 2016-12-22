@@ -51,7 +51,8 @@ const uint16_t outputs[5] = {OUTPUT_1,OUTPUT_2,OUTPUT_3,OUTPUT_4,OUTPUT_5};
 uint8_t outputs_mode[5] = {0,1,2,3,4};
 
 
-const uint16_t leds[5] = {LED_1,LED_2,LED_3,LED_4,LED_5}; GPIO_TypeDef * leds_port[5] = {LED_1_PORT,LED_2_PORT,LED_3_PORT,LED_4_PORT,LED_5_PORT};
+const uint16_t leds[5] = {LED_1,LED_2,LED_3,LED_4,LED_5};
+GPIO_TypeDef * leds_port[5] = {LED_1_PORT,LED_2_PORT,LED_3_PORT,LED_4_PORT,LED_5_PORT};
 
 
 uint8_t led_mode[8] = {1,2,3,4,5,6,7,7};
@@ -60,8 +61,8 @@ int8_t  led_blink_time_off[8] = {127,127,127,127,127,127,127,127};
 
 
 const uint16_t inputs[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
-uint16_t inputs_max[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
-uint16_t inputs_min[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
+uint16_t inputs_v_max[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
+uint16_t inputs_v_min[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
 uint8_t inputs_mode_bit[5] = {INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL};
 
 uint8_t inputs_time_to_alarm[5] = {0,0,0,0,0};
@@ -74,23 +75,7 @@ uint8_t last_control_ID_number = 254;
 char last_control_guard[13];
 int temperature_time_check = 5;
 
-void main_guard(){
-	int current_TM = one_wire_check_keys();
-	if (current_TM != ONE_WIRE_KEY_DENY) {
-		clear_last_control_guard();
-		str_add_str(last_control_guard,"TM = ");
-		str_add_num(current_TM,last_control_guard);
-//		last_control_ID_number = current_TM + 100;
-		if (guard_st){
-			guard_off();
-		}else{
-			guard_on_TM();
-		}
-	}
-	check_inputs();
-	check_battery();
-	check_gsm_message();
-}
+
 
 /////////////////////////////////                      GUARD
 void guard_on_TM(){
@@ -106,15 +91,15 @@ void guard_on_TM(){
 void guard_on(){
 		guard_st = GUARD_ON;
 		output_on_mode(OUTPUT_MODE_GUARD);
-		changed_guard_sms(1);
+		changed_guard_sms(GUARD_ON);
 }
 
 void guard_off(){
 	guard_st = GUARD_OFF;
 	time_to_alarm = -1;
 	output_off_mode(OUTPUT_MODE_GUARD);
-	output_off_mode(OUTPUT_MODE_ALARM);
-	changed_guard_sms(0);
+	alarm_off();
+	changed_guard_sms(GUARD_OFF);
 }
 
 void changed_guard_sms(int status){
@@ -232,27 +217,52 @@ void check_inputs(void){
 	}
 }
 
+void check_TM(){
+	int current_TM = one_wire_check_keys();
+	if (current_TM != ONE_WIRE_KEY_DENY) {
+		clear_last_control_guard();
+		str_add_str(last_control_guard,"TM = ");
+		str_add_num(last_control_guard,current_TM);
+//		last_control_ID_number = current_TM + 100;
+		if (guard_st){
+			guard_off();
+		}else{
+			guard_on_TM();
+		}
+	}
+}
+
 void read_settings(){
 	uint8_t i = 0;
 	uint8_t y = 0;
 
-
+//////////////////   			 READ NUMBER
 	for (i = 0;i< MAX_TEL_NUMBERS;i++){
 		for (y = 0;y < 11; y++)
 		tel_number[i][y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
 	}
 
-
+//////////////////   			 READ TM ID
 	for (i = 0;i< MAX_TM;i++){
 		for (y = 0;y < 8; y++)
 		tm_id[i][y] = EEPROMRead((EEPROM_tms_id + (i * 8) + y),1);
 	}
 
-
+//////////////////   			 READ DS18b20 ID
 	for (i = 0;i< MAX_DS18x20;i++){
 		for (y = 0;y < 8; y++)
 		tm_id[i][y] = EEPROMRead((EEPROM_ds18x20_id + (i * 8) + y),1);
 	}
+//////////////////
+
+//////////////////
+
+//////////////////
+
+//////////////////
+
+//////////////////
+
 
 }
 
@@ -260,11 +270,10 @@ void read_settings(){
 int check_input(int input){
 		unsigned int adc_value;
 			adc_value = ADC_read(inputs[input - 1]); // измерение со входа
-			if ((((inputs_max[input - 1] > adc_value) & (adc_value > inputs_min[input - 1])) ^ !((inputs_mode_bit[input-1] & INPUTS_MODE_INVERS)>0)) ){//вход не в норме
+			if ((((inputs_v_max[input - 1] > adc_value) & (adc_value > inputs_v_min[input - 1])) ^ !((inputs_mode_bit[input-1] & INPUTS_MODE_INVERS)>0)) ){//вход не в норме
 				return 1;
-			}else{
-				return 0;
 			}
+				return 0;
 }
 
 void clear_last_control_guard(){

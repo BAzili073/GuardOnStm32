@@ -15,6 +15,7 @@ void clear_gsm_message();
 char check_gsm_message();
 void del_all_gsm_message();
 
+void incoming_call();
 void modem_call(char * number);
 char modem_send_sms_message(char * number,char * text);
 char send_sms_message_for_all(char * text,int function);
@@ -51,7 +52,7 @@ void modem_check_state(){
 
 			break;
 			case MODEM_STATE_NO_SIM:
-				clear_all_allarm();
+
 			break;
 			case MODEM_STATE_OFF:
 				MODEM_ON();
@@ -131,6 +132,7 @@ void modem_check_online(){
 		send_string_to_GSM("AT+COPS?\r");
 	}
 }
+
 void modem_check_quality(){
 	if (!modem_time_check){
 		modem_time_check = SET_MODEM_TIME_CHECK;
@@ -182,10 +184,13 @@ char get_next_gsm_message(){
 
 char parse_gsm_message(){
 	int return_gsm_message = GSM_MESSAGE_UNKNOW;
-	if (find_str("+CMTI:",gsm_message)){
+
+	if (find_str("+CMTI:",gsm_message)){ /////////////////////////////////INCOMING SMS
 		incoming_sms();
 		return_gsm_message = GSM_MESSAGE_INCOMING_SMS;
-	}else if (find_str("+CPIN:",gsm_message)){
+	}
+
+	else if (find_str("+CPIN:",gsm_message)){ /////////////////////////////////START MODEM
 		if (find_str("READY",gsm_message)){
 //			modem_state = MODEM_STATE_NO_SIM;
 //			return_gsm_message = GSM_MESSAGE_NO_SIM;
@@ -199,32 +204,40 @@ char parse_gsm_message(){
 			return_gsm_message = GSM_MESSAGE_NO_SIM;
 		}
 
-	} else if (find_str("+COPS:",gsm_message)){
-		if (str_length(gsm_message) > 15) {
+	}
+
+	else if (find_str("+COPS:",gsm_message)){///////////////////////////////// ONLINE GET OPERATOR
+		if (str_length(gsm_message) > 15) { ///////////////////////////////// OPERATOR GET OK
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("MODEM: ");
 	send_string_to_UART3(gsm_message);
 	send_string_to_UART3(" \n\r");
 #endif
 			modem_state = MODEM_STATE_SETUP;
-		}else{
+		}else{								///////////////////////////////// OPERATOR FAILED
 			modem_state = MODEM_STATE_OFFLINE;
 		}
-	}else if (find_str("BUSY",gsm_message)){
+	}
+
+	else if (find_str("BUSY",gsm_message)){  ///////////////////////////////// LINE BUSY
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("MODEM: CALL BUSY ");
 	send_string_to_UART3(" \n\r");
 #endif
 			modem_free();
 			return_gsm_message = GSM_MESSAGE_CALL_BUSY;
-	}else if (find_str("NO ANSWER",gsm_message)){
+	}
+
+	else if (find_str("NO ANSWER",gsm_message)){///////////////////////////////// NO ANSWER
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("MODEM: CALL NO ANSWER ");
 	send_string_to_UART3(" \n\r");
 #endif
 				modem_free();
 			return_gsm_message = GSM_MESSAGE_CALL_NO_ANSWER;
-	}else if (find_str("+CSQ:",gsm_message)){
+	}
+
+	else if (find_str("+CSQ:",gsm_message)){///////////////////////////////// GET QUALITY LINE
 		if (gsm_message[7] == ','){
 			gsm_signal_quality = gsm_message[6] - 48;
 		}else{
@@ -235,20 +248,22 @@ char parse_gsm_message(){
 	send_int_to_UART3(gsm_signal_quality);
 	send_string_to_UART3(" \n\r");
 #endif
-	}else if(find_str("NO CARRIER",gsm_message)){
+	}
+
+	else if(find_str("NO CARRIER",gsm_message)){ ///////////////////////////////// NO CARRIER
 		modem_no_carrier();
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("MODEM : NO CARRIER = ");
 	send_int_to_UART3(modem_errors[MODEM_ERRORS_NO_CARRIER]);
 	send_string_to_UART3(" \n\r");
 #endif
-	}else if(find_str("+CLIP:",gsm_message)){
+	}else if(find_str("+CLIP:",gsm_message)){  ///////////////////////////////// INCOMING CALL
 		incoming_call();
-	}else if (find_str("OK\r\n",gsm_message)){
+	}else if (find_str("OK\r\n",gsm_message)){  ///////////////////////////////// OK
 		return_gsm_message = GSM_MESSAGE_OK;
-	}else if (find_str("ERROR\r\n",gsm_message)){
+	}else if (find_str("ERROR\r\n",gsm_message)){ ///////////////////////////////// ERROR
 		return_gsm_message = GSM_MESSAGE_ERROR;
-	}else if (find_str("+QTONEDET\r\n",gsm_message)){
+	}else if (find_str("+QTONEDET\r\n",gsm_message)){ ///////////////////////////////// DTMF
 
 	}
 	clear_gsm_message();
@@ -276,7 +291,7 @@ void incoming_call(){
 				if (send_command_to_GSM("ATH0","OK",gsm_message,2,50)){
 					modem_free();
 				}
-				if (tel_number[0][0] == 0){
+				if (tel_number[0][0] == 0){ ////////////
 					modem_save_number(0,tel_number_temp);
 					modem_send_sms_message(tel_number[0],"vaw nomer dobavlen v sistemu");
 				}
@@ -546,7 +561,6 @@ void convert_number_to_eng(char * number){
 
 void modem_call(char * number){
 	if (modem_errors[MODEM_ERRORS_NO_CARRIER] > 3){
-		clear_all_allarm();
 		return;
 	}
 	if (modem_action == MODEM_ACTION_FREE){
@@ -588,14 +602,6 @@ char check_number(char * number){
 	return TEL_NUMBER_DENY;
 }
 
-
-
-/*AT COMMANDS
- AT+COPS?   GET OPERATOR
- AT+CSQ     GET SIGNAL QUALITY
-
- */
-
 void modem_save_number(char ID_number,char * number){
 	int i;
 	for (i = 0;i<10;i++){
@@ -609,5 +615,4 @@ void modem_save_number(char ID_number,char * number){
 	send_string_to_UART3(number);
 	send_string_to_UART3(" \n\r");
 #endif
-
 }

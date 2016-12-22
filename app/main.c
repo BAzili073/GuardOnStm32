@@ -13,53 +13,18 @@
 #include "modem.h"
 #include "string.h"
 #include "EEPROMfunc.h"
-#include "FingerPrint.h"
-
-
-//#include <strings.h>
+//#include "FingerPrint.h"
 
 char temp_address[2][8] = {{0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40},{0x28,0xB8,0xa3,0xA0,0x04,0x00,0x00,0xf2}};
-//void Delay(void) {
-//volatile uint32_t i;
-//    for (i=0; i != 0x80000; i++);
-//}
-
-
-
 
 void EXTI0_IRQHandler(){
-	if (!alarm_flag[ALARM_FLAG_ACC]) alarm_flag[ALARM_FLAG_ACC] = 250;
-	EXTI -> PR |= EXTI_PR_PR0;
-	SPI_read_reg(0x30);
 }
 
 void EXTI9_5_IRQHandler(){
-	if (EXTI -> PR & EXTI_PR_PR9){
-		EXTI -> PR |= EXTI_PR_PR9;
-		if (!modem_time_on){
-			modem_time_on = 250;
-		}
-	}
-
 }
 
 void EXTI15_10_IRQHandler(){
-	if (EXTI -> PR & EXTI_PR_PR11){
-		EXTI -> PR |= EXTI_PR_PR11;
-		FP_time_for_rec = 60;
-	}else if(EXTI -> PR & EXTI_PR_PR12){
-		EXTI -> PR |= EXTI_PR_PR12;
-		if (GPIO_READ(GPIOA,GPIO_PIN_12)){
-			FP_check_allow = 1;
-		}else{
-			FP_check_allow = 0;
-		}
-
-	}
 }
-
-
-
 
 int main(void) {
  	SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA;
@@ -74,16 +39,9 @@ int main(void) {
 	UART1_init();
 	UART2_init();
 	UART3_init();
-	SPI1_Init();
-	ADXL_setup();
-	GPIO_interrupt_init();
+//	GPIO_interrupt_init();
 
 
-
-
-
-//	EEPROMWrite(3,0,1);
-//	led_blink(7,1,1);
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
 	//MODEM_ON();
 //	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
@@ -95,53 +53,29 @@ int main(void) {
 //		sms_command_r();
 //	}
 
-	int y;
-		for (y = 0;y < 10; y++){
-		tel_number[0][y] = EEPROMRead((EEPROM_tel_numbers + y),1);
-	}
+
     while(1) {
-//    	main_guard();
-    	check_gsm_message();
-    	check_alarm();
-
-    	if (time_access_lock){
-    		GPIO_HIGH(LOCK_ACCESS_PORT,LOCK_ACCESS_PIN);
-    	}else{
-    		GPIO_LOW(LOCK_ACCESS_PORT,LOCK_ACCESS_PIN);
-    	}
-
-
-    	if (FP_time_for_rec == 59){
-		time_LED[LED_BLUE_FOR_TIME] = 60;
-#ifdef DEBUG_FINGER
-	send_string_to_UART3("FP: RECORD FINGER ON!\n\r");
-#endif
-//			led_blink(5,5,5);
-//			led_blink(6,5,5);
-			FP_time_for_rec--;
-    	}
-
-
-
-
-
-    	FP_check_function();
+    	main_guard();
 
     	if (!modem_time_check){
     		modem_check_state();
     		modem_time_check = 30;
     	}
-    	if (!temperature_time_check){
-			if (ADC_read(ADC_CHANNEL_18)>3100){
-				if (!alarm_flag[ALARM_FLAG_TEMPERATURE]) alarm_flag[ALARM_FLAG_TEMPERATURE] = 250;
-			}
-			temperature_time_check = 5;
-    	}
+
 	set_timeout_7(1);
 	while_timeout_7();
     }
     return 0;
 }
+
+
+
+
+
+
+
+
+
 
 void BusFault_Handler(){
 	int x = 3 * 3;
@@ -201,74 +135,4 @@ volatile uint32_t psr;/* Program status register. */
     /* When the following line is hit, the variables contain the register values. */
  //   for( ;; );
 }
-
-void check_alarm(){
-	if (modem_time_on){
-		if (modem_time_on == 250){
-			if (modem_send_sms_message(tel_number[0],"vklUCenie modema")){
-				modem_time_on = 180;
-		  }
-		}
-		if ((modem_time_on == 1) && (modem_state == MODEM_STATE_ONLINE || modem_state == MODEM_STATE_NO_SIM)){
-//			ADXL_int_enable();
-			MODEM_OFF();
-		}
-	}
-
-	if (alarm_flag[ALARM_FLAG_TEMPERATURE] == 1){
-			alarm_flag[ALARM_FLAG_TEMPERATURE]--;
-	}
-
-	if (tel_number[0][0] != 0){
-
-#ifdef DEBUG_FINGER
-		if (alarm_flag[ALARM_FLAG_ACC] == 250){
-			alarm_flag[ALARM_FLAG_ACC]++;
-			send_string_to_UART3("ACC: Trigger!\n\r");
-		}
-#endif
-#ifdef DEBUG_FINGER
-		if (alarm_flag[ALARM_FLAG_TEMPERATURE] == 250){
-			alarm_flag[ALARM_FLAG_TEMPERATURE]++;
-			send_string_to_UART3("Temperatura previwena!\n\r");
-		}
-#endif
-#ifdef DEBUG_FINGER
-		if (alarm_flag[ALARM_FLAG_FP_TRY] == 250){
-			alarm_flag[ALARM_FLAG_FP_TRY]++;
-			send_string_to_UART3("FP: mnogo nepravilnih popitok!\n\r");
-		}
-#endif
-
-			if (alarm_flag[ALARM_FLAG_ACC] >= 250){
-//				ADXL_int_disable();
-				if (modem_send_sms_message(tel_number[0],"akselerometr srabotal")){
-							alarm_flag[ALARM_FLAG_ACC] = 180;
-							modem_time_on = 60;
-				}
-			}
-			if (alarm_flag[ALARM_FLAG_TEMPERATURE] >= 250){
-				if (modem_send_sms_message(tel_number[0],"temperatura prevQwena")){
-							alarm_flag[ALARM_FLAG_TEMPERATURE] = 180;
-							modem_time_on = 60;
-				}
-			}
-			if (alarm_flag[ALARM_FLAG_FP_TRY] >= 250 ){
-				if (modem_send_sms_message(tel_number[0],"palec ne podowel 3 raza")){
-							alarm_flag[ALARM_FLAG_FP_TRY] = 180;
-							modem_time_on = 60;
-				}
-			}
-	}
-}
-
-void clear_all_allarm(){
-	alarm_flag[ALARM_FLAG_ACC] = 30;
-	alarm_flag[ALARM_FLAG_TEMPERATURE] = 30;
-	alarm_flag[ALARM_FLAG_FP_TRY] = 30;
-	modem_errors[MODEM_ERRORS_NO_CARRIER] = 0;
-	modem_errors[MODEM_ERRORS_SEND_SMS] = 0;
-	modem_time_on = 3;
-}
-
 

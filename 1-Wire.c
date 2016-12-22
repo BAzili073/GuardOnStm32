@@ -1,16 +1,14 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
+#include "1-Wire.h"
 
 #include "defines.h"
 #include "TIMs.h"
 #include "GPIO_func.h"
 #include "UART.h"
+#include "modem.h"
+#include "my_string.h"
 
-
-uint8_t ds18x20_id[MAX_DS18x20][8];
-char key_id[MAX_TM][8];
-int16_t last_get_temp[MAX_DS18x20];
-uint8_t ds18x20_number;
 
 uint8_t one_wire_crc_update(uint8_t crc, uint8_t b);
 uint8_t one_wire_check_crc(uint8_t address[8]);
@@ -18,13 +16,29 @@ void one_wire_low();
 void one_wire_high();
 char one_wire_check_line();
 char one_wire_send_presence();
-
+int16_t one_wire_read_temp_to_address(uint8_t address[8]);
 
 uint8_t one_wire_read_rom(uint8_t * buf);
 uint8_t find_key(uint8_t key[8]);
 int16_t one_wire_read_temp_to_address(uint8_t address[8]);
 uint8_t onewire_enum[8]; // найденный восьмибайтовый адрес
 uint8_t onewire_enum_fork_bit; // последний нулевой бит, где была неоднозначность (нумеруя с единицы)
+
+
+
+
+uint8_t ds18x20_id[MAX_DS18x20][8];
+char key_id[MAX_TM][8];
+int16_t last_get_temp[MAX_DS18x20];
+uint8_t ds18x20_number;
+uint16_t ds18x20_max_temp[MAX_DS18x20];
+uint16_t ds18x20_min_temp[MAX_DS18x20];
+char ds18x20_alarm[MAX_DS18x20];
+char ds18x20_settings[MAX_DS18x20];
+
+
+
+
 
 char one_wire_level(){
 //	init_one_wire_input();
@@ -81,6 +95,86 @@ uint8_t one_wire_read_bit() {
   while(!time_out);
   return r;
 }
+
+
+
+void check_temperature(){
+	int i;
+	int y;
+	for (i = 0;i<MAX_DS18x20;i++){
+		last_get_temp[i] = one_wire_read_temp_to_address (ds18x20_id[i]);
+		if ((last_get_temp[i] > ds18x20_max_temp)){
+			if (ds18x20_alarm[i] == DS18X20_ALARM_NORM){
+				if (ds18x20_settings[i] && DS18X20_SETTINGS_CONTROL_OUT){
+					for (y = 3;y<8;y++){
+						if (ds18x20_settings && (1<<y)){
+							if (ds18x20_settings && DS18X20_SETTINGS_CONTROL_INVER){
+								output_off_hand(y-3);
+							}else{
+								output_on_hand(y-3);
+							}
+						}
+					}
+				}
+				if (ds18x20_settings[i] && DS18X20_SETTINGS_SMS){
+					str_add_str(output_sms_message,"temperatura datCika #");
+									str_add_num(i,output_sms_message);
+									str_add_str(output_sms_message,"vQwe normQ: ");
+									str_add_num(last_get_temp[i],output_sms_message);
+									send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
+				}
+
+				ds18x20_alarm[i] = DS18X20_ALARM_UP;
+			}
+		}else if ((last_get_temp[i] < ds18x20_max_temp)){
+				if (ds18x20_alarm[i] == DS18X20_ALARM_NORM){
+					if (ds18x20_settings[i] && DS18X20_SETTINGS_CONTROL_OUT){
+						for (y = 3;y<8;y++){
+							if (ds18x20_settings && (1<<y)){
+								if (ds18x20_settings && DS18X20_SETTINGS_CONTROL_INVER){
+									output_off_hand(y-3);
+								}else{
+									output_on_hand(y-3);
+								}
+							}
+						}
+					}
+					if (ds18x20_settings[i] && DS18X20_SETTINGS_SMS){
+						str_add_str(output_sms_message,"temperatura datCika #");
+						str_add_num(i,output_sms_message);
+						str_add_str(output_sms_message," nije normQ: ");
+						str_add_num(last_get_temp[i],output_sms_message);
+						send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
+					}
+					ds18x20_alarm[i] = DS18X20_ALARM_DOWN;
+				}
+		}else{
+			if (ds18x20_alarm[i] != DS18X20_ALARM_NORM){
+				if (ds18x20_settings[i] && DS18X20_SETTINGS_CONTROL_OUT){
+					for (y = 3;y<8;y++){
+						if (ds18x20_settings && (1<<y)){
+							if (ds18x20_settings && DS18X20_SETTINGS_CONTROL_INVER){
+								output_on_hand(y-3);
+							}else{
+								output_off_hand(y-3);
+							}
+						}
+					}
+				}
+				if (ds18x20_settings && DS18X20_SETTINGS_SMS){
+					str_add_str(output_sms_message,"temperatura datCika #");
+					str_add_num(i,output_sms_message);
+					str_add_str(output_sms_message," v norme: ");
+					str_add_num(last_get_temp[i],output_sms_message);
+					send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
+				}
+			ds18x20_alarm[i] = DS18X20_ALARM_NORM;
+			}
+
+		}
+	}
+}
+
 
 uint8_t one_wire_read_byte() {
   uint8_t r = 0;
