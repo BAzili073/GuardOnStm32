@@ -1,7 +1,7 @@
 #include "defines.h"
 
-#define MODEM_ON_PORT GPIOA
-#define MODEM_ON_PIN GPIO_PIN_8
+#define MODEM_ON_PORT GPIOB
+#define MODEM_ON_PIN GPIO_PIN_2
 #define OK_ANSWER 1
 #define NO_ANSWER 0
 

@@ -43,7 +43,8 @@ int main(void) {
 
 
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
-	//MODEM_ON();
+	modem_state = MODEM_STATE_OFF;
+	MODEM_ON();
 //	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
 //		guard_on();
 //	}
