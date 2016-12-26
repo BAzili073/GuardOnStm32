@@ -13,9 +13,9 @@
 
 void main_guard(){
 	check_TM();
-	check_inputs();
-	check_battery();
-	check_gsm_message();
+//	check_inputs();
+//	check_battery();
+//	check_gsm_message();
 }
 
 

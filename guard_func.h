@@ -10,21 +10,24 @@ int16_t time_to_guard_on;
 uint8_t alarm_st;
 uint8_t guard_st;
 uint8_t last_alarm;
-uint16_t outputs[5];
-uint8_t outputs_mode[5];
-uint16_t leds[8];
-uint8_t leds_mode[8];
 
-const uint16_t inputs[5];
-uint16_t inputs_max[5];
-uint16_t inputs_min[5];
-uint16_t inputs_mode[5];
-uint8_t inputs_time_to_alarm[5];
+typedef struct LED_obj{
+	GPIO_TypeDef * port;
+	uint16_t  pin;
+	uint8_t mode;
+	int8_t  blink_time_on;
+	int8_t  blink_time_off;
+} LED_obj;
 
+LED_obj led[LED_MAX];
 
-const uint16_t leds_port[8];
-int8_t  led_blink_time_on[8];
-int8_t  led_blink_time_off[8];
+typedef struct OUTPUT_obj{
+	GPIO_TypeDef * port;
+	uint16_t  pin;
+	uint8_t mode;
+} OUTPUT_obj;
+
+OUTPUT_obj output[OUTPUT_MAX];
 
  GPIO_TypeDef * outputs_port[5];
 

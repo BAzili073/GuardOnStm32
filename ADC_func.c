@@ -15,9 +15,8 @@ void ADC_init(){
 
 }
 
-unsigned int ADC_read(unsigned int chanel){
-	ADC1 -> SQR5 =  chanel;
-//	 ADC1->SQR5 |= (ADC_SQR5_SQ1_4 | ADC_SQR5_SQ1_1);
+unsigned int ADC_read(uint32_t chanel){
+	 ADC1->SQR5 = chanel;
 	ADC1 -> CR2 |= ADC_CR2_SWSTART;
 	while (!(ADC1 -> SR & ADC_SR_EOC)){
 

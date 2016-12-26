@@ -92,14 +92,14 @@ void check_time_to_guard_on(){
 
 void check_led_blink(){
 	int i;
-	for (i = 0; i<=7;i++){
-		if (led_blink_time_on[i] != LED_BLINK_STOP){
+	for (i = 0; i<LED_MAX;i++){
+		if (led[i].blink_time_on != LED_BLINK_STOP){
 			led_blink_time[i] --;
 			if (led_blink_time[i] > 0){
 				led_on_mode(i+1);
 			}else{
 				led_off_mode(i+1);
-				if (led_blink_time[i] <= (led_blink_time_off[i] * (-1))) led_blink_time[i] = led_blink_time_on[i]+1;
+				if (led_blink_time[i] <= (led[i].blink_time_off * (-1))) led_blink_time[i] = led[i].blink_time_on+1;
 			}
 		}
 	}
@@ -129,7 +129,7 @@ void set_timeout_7 (int m_sec){
 }
 
 void while_timeout_7(){
-	FP_check_function();
+//	FP_check_function();
 	while(timeout_7);
 }
 

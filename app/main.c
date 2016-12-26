@@ -43,8 +43,9 @@ int main(void) {
 
 
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
-	modem_state = MODEM_STATE_OFF;
-	MODEM_ON();
+//	modem_state = MODEM_STATE_OFF;
+//	led_blink(1,10,10);
+//	MODEM_ON();
 //	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
 //		guard_on();
 //	}
@@ -53,8 +54,6 @@ int main(void) {
 //		str_add_str(output_sms_message,"ver:5.0 ");
 //		sms_command_r();
 //	}
-
-
     while(1) {
     	main_guard();
 

@@ -42,9 +42,9 @@ char ds18x20_settings[MAX_DS18x20];
 
 char one_wire_level(){
 //	init_one_wire_input();
-	char a = GPIO_READ(ONE_WIRE_PORT,ONE_WIRE_PIN);
 //	init_one_wire_output();
-	return a;
+	if (GPIO_READ(ONE_WIRE_PORT,ONE_WIRE_PIN)) return 1;
+	else return 0;
 }
 
 void one_wire_write_bit(uint8_t bit)
@@ -322,6 +322,7 @@ uint8_t one_wire_crc_update(uint8_t crc, uint8_t b) {
 }
 
 uint8_t one_wire_skip() {
+	int a = !one_wire_send_presence();
   if (!one_wire_send_presence())
     return 0;
   one_wire_write_byte(0xCC);
@@ -475,18 +476,19 @@ uint8_t one_wire_check_keys(){
 	        uint8_t key[8];
 	        uint8_t family_code = d; // —охранение первого байта (код семейства)
 	        for (uint8_t i = 0; i < 8; i++) {
-//	        	send_char_to_GSM((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
-//			    send_char_to_GSM((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
-//			    send_char_to_GSM(' ');
+	        	send_char_to_UART3((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
+			    send_char_to_UART3((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
+			    send_char_to_UART3(' ');
 	          key[i] = d;
 	          crc = one_wire_crc_update(crc, d);
 	          d = *(p++);
 	        }
 	        if (crc) {
 	          // в итоге должен получитьс€ ноль. ≈сли не так, вывод сообщени€ об ошибке
-//	        	send_char_to_GSM('C');
-//	        	send_char_to_GSM('R');
-//	        	send_char_to_GSM('C');
+	        	send_char_to_UART3('C');
+	        	send_char_to_UART3('R');
+	        	send_char_to_UART3('C');
+
 	        } else {
 	          if ((family_code == 0x01) || (family_code == 0x01) || (family_code == 0x01)) {
 	        	  uint8_t key_access= find_key(key);
@@ -496,6 +498,9 @@ uint8_t one_wire_check_keys(){
 //	        	  send_char_to_GSM('?');
 	          }
 	        }
+	        send_char_to_UART3 ('\n');
+	        send_char_to_UART3 ('\r');
+
 	      }
 	}
 	      return ONE_WIRE_KEY_DENY;

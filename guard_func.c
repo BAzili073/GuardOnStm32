@@ -46,29 +46,61 @@ uint8_t last_alarm = 0;
 uint8_t guard_st = 0;
 
 
-const uint16_t outputs[5] = {OUTPUT_1,OUTPUT_2,OUTPUT_3,OUTPUT_4,OUTPUT_5};
- GPIO_TypeDef * outputs_port[5] = {OUTPUT_1_PORT,OUTPUT_2_PORT,OUTPUT_3_PORT,OUTPUT_4_PORT,OUTPUT_5_PORT};
-uint8_t outputs_mode[5] = {0,1,2,3,4};
+typedef struct OUTPUT_obj{
+	GPIO_TypeDef * port;
+	uint16_t  pin;
+	uint8_t mode;
+} OUTPUT_obj;
 
+OUTPUT_obj output[OUTPUT_MAX] = {
+		[0] = {.port = OUTPUT_1_PORT, .pin = OUTPUT_1, .mode = 96,},
+		[1] = {.port = OUTPUT_2_PORT, .pin = OUTPUT_2, .mode = 97,},
+		[2] = {.port = OUTPUT_3_PORT, .pin = OUTPUT_3, .mode = 98,},
+		[3] = {.port = OUTPUT_4_PORT, .pin = OUTPUT_4, .mode = 99,},
+		[4] = {.port = OUTPUT_5_PORT, .pin = OUTPUT_5, .mode = 100,},
+};
 
-const uint16_t leds[5] = {LED_1,LED_2,LED_3,LED_4,LED_5};
-GPIO_TypeDef * leds_port[5] = {LED_1_PORT,LED_2_PORT,LED_3_PORT,LED_4_PORT,LED_5_PORT};
+typedef struct LED_obj{
+	GPIO_TypeDef * port;
+	uint16_t  pin;
+	uint8_t mode;
+	int8_t  blink_time_on;
+	int8_t  blink_time_off;
+} LED_obj;
 
+LED_obj led[LED_MAX] = {
+		[0] = { .port = LED_1_PORT, .pin = LED_1, .mode = 1, .blink_time_on = -127, .blink_time_off = -127},
+		[1] = { .port = LED_2_PORT, .pin = LED_2, .mode = 2, .blink_time_on = -127, .blink_time_off = -127},
+		[2] = { .port = LED_3_PORT, .pin = LED_3, .mode = 3, .blink_time_on = -127, .blink_time_off = -127},
+		[3] = { .port = LED_4_PORT, .pin = LED_4, .mode = 4, .blink_time_on = -127, .blink_time_off = -127},
+		[4] = { .port = LED_5_PORT, .pin = LED_5, .mode = 5, .blink_time_on = -127, .blink_time_off = -127},
+};
 
-uint8_t led_mode[8] = {1,2,3,4,5,6,7,7};
-int8_t  led_blink_time_on[8] = {-127,-127,-127,-127,-127,-127,-127,-127};
-int8_t  led_blink_time_off[8] = {127,127,127,127,127,127,127,127};
+ typedef struct INPUT_obj{
+	GPIO_TypeDef * port;
+	uint16_t  pin;
+	uint8_t mode;
+	uint16_t v_max;
+	uint16_t v_min;
+	uint16_t time_to_alarm;
+	uint32_t adc_channel;
+} INPUT_obj;
 
+ INPUT_obj input[MAX_INPUT] ={
+	    [0] = {	.port = INPUT_PORT, .pin = INPUT_1, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_1},
+	    [1] = {	.port = INPUT_PORT, .pin = INPUT_2, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_4},
+	    [2] = {	.port = INPUT_PORT, .pin = INPUT_3, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_5},
+	    [3] = {	.port = INPUT_PORT, .pin = INPUT_4, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_6},
+	    [4] = {	.port = INPUT_PORT, .pin = INPUT_5, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_7},
+ };
 
-const uint16_t inputs[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
-uint16_t inputs_v_max[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
-uint16_t inputs_v_min[5] = {INPUT_1,INPUT_2,INPUT_3,INPUT_4,INPUT_5};
-uint8_t inputs_mode_bit[5] = {INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL,INPUT_MODE_NORMAL};
+ typedef struct TEL_obj{
+	char number[10];
+	uint8_t  access;
+} TEL_obj;
 
-uint8_t inputs_time_to_alarm[5] = {0,0,0,0,0};
+TEL_obj tel[MAX_TEL_NUMBERS] ={};
 
-char tel_number[MAX_TEL_NUMBERS][10] = {};
-uint8_t tel_access[MAX_TEL_NUMBERS] = {9,0,0,0,0};
 char tel_number_temp[10];
 
 uint8_t last_control_ID_number = 254;
@@ -125,55 +157,56 @@ void alarm_off(){
 /////////////////////////////////                      LEDS
 void led_on_mode(uint8_t mode){
 	int i;
-	for (i = 1;i<=8;i++){
-		if (led_mode[i-1] == mode) GPIO_HIGH(leds_port[i-1],(leds[i-1]));
+	for (i = 1;i<=LED_MAX;i++){
+		if (led[i-1].mode == mode) GPIO_HIGH(led[i-1].port,(led[i-1].pin));
 	}
 }
 
 void led_off_mode(uint8_t mode){
 	int i;
-	for (i = 1;i<=8;i++){
-		if (led_mode[i-1] == mode) GPIO_LOW(leds_port[i-1],(leds[i-1]));
+	for (i = 1;i<=LED_MAX;i++){
+		if (led[i-1].mode == mode) GPIO_LOW(led[i-1].port,(led[i-1].pin));
 	}
 }
 
 void led_blink(uint8_t led_mode, int8_t time_on,int8_t time_off){
-	led_blink_time_on[led_mode - 1] = time_on;
-	led_blink_time_off[led_mode - 1] = time_off;
+	led[led_mode - 1].blink_time_on = time_on;
+	led[led_mode - 1].blink_time_off = time_off;
 }
 
 void led_blink_stop(uint8_t mode){
-	led_blink_time_on[mode - 1] = LED_BLINK_STOP;
+	led[mode - 1].blink_time_on = LED_BLINK_STOP;
 	led_off_mode(mode);
 }
 
 /////////////////////////////////                      OUTPUT
-void output_on(uint8_t output){
-	GPIO_HIGH(outputs_port[output-1],(outputs[output-1]));
+void output_on(uint8_t output_t){
+	GPIO_HIGH(output[output_t-1].port,(output[output_t-1].pin));
+
 }
 
-void output_off(uint8_t output){
-	GPIO_LOW((outputs_port[output-1]),(outputs[output-1]));
+void output_off(uint8_t output_t){
+	GPIO_LOW((output[output_t-1].port),(output[output_t-1].pin));
 }
 
 void output_on_mode(uint8_t mode){
-	for (int i = 1;i<=5;i++){
-		if (outputs_mode[i-1] == mode) output_on(i);
+	for (int i = 1;i<=OUTPUT_MAX;i++){
+		if (output[i-1].mode == mode) output_on(i);
 	}
 }
 
 void output_off_mode(uint8_t mode){
-	for (int i = 1;i<=5;i++){
-			if (outputs_mode[i-1] == mode) output_off(i);
+	for (int i = 1;i<=OUTPUT_MAX;i++){
+			if (output[i-1].mode == mode) output_off(i);
 	}
 }
 
-void output_on_hand(uint8_t output){
-	if (outputs_mode[output] == OUTPUT_MODE_HAND) output_on(output);
+void output_on_hand(uint8_t output_t){
+	if (output[output_t].mode == OUTPUT_MODE_HAND) output_on(output_t);
 }
 
-void output_off_hand(uint8_t output){
-	if (outputs_mode[output] == OUTPUT_MODE_HAND) output_off(output);
+void output_off_hand(uint8_t output_t){
+	if (output[output_t].mode == OUTPUT_MODE_HAND) output_off(output_t);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -183,7 +216,7 @@ void output_off_hand(uint8_t output){
 
 
 void check_battery(){
-	if (ADC_read(PIN_220) < u_battary); // измерение со входа
+	if (ADC_read(DET_220_CHANNEL) < u_battary); // измерение со входа
 }
 
 void check_inputs(void){
@@ -193,14 +226,14 @@ void check_inputs(void){
 			led_on_mode(i);
 			output_on_mode(OUTPUT_MODE_INPUTS + i);
 			if (last_alarm != i){
-					if (inputs_mode_bit[i-1] & INPUTS_MODE_BUTTON_GUARD){ //если вход управл€ющий охраной
+					if (input[i-1].mode & INPUTS_MODE_BUTTON_GUARD){ //если вход управл€ющий охраной
 						if (!guard_st) guard_on();
 						return;
 					}
-					if ((guard_st || (inputs_mode_bit[i-1] & INPUTS_MODE_24H)) & !alarm_st){ //если на охране или вход 24 часа
+					if ((guard_st || (input[i-1].mode & INPUTS_MODE_24H)) & !alarm_st){ //если на охране или вход 24 часа
 						last_alarm = i; //запомним последний сработавший вход
-						if ((time_to_alarm == -1) || (inputs_time_to_alarm[i-1] < time_to_alarm)){ //если врем€ до тревоги нету
-							time_to_alarm = inputs_time_to_alarm[i-1];
+						if ((time_to_alarm == -1) || (input[i - 1].time_to_alarm < time_to_alarm)){ //если врем€ до тревоги нету
+							time_to_alarm = input[i-1].time_to_alarm;
 							last_input_alarm = i + 1;
 						}
 					}
@@ -208,7 +241,7 @@ void check_inputs(void){
 		}else{ //вход в норме
 			led_off_mode(i);
 			output_off_mode(OUTPUT_MODE_INPUTS + i);
-			if (inputs_mode_bit[i-1] & INPUTS_MODE_BUTTON_GUARD){//если вход управл€ющий охраной
+			if (input[i-1].mode & INPUTS_MODE_BUTTON_GUARD){//если вход управл€ющий охраной
 				if (guard_st) guard_off();
 				return;
 			}
@@ -239,7 +272,7 @@ void read_settings(){
 //////////////////   			 READ NUMBER
 	for (i = 0;i< MAX_TEL_NUMBERS;i++){
 		for (y = 0;y < 11; y++)
-		tel_number[i][y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
+		tel[i].number[y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
 	}
 
 //////////////////   			 READ TM ID
@@ -267,13 +300,16 @@ void read_settings(){
 }
 
 
-int check_input(int input){
+int check_input(int input_t){
 		unsigned int adc_value;
-			adc_value = ADC_read(inputs[input - 1]); // измерение со входа
-			if ((((inputs_v_max[input - 1] > adc_value) & (adc_value > inputs_v_min[input - 1])) ^ !((inputs_mode_bit[input-1] & INPUTS_MODE_INVERS)>0)) ){//вход не в норме
+			adc_value = ADC_read(input[input_t - 1].adc_channel); // измерение со входа
+			if ((((input[input_t - 1].v_max > adc_value) & (adc_value > input[input_t - 1].v_min)) ^ !((input[input_t - 1].mode & INPUTS_MODE_INVERS)>0)) ){//вход не в норме
 				return 1;
 			}
 				return 0;
+ // 33 -> 0 V
+ // 1350 -> 5.3 V
+// 2633 -> 10.3 V
 }
 
 void clear_last_control_guard(){

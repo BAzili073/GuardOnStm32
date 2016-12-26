@@ -5,6 +5,27 @@
 #include "modem.h"
 #include "UART.h"
 
+void init_one_wire_output(){
+	GPIO_InitTypeDef initSrtuct;
+	initSrtuct.Alternate = 0;
+//		initSrtuct.Mode = GPIO_MODE_INPUT;
+	initSrtuct.Mode = GPIO_MODE_OUTPUT_OD;
+	initSrtuct.Pin = ONE_WIRE_PIN;
+	initSrtuct.Pull = GPIO_NOPULL;
+	initSrtuct.Speed = GPIO_SPEED_HIGH;
+	HAL_GPIO_Init(ONE_WIRE_PORT, &initSrtuct);
+	GPIO_LOW(ONE_WIRE_PORT,ONE_WIRE_PIN);
+}
+void init_one_wire_input(){
+	GPIO_InitTypeDef initSrtuct;
+	initSrtuct.Alternate = 0;
+//		initSrtuct.Mode = GPIO_MODE_INPUT;
+	initSrtuct.Mode = GPIO_MODE_OUTPUT_OD;
+	initSrtuct.Pin = GPIO_PIN_15;
+//	initSrtuct.Pull = GPIO_NOPULL;
+	initSrtuct.Speed = GPIO_SPEED_HIGH;
+	HAL_GPIO_Init(GPIOB, &initSrtuct);
+}
 void GPIO_init(){
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
 	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
@@ -12,7 +33,7 @@ void GPIO_init(){
 
 		GPIO_InitTypeDef initSrtuct;
 
-
+		/////////////////////////////////////////////////////////// ONE WIRE
 		initSrtuct.Alternate = 0;
 //		initSrtuct.Mode = GPIO_MODE_INPUT;
 		initSrtuct.Mode = GPIO_MODE_OUTPUT_OD;
@@ -20,9 +41,8 @@ void GPIO_init(){
 		initSrtuct.Pull = GPIO_NOPULL;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init(ONE_WIRE_PORT, &initSrtuct);
-		GPIO_LOW(ONE_WIRE_PORT,ONE_WIRE_PIN);
 
-		//UART1
+		//////////////////////////////////////////////////////////////////////UART1
 		initSrtuct.Alternate = GPIO_AF7_USART1;
 		initSrtuct.Mode = GPIO_MODE_AF_PP;
 		initSrtuct.Pull = GPIO_NOPULL;
@@ -31,7 +51,7 @@ void GPIO_init(){
 		HAL_GPIO_Init( UART1_PORT, &initSrtuct);
 
 
-		//UART2
+		/////////////////////////////////////////////////////////////////////UART2
 		initSrtuct.Alternate = GPIO_AF7_USART2;
 		initSrtuct.Mode = GPIO_MODE_AF_PP;
 		initSrtuct.Pull = GPIO_NOPULL;
@@ -39,14 +59,28 @@ void GPIO_init(){
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( UART2_PORT, &initSrtuct);
 
-		//UART3
+		/////////////////////////////////////////////////////////////////////UART3
 		initSrtuct.Alternate = GPIO_AF7_USART3;
 		initSrtuct.Mode = GPIO_MODE_AF_PP;
 		initSrtuct.Pull = GPIO_NOPULL;
 		initSrtuct.Pin = UART3_PIN_RX | UART3_PIN_TX;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( UART3_PORT, &initSrtuct);
-		//LEDS
+
+
+		/////////////////////////////////////////////////////////////////LEDS
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pin = LED_1 ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( LED_1_PORT, &initSrtuct);
+
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pin = LED_2 ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( LED_2_PORT, &initSrtuct);
+
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
 		initSrtuct.Pin = LED_3 ;
@@ -55,78 +89,102 @@ void GPIO_init(){
 
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
-		initSrtuct.Pin = (LED_4 | LED_5) ;
+		initSrtuct.Pin = LED_4 ;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( GPIOB, &initSrtuct);
+		HAL_GPIO_Init( LED_4_PORT, &initSrtuct);
 
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
-		initSrtuct.Pin = LOCK_ACCESS_PIN ;
+		initSrtuct.Pin = LED_5 ;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( LOCK_ACCESS_PORT, &initSrtuct);
+		HAL_GPIO_Init( LED_5_PORT, &initSrtuct);
 
-
-
-		initSrtuct.Alternate = 0;
-		initSrtuct.Mode = GPIO_MODE_AF_PP;
-		initSrtuct.Pull = GPIO_NOPULL;
-		initSrtuct.Pin = GPIO_PIN_1 ;
-		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( GPIOA, &initSrtuct);
 
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_INPUT;
-		initSrtuct.Pin = (GPIO_PIN_15);
+		initSrtuct.Pin = DEVICE_RESET_PIN;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( GPIOA, &initSrtuct);
+		HAL_GPIO_Init( DEVICE_RESET_PORT, &initSrtuct);
+//
+//		initSrtuct.Alternate = 0;
+//		initSrtuct.Mode = GPIO_MODE_IT_RISING_FALLING;
+//		initSrtuct.Pin = GPIO_PIN_0 | GPIO_PIN_11 | GPIO_PIN_12;
+//		initSrtuct.Speed = GPIO_SPEED_HIGH;
+//		HAL_GPIO_Init( GPIOA, &initSrtuct);
+//
+//
+//		initSrtuct.Alternate = 0;
+//		initSrtuct.Mode = GPIO_MODE_IT_RISING_FALLING;
+//		initSrtuct.Pin = GPIO_PIN_9 ;
+//		initSrtuct.Speed = GPIO_SPEED_HIGH;
+//		HAL_GPIO_Init( GPIOB, &initSrtuct);
 
-		initSrtuct.Alternate = 0;
-		initSrtuct.Mode = GPIO_MODE_IT_RISING_FALLING;
-		initSrtuct.Pin = GPIO_PIN_0 | GPIO_PIN_11 | GPIO_PIN_12 ;
-		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( GPIOA, &initSrtuct);
 
-
-		initSrtuct.Alternate = 0;
-		initSrtuct.Mode = GPIO_MODE_IT_RISING_FALLING;
-		initSrtuct.Pin = GPIO_PIN_9 ;
-		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( GPIOB, &initSrtuct);
-
-
-
+		/////////////////////////////////////////////////////////// INPUTS
 
 
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_ANALOG;
 		initSrtuct.Pull = GPIO_NOPULL;
-		initSrtuct.Pin = (GPIO_PIN_12) ;
+		initSrtuct.Pin = (INPUT_1 | INPUT_2 | INPUT_3 | INPUT_4 | INPUT_5);
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
-		HAL_GPIO_Init( GPIOB, &initSrtuct);
+		HAL_GPIO_Init( INPUT_PORT, &initSrtuct);
 
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_INPUT;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = B_INPUT_3;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( B_INPUT_PORT, &initSrtuct);
 
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_INPUT;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = OPEN_CAP_PIN;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( OPEN_CAP_PORT, &initSrtuct);
+/////////////////////////////////////////////////////////////////////////////////////////
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = OUTPUT_1 ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( OUTPUT_1_PORT, &initSrtuct);
 
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = OUTPUT_2 ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( OUTPUT_2_PORT, &initSrtuct);
 
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = OUTPUT_3 ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( OUTPUT_3_PORT, &initSrtuct);
 
-			initSrtuct.Alternate = 0;
-			initSrtuct.Mode = GPIO_MODE_ANALOG;
-			initSrtuct.Pull = GPIO_NOPULL;
-			initSrtuct.Pin = GPIO_PIN_0 ;
-			initSrtuct.Speed = GPIO_SPEED_HIGH;
-			HAL_GPIO_Init( GPIOC, &initSrtuct);
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = OUTPUT_4 ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( OUTPUT_4_PORT, &initSrtuct);
 
-			initSrtuct.Alternate = 0;
-			initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
-			initSrtuct.Pin = (GPIO_PIN_9 | GPIO_PIN_8) ;
-			initSrtuct.Speed = GPIO_SPEED_HIGH;
-			HAL_GPIO_Init( GPIOC, &initSrtuct);
-
-			initSrtuct.Alternate = 0;
-			initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
-			initSrtuct.Pin = MODEM_ON_PIN ;
-			initSrtuct.Speed = GPIO_SPEED_HIGH;
-			HAL_GPIO_Init( MODEM_ON_PORT, &initSrtuct);
-			GPIO_HIGH(MODEM_ON_PORT,MODEM_ON_PIN);
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pull = GPIO_NOPULL;
+		initSrtuct.Pin = OUTPUT_5 ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( OUTPUT_5_PORT, &initSrtuct);
+///////////////////////////////////////////////////////////////////////MODEM ON
+		initSrtuct.Alternate = 0;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Pin = MODEM_ON_PIN ;
+		initSrtuct.Speed = GPIO_SPEED_HIGH;
+		HAL_GPIO_Init( MODEM_ON_PORT, &initSrtuct);
+		GPIO_HIGH(MODEM_ON_PORT,MODEM_ON_PIN);
 
 }
 
