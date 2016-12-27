@@ -18,6 +18,9 @@
 
 //#define DEBUG_FINGER
 #define DEBUG_MODEM
+//#define DEBUG_220V
+#define DEBUG_DS18x20
+//#define DEBUG
 
 #define true 1
 #define false 0

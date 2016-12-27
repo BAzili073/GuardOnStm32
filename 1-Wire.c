@@ -10,39 +10,33 @@
 #include "my_string.h"
 
 
+
+
+
 uint8_t one_wire_crc_update(uint8_t crc, uint8_t b);
 uint8_t one_wire_check_crc(uint8_t address[8]);
 void one_wire_low();
 void one_wire_high();
 char one_wire_check_line();
 char one_wire_send_presence();
-int16_t one_wire_read_temp_to_address(uint8_t address[8]);
 
 uint8_t one_wire_read_rom(uint8_t * buf);
 uint8_t find_key(uint8_t key[8]);
 int16_t one_wire_read_temp_to_address(uint8_t address[8]);
 uint8_t onewire_enum[8]; // найденный восьмибайтовый адрес
 uint8_t onewire_enum_fork_bit; // последний нулевой бит, где была неоднозначность (нумеруя с единицы)
+int8_t time_to_check_temp = -1;
+typedef struct DS18x20_obj;
 
+DS18x20_obj DS18x20[MAX_DS18x20] = {
+		[0] = {.id = {0x28,0xB8,0xA3,0xA0,0x04,0x00,0x00,0xF2}},
+		[1] = {.id = {0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40}},
+};
 
-
-
-uint8_t ds18x20_id[MAX_DS18x20][8];
 char key_id[MAX_TM][8];
-int16_t last_get_temp[MAX_DS18x20];
 uint8_t ds18x20_number;
-uint16_t ds18x20_max_temp[MAX_DS18x20];
-uint16_t ds18x20_min_temp[MAX_DS18x20];
-char ds18x20_alarm[MAX_DS18x20];
-char ds18x20_settings[MAX_DS18x20];
-
-
-
-
 
 char one_wire_level(){
-//	init_one_wire_input();
-//	init_one_wire_output();
 	if (GPIO_READ(ONE_WIRE_PORT,ONE_WIRE_PIN)) return 1;
 	else return 0;
 }
@@ -99,80 +93,124 @@ uint8_t one_wire_read_bit() {
 
 
 void check_temperature(){
+	if (time_to_check_temp == -1) {
+		one_wire_start_conversion_temp();
+		time_to_check_temp = 4;
+		return;
+	}else if (time_to_check_temp != 0){
+		return;
+	}
+	time_to_check_temp = -1;
 	int i;
 	int y;
 	for (i = 0;i<MAX_DS18x20;i++){
-		last_get_temp[i] = one_wire_read_temp_to_address (ds18x20_id[i]);
-		if ((last_get_temp[i] > ds18x20_max_temp)){
-			if (ds18x20_alarm[i] == DS18X20_ALARM_NORM){
-				if (ds18x20_settings[i] && DS18X20_SETTINGS_CONTROL_OUT){
-					for (y = 3;y<8;y++){
-						if (ds18x20_settings && (1<<y)){
-							if (ds18x20_settings && DS18X20_SETTINGS_CONTROL_INVER){
-								output_off_hand(y-3);
-							}else{
-								output_on_hand(y-3);
-							}
-						}
-					}
-				}
-				if (ds18x20_settings[i] && DS18X20_SETTINGS_SMS){
-					str_add_str(output_sms_message,"temperatura datCika #");
-									str_add_num(i,output_sms_message);
-									str_add_str(output_sms_message,"vQwe normQ: ");
-									str_add_num(last_get_temp[i],output_sms_message);
-									send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
-				}
+			if ((DS18x20[i].id[0] == 0x28) || (DS18x20[i].id[0] == 0x22) || (DS18x20[i].id[0] == 0x10)) {
+				DS18x20[i].last_temp = one_wire_read_temp_to_address (DS18x20[i].id);
+#ifdef DEBUG_DS18x20
+	send_string_to_UART3("Adress: ");
+	int k;
+    for (uint8_t k = 0; k < 8; k++) {
+    	char d = DS18x20[i].id[k];
+		send_char_to_UART3((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
+		send_char_to_UART3((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
+		send_char_to_UART3(' ');
+    }
+    send_string_to_UART3("Temp: ");
+    if (DS18x20[i].last_temp == ONE_WIRE_CONVERSION_ERROR){
+    		send_string_to_UART3("Error read temp!  ");
+    }else{
+    	send_int_to_UART3((DS18x20[i].last_temp >> 4));
+    	send_string_to_UART3(",");
+    	send_int_to_UART3(((DS18x20[i].last_temp%16)*625)/1000);
+    }
+	send_string_to_UART3(" \n\r");
 
-				ds18x20_alarm[i] = DS18X20_ALARM_UP;
-			}
-		}else if ((last_get_temp[i] < ds18x20_max_temp)){
-				if (ds18x20_alarm[i] == DS18X20_ALARM_NORM){
-					if (ds18x20_settings[i] && DS18X20_SETTINGS_CONTROL_OUT){
-						for (y = 3;y<8;y++){
-							if (ds18x20_settings && (1<<y)){
-								if (ds18x20_settings && DS18X20_SETTINGS_CONTROL_INVER){
-									output_off_hand(y-3);
-								}else{
-									output_on_hand(y-3);
+#endif
+	if (DS18x20[i].last_temp != ONE_WIRE_CONVERSION_ERROR){
+				if ((DS18x20[i].last_temp > DS18x20[i].max_temp)){
+					if (DS18x20[i].alarm == DS18X20_ALARM_NORM){
+						if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_OUT){
+							for (y = 3;y<8;y++){
+								if (DS18x20[i].settings && (1<<y)){
+									if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_INVER){
+										output_off_hand(y-3);
+									}else{
+										output_on_hand(y-3);
+									}
 								}
 							}
 						}
+						if (DS18x20[i].settings && DS18X20_SETTINGS_SMS){
+							str_add_str(output_sms_message,"temperatura datCika #");
+											str_add_num(i,output_sms_message);
+											str_add_str(output_sms_message,"vQwe normQ: ");
+											str_add_num(DS18x20[i].last_temp,output_sms_message);
+#ifdef DEBUG_DS18x20
+		send_string_to_UART3("output_sms_message");
+		send_string_to_UART3(" \n\r");
+#endif
+											send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
+						}
+
+						DS18x20[i].alarm = DS18X20_ALARM_UP;
 					}
-					if (ds18x20_settings[i] && DS18X20_SETTINGS_SMS){
-						str_add_str(output_sms_message,"temperatura datCika #");
-						str_add_num(i,output_sms_message);
-						str_add_str(output_sms_message," nije normQ: ");
-						str_add_num(last_get_temp[i],output_sms_message);
-						send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
-					}
-					ds18x20_alarm[i] = DS18X20_ALARM_DOWN;
-				}
-		}else{
-			if (ds18x20_alarm[i] != DS18X20_ALARM_NORM){
-				if (ds18x20_settings[i] && DS18X20_SETTINGS_CONTROL_OUT){
-					for (y = 3;y<8;y++){
-						if (ds18x20_settings && (1<<y)){
-							if (ds18x20_settings && DS18X20_SETTINGS_CONTROL_INVER){
-								output_on_hand(y-3);
-							}else{
-								output_off_hand(y-3);
+				}else if ((DS18x20[i].last_temp < DS18x20[i].max_temp)){
+						if (DS18x20[i].alarm == DS18X20_ALARM_NORM){
+							if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_OUT){
+								for (y = 3;y<8;y++){
+									if (DS18x20[i].settings && (1<<y)){
+										if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_INVER){
+											output_off_hand(y-3);
+										}else{
+											output_on_hand(y-3);
+										}
+									}
+								}
+							}
+							if (DS18x20[i].settings && DS18X20_SETTINGS_SMS){
+								str_add_str(output_sms_message,"temperatura datCika #");
+								str_add_num(i,output_sms_message);
+								str_add_str(output_sms_message," nije normQ: ");
+								str_add_num(DS18x20[i].last_temp,output_sms_message);
+		#ifdef DEBUG_DS18x20
+				send_string_to_UART3("output_sms_message");
+				send_string_to_UART3(" \n\r");
+		#endif
+								send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
+							}
+							DS18x20[i].alarm = DS18X20_ALARM_DOWN;
+						}
+				}else{
+					if (DS18x20[i].alarm != DS18X20_ALARM_NORM){
+						if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_OUT){
+							for (y = 3;y<8;y++){
+								if (DS18x20[i].settings && (1<<y)){
+									if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_INVER){
+										output_on_hand(y-3);
+									}else{
+										output_off_hand(y-3);
+									}
+								}
 							}
 						}
+						if (DS18x20[i].settings && DS18X20_SETTINGS_SMS){
+							str_add_str(output_sms_message,"temperatura datCika #");
+							str_add_num(i,output_sms_message);
+							str_add_str(output_sms_message," v norme: ");
+							str_add_num(DS18x20[i].last_temp,output_sms_message);
+		#ifdef DEBUG_DS18x20
+				send_string_to_UART3("output_sms_message");
+				send_string_to_UART3(" \n\r");
+		#endif
+							send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
+						}
+					DS18x20[i].alarm = DS18X20_ALARM_NORM;
 					}
-				}
-				if (ds18x20_settings && DS18X20_SETTINGS_SMS){
-					str_add_str(output_sms_message,"temperatura datCika #");
-					str_add_num(i,output_sms_message);
-					str_add_str(output_sms_message," v norme: ");
-					str_add_num(last_get_temp[i],output_sms_message);
-					send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
-				}
-			ds18x20_alarm[i] = DS18X20_ALARM_NORM;
-			}
 
+				}
+			}
+			}
 		}
-	}
 }
 
 
@@ -333,6 +371,9 @@ uint8_t one_wire_skip() {
 uint8_t one_wire_start_conversion_temp(){
 	if (one_wire_skip()) { // Если у нас на шине кто-то присутствует,...
 	      one_wire_write_byte(0x44);
+#ifdef DEBUG_DS18x20
+	    send_string_to_UART3("Start conversion! \n\r");
+#endif
 //	      for (uint8_t i=0;i<100;i++){
 //			  set_timeout(10000);
 //			  while_timeout();
@@ -344,7 +385,7 @@ uint8_t one_wire_start_conversion_temp(){
 void get_all_temp(){
 	int i;
 	for (i = 0;i<ds18x20_number;i++){
-		last_get_temp[i] = one_wire_read_temp_to_address(ds18x20_id[i]);
+		DS18x20[i].last_temp = one_wire_read_temp_to_address(DS18x20[i].id);
 	}
 }
 
@@ -355,11 +396,9 @@ int16_t one_wire_read_temp_to_address(uint8_t address[8]){
 		for (i = 0;i<8;i++){
 			one_wire_write_byte(address[i]);
 		}
-		if ((address[0] == 0x28) || (address[0] == 0x22) || (address[0] == 0x10)) {
-			// Если код семейства соответствует одному из известных...
 			one_wire_write_byte(0xBE);
 			uint8_t scratchpad[8];
-			uint8_t crc = 0;;
+			uint8_t crc = 0;
 			for (uint8_t i = 0; i < 8; i++) {
 				scratchpad[i] = one_wire_read_byte();
 			  crc = one_wire_crc_update(crc, scratchpad[i]);
@@ -379,7 +418,6 @@ int16_t one_wire_read_temp_to_address(uint8_t address[8]){
 			  } // для DS18B20 DS1822 значение по умолчанию 4 бита в дробной части
 			  return t;
 			}
-	  }
 	}
 	return ONE_WIRE_CONVERSION_ERROR;
 }
@@ -476,18 +514,23 @@ uint8_t one_wire_check_keys(){
 	        uint8_t key[8];
 	        uint8_t family_code = d; // Сохранение первого байта (код семейства)
 	        for (uint8_t i = 0; i < 8; i++) {
-	        	send_char_to_UART3((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
-			    send_char_to_UART3((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
-			    send_char_to_UART3(' ');
+#ifdef DEBUG_TM
+	send_char_to_UART3((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
+	send_char_to_UART3((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
+	send_char_to_UART3(' ');
+#endif
+
 	          key[i] = d;
 	          crc = one_wire_crc_update(crc, d);
 	          d = *(p++);
 	        }
 	        if (crc) {
 	          // в итоге должен получиться ноль. Если не так, вывод сообщения об ошибке
-	        	send_char_to_UART3('C');
-	        	send_char_to_UART3('R');
-	        	send_char_to_UART3('C');
+#ifdef DEBUG_TM
+	send_char_to_UART3('C');
+	send_char_to_UART3('R');
+	send_char_to_UART3('C');
+#endif
 
 	        } else {
 	          if ((family_code == 0x01) || (family_code == 0x01) || (family_code == 0x01)) {

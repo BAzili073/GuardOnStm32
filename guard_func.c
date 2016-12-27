@@ -217,6 +217,18 @@ void output_off_hand(uint8_t output_t){
 
 void check_battery(){
 	if (ADC_read(DET_220_CHANNEL) < u_battary); // измерение со входа
+#ifdef DEBUG_220V
+	send_string_to_UART3("DETECT 220v: ");
+	send_int_to_UART3(ADC_read(DET_220_CHANNEL));
+	send_string_to_UART3(" \n\r");
+#endif
+//	2115 - 11.2 V
+//	2185 - 11.6 V
+//	2271 - 12.0 V
+//	2328 - 12.3 V
+//	2396 - 12.6 V
+//	2465 - 13.0 V
+
 }
 
 void check_inputs(void){

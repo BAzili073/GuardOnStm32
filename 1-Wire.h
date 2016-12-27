@@ -23,5 +23,16 @@ uint8_t one_wire_start_conversion_temp();
 uint8_t one_wire_check_keys();
 void get_all_temp();
 
-uint8_t ds18x20_id[MAX_DS18x20][8];
+typedef struct DS18x20_obj{
+	uint8_t id[8];
+	int16_t  last_temp;
+	uint16_t max_temp;
+	uint16_t min_temp;
+	uint8_t alarm;
+	uint8_t settings;
+} DS18x20_obj;
+
+DS18x20_obj DS18x20[MAX_DS18x20];
+
 char tm_id[MAX_TM][8];
+int8_t time_to_check_temp;

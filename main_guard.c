@@ -12,10 +12,11 @@
 #include "1-Wire.h"
 
 void main_guard(){
-	check_TM();
+//	check_TM();
+	check_temperature();
 //	check_inputs();
-//	check_battery();
-//	check_gsm_message();
+	check_battery();
+	check_gsm_message();
 }
 
 

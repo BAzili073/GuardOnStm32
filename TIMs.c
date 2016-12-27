@@ -57,6 +57,7 @@ void  TIM7_IRQHandler(){
 	  m_sec++;
 
 	  if (m_sec == 10) {
+		  if (time_to_check_temp > 0) time_to_check_temp--;
 		  if (time_access_lock) time_access_lock--;
 		  if (FP_time_reset) FP_time_reset--;
 		  if (FP_time_for_rec) FP_time_for_rec--;
