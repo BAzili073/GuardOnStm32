@@ -155,17 +155,26 @@ void alarm_off(){
 
 
 /////////////////////////////////                      LEDS
+
+void led_on(int id){
+	GPIO_HIGH(led[id-1].port,(led[id-1].pin));
+}
+
+void led_off(int id){
+	GPIO_LOW(led[id-1].port,(led[id-1].pin));
+}
+
 void led_on_mode(uint8_t mode){
 	int i;
 	for (i = 1;i<=LED_MAX;i++){
-		if (led[i-1].mode == mode) GPIO_HIGH(led[i-1].port,(led[i-1].pin));
+		if (led[i-1].mode == mode) led_on(i);
 	}
 }
 
 void led_off_mode(uint8_t mode){
 	int i;
 	for (i = 1;i<=LED_MAX;i++){
-		if (led[i-1].mode == mode) GPIO_LOW(led[i-1].port,(led[i-1].pin));
+		if (led[i-1].mode == mode) led_off(i);
 	}
 }
 

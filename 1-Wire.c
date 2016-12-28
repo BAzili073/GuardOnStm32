@@ -29,12 +29,16 @@ int8_t time_to_check_temp = -1;
 typedef struct DS18x20_obj;
 
 DS18x20_obj DS18x20[MAX_DS18x20] = {
-		[0] = {.id = {0x28,0xB8,0xA3,0xA0,0x04,0x00,0x00,0xF2}},
-		[1] = {.id = {0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40}},
+//		[0] = {.id = {0x28,0xB8,0xA3,0xA0,0x04,0x00,0x00,0xF2}},
+//		[1] = {.id = {0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40}},
+};
+typedef struct TM_KEY_obj;
+TM_KEY_obj TM_KEY[MAX_TM] = {
 };
 
 char key_id[MAX_TM][8];
 uint8_t ds18x20_number;
+uint8_t tm_key_number;
 
 char one_wire_level(){
 	if (GPIO_READ(ONE_WIRE_PORT,ONE_WIRE_PIN)) return 1;
@@ -541,12 +545,79 @@ uint8_t one_wire_check_keys(){
 //	        	  send_char_to_GSM('?');
 	          }
 	        }
-	        send_char_to_UART3 ('\n');
-	        send_char_to_UART3 ('\r');
+#ifdef DEBUG_TM
+	send_char_to_UART3 ('\n');
+	send_char_to_UART3 ('\r');
+#endif
+
 
 	      }
 	}
 	      return ONE_WIRE_KEY_DENY;
+}
+
+void one_wire_add_device(){
+	if (one_wire_skip()) {
+	one_wire_enum_init(); // Начало перечисления устройств
+	      for(;;) {
+	        uint8_t * p = one_wire_enum_next(); // Очередной адрес
+	        if (!p)
+	          break;
+	        // Вывод шестнадцатиричной записи адреса в UART и рассчёт CRC
+	        uint8_t d = *(p++);
+	        uint8_t crc = 0;
+	        uint8_t key[8];
+	        uint8_t family_code = d; // Сохранение первого байта (код семейства)
+	        for (uint8_t i = 0; i < 8; i++) {
+#ifdef DEBUG_ADD_DEVICE
+	send_char_to_UART3((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
+	send_char_to_UART3((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
+	send_char_to_UART3(' ');
+#endif
+
+	          key[i] = d;
+	          crc = one_wire_crc_update(crc, d);
+	          d = *(p++);
+	        }
+	        if (crc) {
+	          // в итоге должен получиться ноль. Если не так, вывод сообщения об ошибке
+#ifdef DEBUG_ADD_DEVICE
+	send_char_to_UART3('C');
+	send_char_to_UART3('R');
+	send_char_to_UART3('C');
+#endif
+	        } else {
+	          if ((family_code == 0x01) || (family_code == 0x01) || (family_code == 0x01)) { //if this tm key
+	        	  if (find_key(key) == ONE_WIRE_KEY_DENY){
+	        		  add_TM_key(key);
+	        		  led_on(5);
+	        	  }else{
+	        		  led_on(4);
+	        	  }
+	        	  set_timeout_7(5);
+	        	  while_timeout_7();
+	          }else if ((family_code == 0x28) || (family_code == 0x22) || (family_code == 0x10)){
+	        	  if (!find_ds18x20(key)){
+	        		  add_DS18x20(key);
+	        		  led_on(5);
+	        		  set_timeout_7(5);
+	        		  while_timeout_7();
+	        	  }
+	          }else {
+	            // Неизвестное устройство
+//	        	  send_char_to_GSM('?');
+	          }
+	        }
+#ifdef DEBUG_ADD_DEVICE
+	send_char_to_UART3 ('\n');
+	send_char_to_UART3 ('\r');
+#endif
+
+	led_off(4);
+	led_off(5);
+	      }
+
+	}
 }
 
 uint8_t find_key(uint8_t key[8]){
@@ -556,7 +627,7 @@ uint8_t find_key(uint8_t key[8]){
 	for (i = 0; i < MAX_TM;i++){
 		ok = 1;
 		for (y = 0;y<8;y++){
-			if (key[y] != key_id[i][y]){
+			if (key[y] != TM_KEY[i].id[y]){
 				ok = 0;
 				break;
 			}
@@ -565,4 +636,39 @@ uint8_t find_key(uint8_t key[8]){
 //		if (key == keys[i]) return 1;
 	}
 	return ONE_WIRE_KEY_DENY;
+}
+
+int find_ds18x20(uint8_t id[8]){
+	uint8_t i;
+	uint8_t y;
+	uint8_t ok;
+	for (i = 0; i < MAX_DS18x20;i++){
+		ok = 1;
+		for (y = 0;y<8;y++){
+			if (id[y] != DS18x20[i].id[y]){
+				ok = 0;
+				break;
+			}
+		}
+		if (ok) return 1;
+//		if (key == keys[i]) return 1;
+	}
+	return 0;
+}
+
+
+void add_TM_key(uint8_t key[8]){
+	tm_key_number++;
+	int i;
+	for (i = 0;i<8;i++){
+		TM_KEY[tm_key_number].id[i] = key[i];
+	}
+}
+
+void add_DS18x20(uint8_t id[8]){
+	ds18x20_number++;
+	int i;
+	for (i = 0;i<8;i++){
+		DS18x20[ds18x20_number].id[i] = id[i];
+	}
 }

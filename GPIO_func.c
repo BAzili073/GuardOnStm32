@@ -41,6 +41,7 @@ void GPIO_init(){
 		initSrtuct.Pull = GPIO_NOPULL;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init(ONE_WIRE_PORT, &initSrtuct);
+		GPIO_HIGH(ONE_WIRE_PORT,ONE_WIRE_PIN);
 
 		//////////////////////////////////////////////////////////////////////UART1
 		initSrtuct.Alternate = GPIO_AF7_USART1;

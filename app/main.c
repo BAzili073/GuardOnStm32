@@ -42,6 +42,11 @@ int main(void) {
 	UART3_init();
 //	GPIO_interrupt_init();
 
+//	while(1){
+//		uint32_t a = one_wire_level();
+//		a = GPIO_READ(ONE_WIRE_PORT,ONE_WIRE_PIN);
+//	}
+	add_device_check();
 
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
 //	modem_state = MODEM_STATE_OFF;
@@ -136,4 +141,40 @@ volatile uint32_t psr;/* Program status register. */
     /* When the following line is hit, the variables contain the register values. */
  //   for( ;; );
 }
+ void add_device_check(){
+	 int counter = 0;
+	 if (!one_wire_level()){
+		 led_on(1);
+		 while((!one_wire_level()) && (counter < 20)){
+			 set_timeout_7(1);
+			 while_timeout_7();
+			 counter++;
+		 }
+		 if (one_wire_level()){
+			 led_on(2);
+			 counter = 0;
+			 while((one_wire_level()) && (counter < 20)){
+				 set_timeout_7(1);
+				 while_timeout_7();
+				 counter++;
+			 }
+			 if (!one_wire_level()){
+				 led_on(3);	set_timeout_7(5);while_timeout_7();
+				 led_on(4);	set_timeout_7(5);while_timeout_7();
+				 led_on(5);	set_timeout_7(5);while_timeout_7();
+				 led_off(1);led_off(2);led_off(3);led_off(4);led_off(5);
+				 while(!one_wire_level());
+				add_device_mode();
+			 }
+		 }else{
+			 //one wire error
 
+		 }
+	 }
+ }
+
+void add_device_mode(){
+	while(1){
+		one_wire_add_device();
+	}
+}

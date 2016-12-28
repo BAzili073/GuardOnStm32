@@ -34,5 +34,11 @@ typedef struct DS18x20_obj{
 
 DS18x20_obj DS18x20[MAX_DS18x20];
 
+typedef struct TM_KEY_obj{
+	uint8_t id[8];
+} TM_KEY_obj ;
+
+TM_KEY_obj TM_KEY[MAX_TM];
+
 char tm_id[MAX_TM][8];
 int8_t time_to_check_temp;
