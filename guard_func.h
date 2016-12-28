@@ -15,6 +15,7 @@ typedef struct LED_obj{
 	GPIO_TypeDef * port;
 	uint16_t  pin;
 	uint8_t mode;
+	int8_t  blink_time;
 	int8_t  blink_time_on;
 	int8_t  blink_time_off;
 } LED_obj;
@@ -34,8 +35,9 @@ OUTPUT_obj output[OUTPUT_MAX];
 
 
 
-int temperature_time_check;
 
+void out_on_mode();
+void out_off_mode();
 
 
 
@@ -64,7 +66,7 @@ void check_TM();
 
 char tel_number[MAX_TEL_NUMBERS][10];
 uint8_t tel_access[MAX_TEL_NUMBERS];
-
+uint16_t time_to_check_TM;
 uint8_t last_control_ID_number;
 char last_control_guard[13];
 

@@ -9,7 +9,6 @@
 #include "guard_func.h"
 
 int8_t lamp_blink_time = 5;
-int8_t led_blink_time[8];
 uint8_t m_sec = 0;
 int time_access_lock = 0;
 
@@ -51,7 +50,7 @@ void  TIM7_IRQHandler(){
 	  if (time_LED[LED_GREEN_FOR_TIME]) time_LED[LED_GREEN_FOR_TIME]--;
 	  if (time_LED[LED_BLUE_FOR_TIME]) time_LED[LED_BLUE_FOR_TIME]--;
 	  if (FP_time_check) FP_time_check--;
-	  if (temperature_time_check) temperature_time_check--;
+	  if (time_to_check_TM) time_to_check_TM--;
 	  check_lamp_blink();
 	  check_led_blink();
 	  m_sec++;
@@ -95,12 +94,12 @@ void check_led_blink(){
 	int i;
 	for (i = 0; i<LED_MAX;i++){
 		if (led[i].blink_time_on != LED_BLINK_STOP){
-			led_blink_time[i] --;
-			if (led_blink_time[i] > 0){
+			led[i].blink_time --;
+			if (led[i].blink_time > 0){
 				led_on_mode(i+1);
 			}else{
 				led_off_mode(i+1);
-				if (led_blink_time[i] <= (led[i].blink_time_off * (-1))) led_blink_time[i] = led[i].blink_time_on+1;
+				if (led[i].blink_time <= (led[i].blink_time_off * (-1))) led[i].blink_time = led[i].blink_time_on+1;
 			}
 		}
 	}
@@ -157,9 +156,9 @@ void check_time_to_alarm(){
 void check_lamp_blink(){
 	if (alarm_st || time_to_guard_on){
 		if (lamp_blink_time > 0) {
-			output_on_mode(OUTPUT_MODE_LAMP);
+			out_on_mode(OUT_MODE_LAMP);
 		}else{
-			output_off_mode(OUTPUT_MODE_LAMP);
+			out_off_mode(OUT_MODE_LAMP);
 		}
 		lamp_blink_time--;
 		if (lamp_blink_time == -5) lamp_blink_time = 5;

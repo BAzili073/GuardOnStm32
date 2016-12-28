@@ -76,12 +76,18 @@
 
 
 //OUTPUTS_MODE
-#define OUTPUT_MODE_LAMP 0
-#define OUTPUT_MODE_ALARM 1
-#define OUTPUT_MODE_DEVICE 2
-#define OUTPUT_MODE_HAND 3
-#define OUTPUT_MODE_GUARD 4
-#define OUTPUT_MODE_INPUTS 95 // 95 - 99
+#define OUT_MODE_INPUT_1 1
+#define OUT_MODE_INPUT_2 2
+#define OUT_MODE_INPUT_3 3
+#define OUT_MODE_INPUT_4 4
+#define OUT_MODE_INPUT_5 5
+#define OUT_MODE_LAMP 'l'
+#define OUT_MODE_ALARM 't'
+#define OUT_MODE_HAND 'r'
+#define OUT_MODE_GUARD 'o'
+#define OUT_MODE_GSM 'm'
+#define OUT_MODE_SENSOR 'd'
+#define OUT_MODE_TM 'v'
 
 #define LED_MAX 5
 #define LED_1_PORT GPIOA
@@ -89,8 +95,6 @@
 #define LED_3_PORT GPIOB
 #define LED_4_PORT GPIOB
 #define LED_5_PORT GPIOB
-
-
 
 
 #define LED_1 GPIO_PIN_8
@@ -106,14 +110,6 @@
 //DEBUG
 //#define LED_7 GPIO_PIN_8
 //#define LED_8 GPIO_PIN_9
-
-#define LED_MODE_INPUT_1 1
-#define LED_MODE_INPUT_2 2
-#define LED_MODE_INPUT_3 3
-#define LED_MODE_INPUT_4 4
-#define LED_MODE_INPUT_5 5
-#define LED_MODE_GSM 6
-#define LED_MODE_GUARD 7
 
 #define LED_BLINK_STOP -127
 

@@ -12,7 +12,9 @@
 #include "1-Wire.h"
 
 void main_guard(){
-//	check_TM();
+	if (!time_to_check_TM) {
+		check_TM();
+	}
 	check_temperature();
 //	check_inputs();
 	check_battery();

@@ -97,6 +97,7 @@ uint8_t one_wire_read_bit() {
 
 
 void check_temperature(){
+	if (!ds18x20_number) return;
 	if (time_to_check_temp == -1) {
 		one_wire_start_conversion_temp();
 		time_to_check_temp = 4;

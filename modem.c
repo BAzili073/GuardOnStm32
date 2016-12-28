@@ -55,6 +55,7 @@ void modem_check_state(){
 
 			break;
 			case MODEM_STATE_OFF:
+				led_blink(OUT_MODE_GSM,2,2);
 				MODEM_ON();
 			break;
 			case MODEM_STATE_ON:
@@ -248,6 +249,11 @@ char parse_gsm_message(){
 	send_int_to_UART3(gsm_signal_quality);
 	send_string_to_UART3(" \n\r");
 #endif
+		if (gsm_signal_quality > 30 || gsm_signal_quality < 6){
+			out_off_mode(OUT_MODE_GSM);
+		}else{
+			out_on_mode(OUT_MODE_GSM);
+		}
 	}
 
 	else if(find_str("NO CARRIER",gsm_message)){ ///////////////////////////////// NO CARRIER
@@ -272,6 +278,7 @@ char parse_gsm_message(){
 
 
 void incoming_call(){
+	led_blink(OUT_MODE_GSM,8,2);
 	if (modem_action == MODEM_ACTION_FREE){
 		modem_action = MODEM_ACTION_INCOMING_CALL;
 #ifdef DEBUG_MODEM
@@ -319,6 +326,7 @@ void incoming_sms(){
 }
 
 void modem_free(){
+	led_blink_stop(OUT_MODE_GSM);
 	modem_action = MODEM_ACTION_FREE;
 }
 
@@ -383,6 +391,7 @@ char modem_setup(){
 		send_string_to_UART3("MODEM: Vnimanie nety osnovnogo nomera! \n\r ");
 	}
 #endif
+	led_blink_stop(OUT_MODE_GSM);
 	return 1;
 }
 
@@ -407,6 +416,7 @@ void clear_output_sms_message(){
 
 
 char modem_send_sms_message(char * number,char * text){
+	led_blink(OUT_MODE_GSM,5,5);
 	if ((modem_errors[MODEM_ERRORS_SEND_SMS] > 3)){
 		modem_call(number);
 		return 0;
