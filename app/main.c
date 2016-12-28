@@ -41,16 +41,11 @@ int main(void) {
 	UART2_init();
 	UART3_init();
 //	GPIO_interrupt_init();
-
-//	while(1){
-//		uint32_t a = one_wire_level();
-//		a = GPIO_READ(ONE_WIRE_PORT,ONE_WIRE_PIN);
-//	}
+	read_settings();
 	add_device_check();
 
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
 //	modem_state = MODEM_STATE_OFF;
-//	led_blink(1,10,10);
 //	MODEM_ON();
 //	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
 //		guard_on();

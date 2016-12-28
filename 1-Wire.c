@@ -657,18 +657,24 @@ int find_ds18x20(uint8_t id[8]){
 }
 
 
-void add_TM_key(uint8_t key[8]){
-	tm_key_number++;
-	int i;
-	for (i = 0;i<8;i++){
-		TM_KEY[tm_key_number].id[i] = key[i];
+void add_TM_key(uint8_t id[8]){
+	if (tm_key_number < MAX_TM){
+		tm_key_number++;
+		int i;
+		for (i = 0;i<8;i++){
+			TM_KEY[tm_key_number-1].id[i] = id[i];
+			EEPROMWrite((EEPROM_tms_id + ((tm_key_number-1)*8) + i),id[i],1);
+		}
 	}
 }
 
 void add_DS18x20(uint8_t id[8]){
-	ds18x20_number++;
-	int i;
-	for (i = 0;i<8;i++){
-		DS18x20[ds18x20_number].id[i] = id[i];
+	if (ds18x20_number < MAX_DS18x20){
+		ds18x20_number++;
+		int i;
+		for (i = 0;i<8;i++){
+			DS18x20[ds18x20_number-1].id[i] = id[i];
+			EEPROMWrite((EEPROM_ds18x20_id + ((ds18x20_number-1)*8) + i),id[i],1);
+		}
 	}
 }

@@ -40,5 +40,4 @@ typedef struct TM_KEY_obj{
 
 TM_KEY_obj TM_KEY[MAX_TM];
 
-char tm_id[MAX_TM][8];
 int8_t time_to_check_temp;

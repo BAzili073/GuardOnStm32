@@ -299,13 +299,13 @@ void read_settings(){
 //////////////////   			 READ TM ID
 	for (i = 0;i< MAX_TM;i++){
 		for (y = 0;y < 8; y++)
-		tm_id[i][y] = EEPROMRead((EEPROM_tms_id + (i * 8) + y),1);
+		TM_KEY[i].id[y] = EEPROMRead((EEPROM_tms_id + (i * 8) + y),1);
 	}
 
 //////////////////   			 READ DS18b20 ID
 	for (i = 0;i< MAX_DS18x20;i++){
 		for (y = 0;y < 8; y++)
-		tm_id[i][y] = EEPROMRead((EEPROM_ds18x20_id + (i * 8) + y),1);
+		DS18x20[i].id[y] = EEPROMRead((EEPROM_ds18x20_id + (i * 8) + y),1);
 	}
 //////////////////
 
