@@ -183,13 +183,15 @@
 #define EEPROM_tel_numbers 			0
 #define EEPROM_tel_settings 		(EEPROM_tel_numbers + (10*MAX_TEL_NUMBERS))
 #define EEPROM_tms_id 				(EEPROM_tel_settings + MAX_TEL_NUMBERS)
-#define EEPROM_ds18x20_id 			(EEPROM_tms_id + (8 * MAX_DS18x20))
-#define EEPROM_tms_names 			(EEPROM_ds18x20_id + (8 * MAX_TM))
-#define EEPROM_ds18x20_settings		(EEPROM_tms_names + (10 * MAX_TM))
-#define EEPROM_device_settings		(EEPROM_ds18x20_settings + (MAX_DS18x20 * 4))
-#define EEPROM_outputs_settings		(EEPROM_device_settings + 10)
-#define EEPROM_inputs_settings		(EEPROM_outputs_settings + (5 * 8))
-#define EEPROM_next					(EEPROM_inputs_settings + (5 * 8))
+#define EEPROM_ds18x20_id 			(EEPROM_tms_id + (8 * MAX_TM))
+#define EEPROM_ds18x20_numbers 		(EEPROM_ds18x20_id + (8 * MAX_DS18x20))
+#define EEPROM_tms_numbers 			(EEPROM_ds18x20_numbers + 1)
+//#define EEPROM_tms_names 			(EEPROM_ds18x20_id + (8 * MAX_TM))
+//#define EEPROM_ds18x20_settings		(EEPROM_tms_names + (10 * MAX_TM))
+//#define EEPROM_device_settings		(EEPROM_ds18x20_settings + (MAX_DS18x20 * 4))
+//#define EEPROM_outputs_settings		(EEPROM_device_settings + 10)
+//#define EEPROM_inputs_settings		(EEPROM_outputs_settings + (5 * 8))
+//#define EEPROM_next					(EEPROM_inputs_settings + (5 * 8))
 
 
 

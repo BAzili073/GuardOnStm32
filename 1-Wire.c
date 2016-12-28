@@ -591,16 +591,14 @@ void one_wire_add_device(){
 	          if ((family_code == 0x01) || (family_code == 0x01) || (family_code == 0x01)) { //if this tm key
 	        	  if (find_key(key) == ONE_WIRE_KEY_DENY){
 	        		  add_TM_key(key);
-	        		  led_on(5);
 	        	  }else{
-	        		  led_on(4);
+	        		  led_on(3);
 	        	  }
 	        	  set_timeout_7(5);
 	        	  while_timeout_7();
 	          }else if ((family_code == 0x28) || (family_code == 0x22) || (family_code == 0x10)){
 	        	  if (!find_ds18x20(key)){
 	        		  add_DS18x20(key);
-	        		  led_on(5);
 	        		  set_timeout_7(5);
 	        		  while_timeout_7();
 	        	  }
@@ -614,8 +612,8 @@ void one_wire_add_device(){
 	send_char_to_UART3 ('\r');
 #endif
 
+	led_off(3);
 	led_off(4);
-	led_off(5);
 	      }
 
 	}
@@ -660,7 +658,9 @@ int find_ds18x20(uint8_t id[8]){
 
 void add_TM_key(uint8_t id[8]){
 	if (tm_key_number < MAX_TM){
+		led_on(4);
 		tm_key_number++;
+		EEPROMWrite(EEPROM_tms_numbers,tm_key_number,1);
 		int i;
 		for (i = 0;i<8;i++){
 			TM_KEY[tm_key_number-1].id[i] = id[i];
@@ -671,7 +671,9 @@ void add_TM_key(uint8_t id[8]){
 
 void add_DS18x20(uint8_t id[8]){
 	if (ds18x20_number < MAX_DS18x20){
+		led_on(4);
 		ds18x20_number++;
+		EEPROMWrite(EEPROM_ds18x20_numbers,ds18x20_number,1);
 		int i;
 		for (i = 0;i<8;i++){
 			DS18x20[ds18x20_number-1].id[i] = id[i];

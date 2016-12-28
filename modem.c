@@ -249,7 +249,7 @@ char parse_gsm_message(){
 	send_int_to_UART3(gsm_signal_quality);
 	send_string_to_UART3(" \n\r");
 #endif
-		if (gsm_signal_quality > 30 || gsm_signal_quality < 6){
+		if (gsm_signal_quality > 31 || gsm_signal_quality < 6){
 			out_off_mode(OUT_MODE_GSM);
 		}else{
 			out_on_mode(OUT_MODE_GSM);

@@ -41,13 +41,11 @@ int main(void) {
 	UART2_init();
 	UART3_init();
 //	GPIO_interrupt_init();
-
+//	ERASE_EEPROM();
 	read_settings();
 	add_device_check();
-
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
 	modem_state = MODEM_STATE_OFF;
-	MODEM_ON();
 //	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
 //		guard_on();
 //	}
@@ -140,14 +138,14 @@ volatile uint32_t psr;/* Program status register. */
  void add_device_check(){
 	 int counter = 0;
 	 if (!one_wire_level()){
-		 led_on(1);
+		 led_on(0);
 		 while((!one_wire_level()) && (counter < 20)){
 			 set_timeout_7(1);
 			 while_timeout_7();
 			 counter++;
 		 }
 		 if (one_wire_level()){
-			 led_on(2);
+			 led_on(1);
 			 counter = 0;
 			 while((one_wire_level()) && (counter < 20)){
 				 set_timeout_7(1);
@@ -155,10 +153,10 @@ volatile uint32_t psr;/* Program status register. */
 				 counter++;
 			 }
 			 if (!one_wire_level()){
+				 led_on(2);	set_timeout_7(5);while_timeout_7();
 				 led_on(3);	set_timeout_7(5);while_timeout_7();
 				 led_on(4);	set_timeout_7(5);while_timeout_7();
-				 led_on(5);	set_timeout_7(5);while_timeout_7();
-				 led_off(1);led_off(2);led_off(3);led_off(4);led_off(5);
+				 led_off(0);led_off(1);led_off(2);led_off(3);led_off(4);
 				 while(!one_wire_level());
 				add_device_mode();
 			 }

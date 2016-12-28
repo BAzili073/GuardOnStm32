@@ -39,6 +39,7 @@ typedef struct TM_KEY_obj{
 } TM_KEY_obj ;
 
 TM_KEY_obj TM_KEY[MAX_TM];
+uint8_t ds18x20_number;
 uint8_t tm_key_number;
 
 int8_t time_to_check_temp;

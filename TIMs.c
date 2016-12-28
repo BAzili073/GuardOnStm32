@@ -96,9 +96,9 @@ void check_led_blink(){
 		if (led[i].blink_time_on != LED_BLINK_STOP){
 			led[i].blink_time --;
 			if (led[i].blink_time > 0){
-				led_on_mode(i+1);
+				led_on(i);
 			}else{
-				led_off_mode(i+1);
+				led_off(i);
 				if (led[i].blink_time <= (led[i].blink_time_off * (-1))) led[i].blink_time = led[i].blink_time_on+1;
 			}
 		}
@@ -154,7 +154,7 @@ void check_time_to_alarm(){
 }
 
 void check_lamp_blink(){
-	if (alarm_st || time_to_guard_on){
+	if (alarm_st || (time_to_guard_on > 0)){
 		if (lamp_blink_time > 0) {
 			out_on_mode(OUT_MODE_LAMP);
 		}else{

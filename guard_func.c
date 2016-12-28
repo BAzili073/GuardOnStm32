@@ -40,8 +40,8 @@ int16_t time_to_alarm = -1;
 uint16_t time_to_guard_on = -1;
 uint16_t time_to_check_TM = 0;
 int16_t time_set_to_guard_on = 0;
-uint8_t alarm_st = 0;
 uint8_t device_settings = 0;
+uint8_t alarm_st = 0;
 uint8_t last_alarm = 0;
 uint8_t guard_st = 0;
 
@@ -156,34 +156,44 @@ void alarm_off(){
 /////////////////////////////////                      LEDS
 
 void led_on(int id){
-	GPIO_HIGH(led[id-1].port,(led[id-1].pin));
+	GPIO_HIGH(led[id].port,(led[id].pin));
 }
 
 void led_off(int id){
-	GPIO_LOW(led[id-1].port,(led[id-1].pin));
+	GPIO_LOW(led[id].port,(led[id].pin));
 }
 
 void led_on_mode(uint8_t mode){
 	int i;
-	for (i = 1;i<=LED_MAX;i++){
-		if (led[i-1].mode == mode) led_on(i);
+	for (i = 0;i<LED_MAX;i++){
+		if (led[i].mode == mode) led_on(i);
 	}
 }
 
 void led_off_mode(uint8_t mode){
 	int i;
-	for (i = 1;i<=LED_MAX;i++){
-		if (led[i-1].mode == mode) led_off(i);
+	for (i = 0;i<LED_MAX;i++){
+		if (led[i].mode == mode) led_off(i);
 	}
 }
 
-void led_blink(uint8_t led_mode, int8_t time_on,int8_t time_off){
-	led[led_mode - 1].blink_time_on = time_on;
-	led[led_mode - 1].blink_time_off = time_off;
+void led_blink(uint8_t mode, int8_t time_on,int8_t time_off){
+	int i;
+	for (i = 0;i < LED_MAX;i++){
+		if (led[i].mode == mode){
+			led[i].blink_time_on = time_on;
+			led[i].blink_time_off = time_off;
+		}
+	}
 }
 
 void led_blink_stop(uint8_t mode){
-	led[mode - 1].blink_time_on = LED_BLINK_STOP;
+	int i;
+	for (i = 0;i < LED_MAX;i++){
+		if (led[i].mode == mode){
+			led[i].blink_time_on = LED_BLINK_STOP;
+		}
+	}
 	led_off_mode(mode);
 }
 
@@ -218,11 +228,11 @@ void output_off_hand(uint8_t output_t){
 }
 
 void out_on_mode(uint8_t mode){
-	led_on(mode);
+	led_on_mode(mode);
 	output_on_mode(mode);
 }
 void out_off_mode(uint8_t mode){
-	led_off(mode);
+	led_off_mode(mode);
 	output_off_mode(mode);
 }
 ///////////////////////////////////////////////////////////////////
@@ -310,16 +320,20 @@ void read_settings(){
 	}
 
 //////////////////   			 READ TM ID
-	for (i = 0;i< MAX_TM;i++){
+	tm_key_number = EEPROMRead(EEPROM_tms_numbers,1);
+	for (i = 0;i< tm_key_number;i++){
 		for (y = 0;y < 8; y++)
 		TM_KEY[i].id[y] = EEPROMRead((EEPROM_tms_id + (i * 8) + y),1);
 	}
 
+
 //////////////////   			 READ DS18b20 ID
-	for (i = 0;i< MAX_DS18x20;i++){
+	ds18x20_number = EEPROMRead(EEPROM_ds18x20_numbers,1);
+	for (i = 0;i< ds18x20_number;i++){
 		for (y = 0;y < 8; y++)
 		DS18x20[i].id[y] = EEPROMRead((EEPROM_ds18x20_id + (i * 8) + y),1);
 	}
+
 //////////////////
 
 //////////////////
