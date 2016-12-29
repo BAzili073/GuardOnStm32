@@ -80,14 +80,14 @@ int time_LED[3] = {0,0,0};
 
 
 void FP_check_function(){
-	if (time_LED[LED_RED_FOR_TIME]) led_on_mode(LED_RED);
-	else led_off_mode(LED_RED);
+//	if (time_LED[LED_RED_FOR_TIME]) led_on_mode(LED_RED);
+//	else led_off_mode(LED_RED);
+//
+//	if (time_LED[LED_GREEN_FOR_TIME]) led_on_mode(LED_GREEN);
+//	else led_off_mode(LED_GREEN);
 
-	if (time_LED[LED_GREEN_FOR_TIME]) led_on_mode(LED_GREEN);
-	else led_off_mode(LED_GREEN);
-
-	if (time_LED[LED_BLUE_FOR_TIME]) led_on_mode(LED_BLUE);
-	else led_off_mode(LED_BLUE);
+//	if (time_LED[LED_BLUE_FOR_TIME]) led_on_mode(LED_BLUE);
+//	else led_off_mode(LED_BLUE);
 	if (FP_check_allow || UART2_check_buffer()){
 		if (!FP_time_check){
 			FP_check();

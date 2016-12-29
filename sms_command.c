@@ -84,7 +84,7 @@ void sms_command_r(){
 		str_add_str(output_sms_message," ");
 		str_add_str(output_sms_message,"vQh:");
 		for (i = 1;i<6;i++) {
-			a[0] = ('1' - (GPIO_READ((outputs_port[(i-1)]),(output[i-1].pin))*2));
+		//	a[0] = ('1' - (GPIO_READ((outputs_port[(i-1)]),(output[i-1].pin))*2));
 			str_add_str(output_sms_message,a);
 		}
 		str_add_str(output_sms_message," ");

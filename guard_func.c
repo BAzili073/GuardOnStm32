@@ -1,29 +1,14 @@
-#ifdef GUARD_H
-#else
-#define GUARD_H
-
-#include "stm32l1xx_hal.h"
-#include "stm32l151xba.h"
+#include "guard_func.h"
 #include "modem.h"
 #include "my_string.h"
-#include "defines.h"
 #include "EEPROMfunc.h"
 #include "1-Wire.h"
 #include "UART.h"
 #include "led.h"
 
 
-unsigned int ADC_read(unsigned int chanel);
 
-int check_input(int input);
-void alarm_off();
-void alarm_on();
-void guard_on();
-void out_off_mode(uint8_t mode);
-void out_on_mode(uint8_t mode);
-void guard_off();
 void guard_on_TM();
-void check_inputs();
 void check_battery();
 void clear_last_control_guard();
 void changed_guard_sms(int status);
@@ -38,7 +23,7 @@ int16_t time_set_to_guard_on = 0;
 uint8_t device_settings = 0;
 uint8_t alarm_st = 0;
 uint8_t guard_st = 0;
-
+int8_t lamp_blink_time = 5;
 
 
  typedef struct TEL_obj{
@@ -56,6 +41,15 @@ char last_control_guard[13];
 
 
 /////////////////////////////////                      GUARD
+void guard_on(){
+		guard_st = GUARD_ON;
+		out_on_mode(OUT_MODE_GUARD);
+		changed_guard_sms(GUARD_ON);
+#ifdef DEBUG_GUARD
+	send_string_to_UART3("GUARD: ON! \n\r");
+#endif
+}
+
 void guard_on_TM(){
 	if (time_set_to_guard_on){
 		if (!time_to_guard_on){
@@ -64,15 +58,6 @@ void guard_on_TM(){
 	}else{
 		guard_on();
 	}
-}
-
-void guard_on(){
-		guard_st = GUARD_ON;
-		out_on_mode(OUT_MODE_GUARD);
-		changed_guard_sms(GUARD_ON);
-#ifdef DEBUG_GUARD
-	send_string_to_UART3("GUARD: ON! \n\r");
-#endif
 }
 
 void guard_off(){
@@ -210,7 +195,24 @@ void read_settings(){
 
 
 }
+void check_lamp_blink(){
+	if (alarm_st || (time_to_guard_on > 0)){
+		if (lamp_blink_time > 0) {
+			out_on_mode(OUT_MODE_LAMP);
+		}else{
+			out_off_mode(OUT_MODE_LAMP);
+		}
+		lamp_blink_time--;
+		if (lamp_blink_time == -5) lamp_blink_time = 5;
+	}
+}
 
+void check_time_to_guard_on(){
+	if (time_to_guard_on){
+		time_to_guard_on--;
+		if (!time_to_guard_on) guard_on();
+	}
+}
 
 void clear_last_control_guard(){
 	unsigned int i;
@@ -218,7 +220,3 @@ void clear_last_control_guard(){
 		last_control_guard[i] = 0;
 	}
 }
-
-
-#endif
-

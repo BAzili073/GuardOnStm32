@@ -8,7 +8,6 @@
 #include "FingerPrint.h"
 #include "guard_func.h"
 
-int8_t lamp_blink_time = 5;
 uint8_t m_sec = 0;
 int time_access_lock = 0;
 
@@ -63,12 +62,7 @@ void  TIM7_IRQHandler(){
 	   TIM7 -> SR &= ~TIM_SR_UIF;
 }
 
-void check_time_to_guard_on(){
-	if (time_to_guard_on){
-		time_to_guard_on--;
-		if (!time_to_guard_on) guard_on();
-	}
-}
+
 
 
 
@@ -112,18 +106,4 @@ void TIM2_set_pwm_duty_cycle(uint8_t cyc){
 	if (cyc < 0) cyc = 0;
 	TIM2 -> CCR2 = (0xffff / 100 * cyc);
 }
-
-
-void check_lamp_blink(){
-	if (alarm_st || (time_to_guard_on > 0)){
-		if (lamp_blink_time > 0) {
-			out_on_mode(OUT_MODE_LAMP);
-		}else{
-			out_off_mode(OUT_MODE_LAMP);
-		}
-		lamp_blink_time--;
-		if (lamp_blink_time == -5) lamp_blink_time = 5;
-	}
-}
-
 
