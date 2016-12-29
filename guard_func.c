@@ -322,16 +322,18 @@ void read_settings(){
 //////////////////   			 READ TM ID
 	tm_key_number = EEPROMRead(EEPROM_tms_numbers,1);
 	for (i = 0;i< tm_key_number;i++){
-		for (y = 0;y < 8; y++)
-		TM_KEY[i].id[y] = EEPROMRead((EEPROM_tms_id + (i * 8) + y),1);
+		for (y = 0;y < 8; y++){
+			TM_KEY[i].id[y] = EEPROMRead_id((EEPROM_tms_id + (i * 8) + y));
+		}
 	}
 
 
 //////////////////   			 READ DS18b20 ID
 	ds18x20_number = EEPROMRead(EEPROM_ds18x20_numbers,1);
 	for (i = 0;i< ds18x20_number;i++){
-		for (y = 0;y < 8; y++)
-		DS18x20[i].id[y] = EEPROMRead((EEPROM_ds18x20_id + (i * 8) + y),1);
+		for (y = 0;y < 8; y++){
+			DS18x20[i].id[y] = EEPROMRead_id((EEPROM_ds18x20_id + (i * 8) + y));
+		}
 	}
 
 //////////////////

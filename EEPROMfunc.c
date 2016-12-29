@@ -26,11 +26,12 @@ void EEPROMDisable(){
 
 void EEPROMWrite(int address,uint32_t data,char bytes){
 EEPROMEnable();
-	if (data == 0) data = 0xFF;
+//	if (data == 0) data = 0xFF;
 	int temp1 = address / 4;
 	temp1 = temp1 * 4;
 	uint32_t temp = EEPROMRead(temp1,4);
 	temp = ((temp&(~(0xFF<<(8*(address - temp1))))) | (data<<(8*(address - temp1))));
+	if (temp == 0) temp = 0xFFFFFFFF;
 	*(uint32_t *)(start_EEPROM + temp1) = temp;
 
 //	if (data == 0x00){
@@ -50,12 +51,18 @@ EEPROMDisable();
 uint32_t EEPROMRead(uint32_t address, char bytes) {
 	if (bytes == 1){
 		uint8_t a = *(uint8_t *)(start_EEPROM + address);
-		if (a == 0xFF)
-		return 0;
+		if (a == 0xFF) return 0;
+		else return a;
 	}
 	else if (bytes == 2)return *(uint16_t *)(start_EEPROM + address);
 	else return *(uint32_t *)(start_EEPROM + address);
 }
+
+uint8_t EEPROMRead_id(uint32_t address){
+	return *(uint8_t *)(start_EEPROM + address);
+}
+
+
 
 void ERASE_EEPROM(){
 EEPROMEnable();
