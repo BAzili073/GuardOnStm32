@@ -8,6 +8,8 @@
 #include "UART.h"
 #include "modem.h"
 #include "my_string.h"
+#include "EEPROMfunc.h"
+#include "guard_func.h"
 
 
 
@@ -19,7 +21,9 @@ void one_wire_low();
 void one_wire_high();
 char one_wire_check_line();
 char one_wire_send_presence();
-
+void add_DS18x20(uint8_t id[8]);
+void add_TM_key(uint8_t id[8]);
+int find_ds18x20(uint8_t id[8]);
 uint8_t one_wire_read_rom(uint8_t * buf);
 uint8_t find_key(uint8_t key[8]);
 int16_t one_wire_read_temp_to_address(uint8_t address[8]);

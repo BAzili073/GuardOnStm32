@@ -381,5 +381,5 @@ void send_command_to_FP(char * cmd){
 }
 
 void give_access(int time){
-	time_access_lock = time;
+//	time_access_lock = time;
 }

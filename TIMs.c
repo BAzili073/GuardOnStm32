@@ -16,9 +16,7 @@ int time_access_lock = 0;
 volatile int timeout_7;
 char state_check_term = 0;
 
-void check_time_to_alarm();
 void check_lamp_blink();
-void check_led_blink();
 void check_time_to_guard_on();
 
 
@@ -46,9 +44,6 @@ void  TIM7_IRQHandler(){
 	  if (modem_time_check) modem_time_check--;
 	  if (FP_detect_time) FP_detect_time--;
 	  if (FP_time_reset) FP_time_reset--;
-	  if (time_LED[LED_RED_FOR_TIME]) time_LED[LED_RED_FOR_TIME]--;
-	  if (time_LED[LED_GREEN_FOR_TIME]) time_LED[LED_GREEN_FOR_TIME]--;
-	  if (time_LED[LED_BLUE_FOR_TIME]) time_LED[LED_BLUE_FOR_TIME]--;
 	  if (FP_time_check) FP_time_check--;
 	  if (time_to_check_TM) time_to_check_TM--;
 	  check_lamp_blink();
@@ -61,20 +56,6 @@ void  TIM7_IRQHandler(){
 		  if (FP_time_reset) FP_time_reset--;
 		  if (FP_time_for_rec) FP_time_for_rec--;
 		  if (modem_time_on && (modem_time_on<200)) modem_time_on--;
-		  if ((alarm_flag[ALARM_FLAG_ACC]) && (alarm_flag[ALARM_FLAG_ACC] < 200)) alarm_flag[ALARM_FLAG_ACC]--;
-		  if ((alarm_flag[ALARM_FLAG_TEMPERATURE]) && (alarm_flag[ALARM_FLAG_TEMPERATURE]<200)) alarm_flag[ALARM_FLAG_TEMPERATURE]--;
-//		  	static int time_check_term;
-//		  	time_check_term++;
-//		  	if(time_check_term == TIME_FOR_CHECK_TEMP){
-//		  		time_check_term = 0;
-//		  		if (!state_check_term){
-//		  			state_check_term = !state_check_term;
-//		  			one_wire_start_conversion_temp();
-//		  		}else{
-//		  			state_check_term = !state_check_term;
-//		  			get_all_temp();
-//		  		}
-//		  	}
 	  		m_sec = 0;
 	  		check_time_to_alarm();
 //	  		check_time_to_guard_on();
@@ -90,20 +71,7 @@ void check_time_to_guard_on(){
 }
 
 
-void check_led_blink(){
-	int i;
-	for (i = 0; i<LED_MAX;i++){
-		if (led[i].blink_time_on != LED_BLINK_STOP){
-			led[i].blink_time --;
-			if (led[i].blink_time > 0){
-				led_on(i);
-			}else{
-				led_off(i);
-				if (led[i].blink_time <= (led[i].blink_time_off * (-1))) led[i].blink_time = led[i].blink_time_on+1;
-			}
-		}
-	}
-}
+
 
 void TIM6_init(){
 			RCC->APB1ENR |=  RCC_APB1ENR_TIM6EN ;
@@ -145,13 +113,6 @@ void TIM2_set_pwm_duty_cycle(uint8_t cyc){
 	TIM2 -> CCR2 = (0xffff / 100 * cyc);
 }
 
-void check_time_to_alarm(){
-		if (time_to_alarm > 0) time_to_alarm--;
-		if (!time_to_alarm){
-			time_to_alarm = -1;
-			alarm_on();
-		}
-}
 
 void check_lamp_blink(){
 	if (alarm_st || (time_to_guard_on > 0)){

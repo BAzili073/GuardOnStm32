@@ -1,5 +1,4 @@
-#include "stm32l1xx_hal.h"
-#include "stm32l151xba.h"
+#include "ADC_func.h"
 
 void ADC_init(){
 	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
