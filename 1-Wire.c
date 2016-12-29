@@ -13,31 +13,17 @@
 #include "output.h"
 
 
-
-
-
 uint8_t one_wire_crc_update(uint8_t crc, uint8_t b);
 uint8_t one_wire_check_crc(uint8_t address[8]);
 void one_wire_low();
 void one_wire_high();
 char one_wire_check_line();
 char one_wire_send_presence();
-void add_DS18x20(uint8_t id[8]);
-void add_TM_key(uint8_t id[8]);
-int find_ds18x20(uint8_t id[8]);
 uint8_t one_wire_read_rom(uint8_t * buf);
-uint8_t find_key(uint8_t key[8]);
 int16_t one_wire_read_temp_to_address(uint8_t address[8]);
 uint8_t onewire_enum[8]; // найденный восьмибайтовый адрес
 uint8_t onewire_enum_fork_bit; // последний нулевой бит, где была неоднозначность (нумеруя с единицы)
 
-
-
-TM_KEY_obj TM_KEY[MAX_TM] = {
-};
-
-char key_id[MAX_TM][8];
-uint8_t tm_key_number;
 
 char one_wire_level(){
 	if (GPIO_READ(ONE_WIRE_PORT,ONE_WIRE_PIN)) return 1;
@@ -285,7 +271,7 @@ int16_t one_wire_read_temp_to_address(uint8_t address[8]){
 			if (one_wire_read_byte() != crc) {
 				return ONE_WIRE_CONVERSION_ERROR;
 			} else {
-			  int16_t t = (scratchpad[1] << 8) | scratchpad[0];
+			  uint16_t t = (scratchpad[1] << 8) | scratchpad[0];
 			  if (address[0] == 0x10) { // 0x10 - DS18S20
 				// у DS18S20 значение температуры хранит 1 разряд в дробной части.
 				// повысить точность показаний можно считав байт 6 (COUNT_REMAIN) из scratchpad
@@ -295,6 +281,8 @@ int16_t one_wire_read_temp_to_address(uint8_t address[8]){
 				  t += 12 - scratchpad[6];
 				}
 			  } // для DS18B20 DS1822 значение по умолчанию 4 бита в дробной части
+			  t = t>>4;
+			  if (t > 256) t = (t & 0xFF) - 0xFF - 1;
 			  return t;
 			}
 	}
@@ -493,38 +481,11 @@ void one_wire_add_device(){
 	}
 }
 
-uint8_t find_key(uint8_t key[8]){
-	uint8_t i;
-	uint8_t y;
-	uint8_t ok;
-	for (i = 0; i < MAX_TM;i++){
-		ok = 1;
-		for (y = 0;y<8;y++){
-			if (key[y] != TM_KEY[i].id[y]){
-				ok = 0;
-				break;
-			}
-		}
-		if (ok) return i;
-//		if (key == keys[i]) return 1;
-	}
-	return ONE_WIRE_KEY_DENY;
-}
 
 
 
 
-void add_TM_key(uint8_t id[8]){
-	if (tm_key_number < MAX_TM){
-		led_on(4);
-		tm_key_number++;
-		EEPROMWrite(EEPROM_tms_numbers,tm_key_number,1);
-		int i;
-		for (i = 0;i<8;i++){
-			TM_KEY[tm_key_number-1].id[i] = id[i];
-			EEPROMWrite((EEPROM_tms_id + ((tm_key_number-1)*8) + i),id[i],1);
-		}
-	}
-}
+
+
 
 

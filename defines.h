@@ -6,21 +6,11 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
 
-
-//#define uint8_t unsigned char
-
-//#define uint16_t unsigned int
-
-//#define int8_t  char
-
-//#define int16_t int
-
-
 //#define DEBUG_FINGER
 //#define DEBUG_MODEM
 //#define DEBUG_220V
-//#define DEBUG_DS18x20
-//#define DEBUG_ADD_DEVICE
+#define DEBUG_DS18x20
+#define DEBUG_ADD_DEVICE
 #define DEBUG_GUARD
 #define DEBUG_INPUTS
 //#define DEBUG
@@ -181,6 +171,8 @@
 #define MAX_TEL_NUMBERS 5
 #define MAX_TM 5
 #define MAX_DS18x20 5
+
+#define TIME_CHECK_DS18B20 50
 
 #define start_EEPROM 0x08080000
 #define EEPROM_tel_numbers 			0

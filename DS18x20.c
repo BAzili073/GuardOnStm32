@@ -3,13 +3,13 @@
 
 
 DS18x20_obj DS18x20[MAX_DS18x20] = {
-//		[0] = {.id = {0x28,0xB8,0xA3,0xA0,0x04,0x00,0x00,0xF2}},
+		[0] = {.max_temp =  25, .min_temp = -20},
 //		[1] = {.id = {0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40}},
 };
 
 uint8_t ds18x20_number;
-int8_t time_to_check_temp = -1;
-
+uint8_t time_to_check_temp = 0;
+uint8_t flag_conv = 0;
 
 void read_ds18x20_settings(){
 	int i;
@@ -21,7 +21,9 @@ void read_ds18x20_settings(){
 		}
 	}
 }
-
+void check_temp(){
+	if (time_to_check_temp > 0) time_to_check_temp--;
+}
 void add_DS18x20(uint8_t id[8]){
 	if (ds18x20_number < MAX_DS18x20){
 		led_on(4);
@@ -60,16 +62,21 @@ void get_all_temp(){
 	}
 }
 
+uint8_t get_flag_conv(){
+	return flag_conv;
+}
 void check_temperature(){
 	if (!ds18x20_number) return;
-	if (time_to_check_temp == -1) {
+	if (!time_to_check_temp && !flag_conv) {
 		one_wire_start_conversion_temp();
-		time_to_check_temp = 4;
+		flag_conv = 1;
+		time_to_check_temp = 8;
 		return;
 	}else if (time_to_check_temp != 0){
 		return;
 	}
-	time_to_check_temp = -1;
+	time_to_check_temp = TIME_CHECK_DS18B20;
+	flag_conv = 0;
 	int i;
 	int y;
 	for (i = 0;i<MAX_DS18x20;i++){
@@ -88,15 +95,14 @@ void check_temperature(){
     if (DS18x20[i].last_temp == ONE_WIRE_CONVERSION_ERROR){
     		send_string_to_UART3("Error read temp!  ");
     }else{
-    	send_int_to_UART3((DS18x20[i].last_temp >> 4));
-    	send_string_to_UART3(",");
-    	send_int_to_UART3(((DS18x20[i].last_temp%16)*625)/1000);
+    	send_int_to_UART3((DS18x20[i].last_temp));
+
     }
 	send_string_to_UART3(" \n\r");
 
 #endif
 	if (DS18x20[i].last_temp != ONE_WIRE_CONVERSION_ERROR){
-				if ((DS18x20[i].last_temp > DS18x20[i].max_temp)){
+				if (((DS18x20[i].last_temp) > DS18x20[i].max_temp)){
 					if (DS18x20[i].alarm == DS18X20_ALARM_NORM){
 						if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_OUT){
 							for (y = 3;y<8;y++){
@@ -123,7 +129,7 @@ void check_temperature(){
 
 						DS18x20[i].alarm = DS18X20_ALARM_UP;
 					}
-				}else if ((DS18x20[i].last_temp < DS18x20[i].max_temp)){
+				}else if (((DS18x20[i].last_temp) < DS18x20[i].min_temp)){
 						if (DS18x20[i].alarm == DS18X20_ALARM_NORM){
 							if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_OUT){
 								for (y = 3;y<8;y++){

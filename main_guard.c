@@ -12,7 +12,7 @@
 #include "1-Wire.h"
 
 void main_guard(){
-	if (!time_to_check_TM) {
+	if (!time_to_check_TM && !get_flag_conv()) {
 		check_TM();
 	}
 	check_temperature();

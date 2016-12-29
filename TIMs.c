@@ -45,17 +45,17 @@ void  TIM7_IRQHandler(){
 	  if (time_to_check_TM) time_to_check_TM--;
 	  check_lamp_blink();
 	  check_led_blink();
+	  check_temp();
 	  m_sec++;
 
 	  if (m_sec == 10) {
-		  if (time_to_check_temp > 0) time_to_check_temp--;
 		  if (time_access_lock) time_access_lock--;
 		  if (FP_time_reset) FP_time_reset--;
 		  if (FP_time_for_rec) FP_time_for_rec--;
 		  if (modem_time_on && (modem_time_on<200)) modem_time_on--;
 	  		m_sec = 0;
 	  		check_time_to_alarm();
-//	  		check_time_to_guard_on();
+	  		check_time_to_guard_on();
 	  	}
 	   TIM7 -> SR &= ~TIM_SR_UIF;
 }

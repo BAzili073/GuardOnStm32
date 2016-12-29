@@ -20,9 +20,9 @@ void changed_guard_sms(int status);
 
 int u_battary = 2680;
 
-uint16_t time_to_guard_on = -1;
+uint16_t time_to_guard_on = 0;
 uint16_t time_to_check_TM = 0;
-int16_t time_set_to_guard_on = 0;
+int16_t time_set_to_guard_on = 10;
 uint8_t device_settings = 0;
 uint8_t alarm_st = 0;
 uint8_t guard_st = 0;
@@ -45,6 +45,7 @@ char last_control_guard[13];
 
 /////////////////////////////////                      GUARD
 void guard_on(){
+		led_blink_stop(OUT_MODE_GUARD);
 		guard_st = GUARD_ON;
 		out_on_mode(OUT_MODE_GUARD);
 		changed_guard_sms(GUARD_ON);
@@ -57,6 +58,9 @@ void guard_on_TM(){
 	if (time_set_to_guard_on){
 		if (!time_to_guard_on){
 			time_to_guard_on = time_set_to_guard_on;
+			led_blink(OUT_MODE_GUARD,5,5);
+		}else{
+			guard_off();
 		}
 	}else{
 		guard_on();
@@ -64,6 +68,8 @@ void guard_on_TM(){
 }
 
 void guard_off(){
+	led_blink_stop(OUT_MODE_GUARD);
+	time_to_guard_on = 0;
 	guard_st = GUARD_OFF;
 	clear_alarm_input();
 	out_off_mode(OUT_MODE_GUARD);
@@ -140,7 +146,7 @@ void check_battery(){
 
 void check_TM(){
 	out_off_mode(OUT_MODE_TM);
-	if (!tm_key_number) return;
+	if (!get_tm_key_number()) return;
 	int current_TM = one_wire_check_keys();
 	if (current_TM != ONE_WIRE_KEY_DENY) {
 		time_to_check_TM = 20;
@@ -170,13 +176,8 @@ void read_settings(){
 	}
 
 //////////////////   			 READ TM ID
-	tm_key_number = EEPROMRead(EEPROM_tms_numbers,1);
-	for (i = 0;i< tm_key_number;i++){
-		for (y = 0;y < 8; y++){
-			TM_KEY[i].id[y] = EEPROMRead_id((EEPROM_tms_id + (i * 8) + y));
-		}
-	}
 
+		read_TM_KEY_settings();
 
 //////////////////   			 READ DS18b20 ID
 		read_ds18x20_settings();
@@ -195,7 +196,7 @@ void read_settings(){
 }
 
 void check_lamp_blink(){
-	if (alarm_st || (time_to_guard_on > 0)){
+	if (alarm_st){
 		if (lamp_blink_time > 0) {
 			out_on_mode(OUT_MODE_LAMP);
 		}else{
