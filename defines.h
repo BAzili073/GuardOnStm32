@@ -17,10 +17,12 @@
 
 
 //#define DEBUG_FINGER
-#define DEBUG_MODEM
+//#define DEBUG_MODEM
 //#define DEBUG_220V
-#define DEBUG_DS18x20
-#define DEBUG_ADD_DEVICE
+//#define DEBUG_DS18x20
+//#define DEBUG_ADD_DEVICE
+#define DEBUG_GUARD
+#define DEBUG_INPUTS
 //#define DEBUG
 
 #define true 1
@@ -88,6 +90,7 @@
 #define OUT_MODE_GSM 'm'
 #define OUT_MODE_SENSOR 'd'
 #define OUT_MODE_TM 'v'
+#define OUT_MODE_220V 'p'
 
 #define LED_MAX 5
 #define LED_1_PORT GPIOA

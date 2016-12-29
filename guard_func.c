@@ -34,7 +34,7 @@ void changed_guard_sms(int status);
 
 uint8_t last_input_alarm = 0;
 
-uint16_t u_battary;
+int u_battary = 2680;
 
 int16_t time_to_alarm = -1;
 uint16_t time_to_guard_on = -1;
@@ -85,14 +85,16 @@ LED_obj led[LED_MAX] = {
 	uint16_t v_min;
 	uint16_t time_to_alarm;
 	uint32_t adc_channel;
+	uint8_t state;
+
 } INPUT_obj;
 
  INPUT_obj input[MAX_INPUT] ={
-	    [0] = {	.port = INPUT_PORT, .pin = INPUT_1, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_1},
-	    [1] = {	.port = INPUT_PORT, .pin = INPUT_2, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_4},
-	    [2] = {	.port = INPUT_PORT, .pin = INPUT_3, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_5},
-	    [3] = {	.port = INPUT_PORT, .pin = INPUT_4, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_6},
-	    [4] = {	.port = INPUT_PORT, .pin = INPUT_5, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_7},
+	    [0] = {	.port = INPUT_PORT, .pin = INPUT_1, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_1, .state = 0},
+	    [1] = {	.port = INPUT_PORT, .pin = INPUT_2, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_4, .state = 0},
+	    [2] = {	.port = INPUT_PORT, .pin = INPUT_3, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_5, .state = 0},
+	    [3] = {	.port = INPUT_PORT, .pin = INPUT_4, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_6, .state = 0},
+	    [4] = {	.port = INPUT_PORT, .pin = INPUT_5, .mode = 0, .v_max = 2000, .v_min = 1000, .adc_channel = ADC_CHANNEL_7, .state = 0},
  };
 
  typedef struct TEL_obj{
@@ -124,14 +126,21 @@ void guard_on(){
 		guard_st = GUARD_ON;
 		out_on_mode(OUT_MODE_GUARD);
 		changed_guard_sms(GUARD_ON);
+#ifdef DEBUG_GUARD
+	send_string_to_UART3("GUARD: ON! \n\r");
+#endif
 }
 
 void guard_off(){
 	guard_st = GUARD_OFF;
 	time_to_alarm = -1;
+	last_alarm = 0;
 	out_off_mode(OUT_MODE_GUARD);
 	alarm_off();
 	changed_guard_sms(GUARD_OFF);
+#ifdef DEBUG_GUARD
+	send_string_to_UART3("GUARD: OFF! \n\r");
+#endif
 }
 
 void changed_guard_sms(int status){
@@ -144,11 +153,18 @@ void changed_guard_sms(int status){
 void alarm_on(){
 	out_on_mode(OUT_MODE_ALARM);
 	alarm_st = ALARM_ON;
+#ifdef DEBUG_GUARD
+	send_string_to_UART3("ALAAAAARM: ON! \n\r");
+#endif
 }
 
 void alarm_off(){
 		out_off_mode(OUT_MODE_ALARM);
+		out_off_mode(OUT_MODE_LAMP);
 		alarm_st = ALARM_OFF;
+#ifdef DEBUG_GUARD
+	send_string_to_UART3("ALAAAAARM: OFF! \n\r");
+#endif
 }
 
 
@@ -242,7 +258,11 @@ void out_off_mode(uint8_t mode){
 
 
 void check_battery(){
-	if (ADC_read(DET_220_CHANNEL) < u_battary); // измерение со входа
+	if (ADC_read(DET_220_CHANNEL) < (u_battary * 0.93)){
+		out_on_mode(OUT_MODE_220V); // измерение со входа
+	}else{
+		out_off_mode(OUT_MODE_220V);
+	}
 #ifdef DEBUG_220V
 	send_string_to_UART3("DETECT 220v: ");
 	send_int_to_UART3(ADC_read(DET_220_CHANNEL));
@@ -254,36 +274,49 @@ void check_battery(){
 //	2328 - 12.3 V
 //	2396 - 12.6 V
 //	2465 - 13.0 V
-
+//	2684 - 13.9 V
 }
 
 void check_inputs(void){
 	int i;
 	for (i = 1;i<=5;i++){ // перебор входов
 		if (check_input(i)){
-			led_on_mode(i);
-			output_on_mode(i);
-			if (last_alarm != i){
-					if (input[i-1].mode & INPUTS_MODE_BUTTON_GUARD){ //если вход управл€ющий охраной
-						if (!guard_st) guard_on();
-						return;
-					}
-					if ((guard_st || (input[i-1].mode & INPUTS_MODE_24H)) & !alarm_st){ //если на охране или вход 24 часа
-						last_alarm = i; //запомним последний сработавший вход
-						if ((time_to_alarm == -1) || (input[i - 1].time_to_alarm < time_to_alarm)){ //если врем€ до тревоги нету
-							time_to_alarm = input[i-1].time_to_alarm;
-							last_input_alarm = i + 1;
+			if (!input[i-1].state){
+#ifdef DEBUG_INPUTS
+	send_string_to_UART3("INPUT ");
+	send_int_to_UART3(i);
+	send_string_to_UART3(": ALERT!  \n\r");
+#endif
+				input[i-1].state = 1;
+				out_on_mode(i);
+				if (last_alarm != i){
+						if (input[i-1].mode & INPUTS_MODE_BUTTON_GUARD){ //если вход управл€ющий охраной
+							if (!guard_st) guard_on();
+							return;
 						}
-					}
+						if ((guard_st || (input[i-1].mode & INPUTS_MODE_24H)) & !alarm_st){ //если на охране или вход 24 часа
+							last_alarm = i; //запомним последний сработавший вход
+							if ((time_to_alarm == -1) || (input[i - 1].time_to_alarm < time_to_alarm)){ //если врем€ до тревоги нету
+								time_to_alarm = input[i-1].time_to_alarm;
+								last_input_alarm = i + 1;
+							}
+						}
+				}
 			}
 		}else{ //вход в норме
-			led_off_mode(i);
-			output_off_mode(i);
-			if (input[i-1].mode & INPUTS_MODE_BUTTON_GUARD){//если вход управл€ющий охраной
-				if (guard_st) guard_off();
-				return;
+			if (input[i-1].state){
+				input[i-1].state = 0;
+				out_off_mode(i);
+				if (input[i-1].mode & INPUTS_MODE_BUTTON_GUARD){//если вход управл€ющий охраной
+					if (guard_st) guard_off();
+					return;
+				}
+#ifdef DEBUG_INPUTS
+	send_string_to_UART3("INPUT ");
+	send_int_to_UART3(i);
+	send_string_to_UART3(": NORMAL!  \n\r");
+#endif
 			}
-
 		}
 	}
 }

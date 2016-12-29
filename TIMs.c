@@ -76,7 +76,7 @@ void  TIM7_IRQHandler(){
 //		  		}
 //		  	}
 	  		m_sec = 0;
-//	  		check_time_to_alarm();
+	  		check_time_to_alarm();
 //	  		check_time_to_guard_on();
 	  	}
 	   TIM7 -> SR &= ~TIM_SR_UIF;
