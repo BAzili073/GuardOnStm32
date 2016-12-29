@@ -6,6 +6,8 @@
 #include "stm32l151xba.h"
 #include "defines.h"
 
+
+ int check_input(int input_t);
 void check_inputs();
 void clear_alarm_input();
 void check_time_to_alarm();

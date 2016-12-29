@@ -1,12 +1,8 @@
+#ifdef ONE_WIRE_H
+#else
+#define ONE_WIRE_H
+
 #include "defines.h"
-
-#define DS18X20_ALARM_NORM 0
-#define DS18X20_ALARM_UP 1
-#define DS18X20_ALARM_DOWN 2
-
-#define DS18X20_SETTINGS_SMS 			0b00000001
-#define DS18X20_SETTINGS_CONTROL_OUT 	0b00000010
-#define DS18X20_SETTINGS_CONTROL_INVER 	0b00000100
 
 
 void one_wire_write_bit(uint8_t bit);
@@ -23,16 +19,8 @@ uint8_t one_wire_start_conversion_temp();
 uint8_t one_wire_check_keys();
 void get_all_temp();
 
-typedef struct DS18x20_obj{
-	uint8_t id[8];
-	int16_t  last_temp;
-	uint16_t max_temp;
-	uint16_t min_temp;
-	uint8_t alarm;
-	uint8_t settings;
-} DS18x20_obj;
 
-DS18x20_obj DS18x20[MAX_DS18x20];
+
 
 typedef struct TM_KEY_obj{
 	uint8_t id[8];
@@ -43,3 +31,6 @@ uint8_t ds18x20_number;
 uint8_t tm_key_number;
 
 int8_t time_to_check_temp;
+
+
+#endif

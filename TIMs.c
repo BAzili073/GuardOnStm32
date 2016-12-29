@@ -7,6 +7,8 @@
 #include "modem.h"
 #include "FingerPrint.h"
 #include "guard_func.h"
+#include "input.h"
+#include "led.h"
 
 uint8_t m_sec = 0;
 int time_access_lock = 0;
@@ -14,10 +16,6 @@ int time_access_lock = 0;
 
 volatile int timeout_7;
 char state_check_term = 0;
-
-void check_lamp_blink();
-void check_time_to_guard_on();
-
 
 
 void TIM2_init(){

@@ -9,6 +9,7 @@
 #include "modem.h"
 #include "guard_func.h"
 #include "FingerPrint.h"
+#include "input.h"
 
 void sms_command_nn();
 void sms_command_r();

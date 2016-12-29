@@ -5,6 +5,9 @@
 #include "1-Wire.h"
 #include "UART.h"
 #include "led.h"
+#include "ADC_func.h"
+#include "output.h"
+#include "input.h"
 
 
 
@@ -176,12 +179,7 @@ void read_settings(){
 
 
 //////////////////   			 READ DS18b20 ID
-	ds18x20_number = EEPROMRead(EEPROM_ds18x20_numbers,1);
-	for (i = 0;i< ds18x20_number;i++){
-		for (y = 0;y < 8; y++){
-			DS18x20[i].id[y] = EEPROMRead_id((EEPROM_ds18x20_id + (i * 8) + y));
-		}
-	}
+		read_ds18x20_settings();
 
 //////////////////
 
@@ -195,6 +193,7 @@ void read_settings(){
 
 
 }
+
 void check_lamp_blink(){
 	if (alarm_st || (time_to_guard_on > 0)){
 		if (lamp_blink_time > 0) {
