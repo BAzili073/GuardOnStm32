@@ -5,16 +5,9 @@
 #include "defines.h"
 #include "GPIO_func.h"
 #include "clock.h"
-#include "ADC_func.h"
-#include "TIMs.h"
 #include "guard_func.h"
-#include "UART.h"
-#include "1-Wire.h"
-#include "modem.h"
 #include "string.h"
-#include "EEPROMfunc.h"
 #include "main_guard.h"
-//#include "FingerPrint.h"
  void add_device_check();
  void add_device_mode();
 
@@ -48,7 +41,6 @@ int main(void) {
 	read_settings();
 	add_device_check();
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
-	modem_state = MODEM_STATE_OFF;
 //	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
 //		guard_on();
 //	}
@@ -58,13 +50,11 @@ int main(void) {
 //		sms_command_r();
 //	}
     while(1) {
-    	main_guard();
 
-    	if (!modem_time_check){
-    		modem_check_state();
-    		modem_time_check = 30;
-    	}
 
+
+	main_guard();
+	modem_check_state();
 	set_timeout_7(1);
 	while_timeout_7();
     }

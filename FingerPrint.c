@@ -48,9 +48,9 @@ char empty_id[2];
 char generate_for_enroll_step = 1;
 char FP_try = 0;
 int FP_time_check = 2;
-int FP_time_reset;
+int FP_time_reset;       //msec
 char FP_check_allow;
-char FP_time_for_rec = 0;
+char FP_time_for_rec = 0; //msec
 char FP_del_base = 0;
 
 const char FP_CMD_FINGER_DETECT[26] = 	{0x55,0xAA,0x00,0x00,0x21,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x01};
@@ -78,7 +78,12 @@ int time_LED[3] = {0,0,0};
 #define ALARM_FLAG_FP_TRY 2
 
 
-
+void FP_time(){
+     if (FP_time_for_rec) FP_time_for_rec--;
+     if (FP_detect_time) FP_detect_time--;
+	 if (FP_time_reset) FP_time_reset--;
+	 if (FP_time_check) FP_time_check--;
+}
 void FP_check_function(){
 //	if (time_LED[LED_RED_FOR_TIME]) led_on_mode(LED_RED);
 //	else led_off_mode(LED_RED);

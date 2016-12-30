@@ -1,5 +1,6 @@
 #include "input.h"
-
+#include "guard_func.h"
+#include "ADC_func.h"
 typedef struct INPUT_obj{
 	GPIO_TypeDef * port;
 	uint16_t  pin;

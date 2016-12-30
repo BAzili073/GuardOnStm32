@@ -8,6 +8,8 @@
 #include "my_string.h"
 #include "sms_command.h"
 #include "modem.h"
+#include "led.h"
+
 
 void send_text_as_ucs(char * out_message, unsigned int len);
 char parse_gsm_message();
@@ -18,11 +20,13 @@ void del_all_gsm_message();
 char modem_send_sms_message(char * number,char * text);
 char send_sms_message_for_all(char * text,int function);
 char modem_setup();
-
+void modem_free();
+void modem_check_online();
+void modem_check_quality();
 void clear_output_sms_message();
 char check_number_of_sms();
 
-int modem_state = MODEM_STATE_NOT_NEED;
+int modem_state = MODEM_STATE_OFF;
 char get_next_gsm_message();
 volatile unsigned int gsm_message_check_counter = 0;
 char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int max_t);
@@ -42,8 +46,13 @@ char modem_time_check = 0;
 
 
 char modem_errors[2];
+void modem_time(){
+	if (modem_time_check) modem_time_check--;
+}
 
 void modem_check_state(){
+	if (modem_time_check) return;
+	modem_time_check = 30;
 	if (modem_action == MODEM_ACTION_FREE){
 		switch (modem_state){
 			case MODEM_STATE_NOT_NEED:
@@ -73,8 +82,6 @@ void modem_check_state(){
 			break;
 		}
 	}
-
-
 }
 void MODEM_ON(){
 #ifdef DEBUG_MODEM
@@ -126,17 +133,13 @@ void MODEM_OFF(){
 
 
 void modem_check_online(){
-	if (!modem_time_check) {
 		modem_time_check = SET_MODEM_TIME_CHECK;
 		send_string_to_GSM("AT+COPS?\r");
-	}
 }
 
 void modem_check_quality(){
-	if (!modem_time_check){
 		modem_time_check = SET_MODEM_TIME_CHECK;
 		send_string_to_GSM("AT+CSQ\r");
-	}
 }
 
 

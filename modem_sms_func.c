@@ -1,7 +1,7 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
 #include "modem.h"
-#include "sms_command.h"
+//#include "sms_command.h"
 
 void incoming_sms(){
 	send_command_to_GSM("AT+CMGR=1,0","+CMGR:",gsm_message,2,5);

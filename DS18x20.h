@@ -4,6 +4,7 @@
 
 
 #include "defines.h"
+#include "EEPROMfunc.h"
 
 void read_ds18x20_settings();
 void add_DS18x20(uint8_t id[8]);

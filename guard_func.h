@@ -21,12 +21,10 @@ void alarm_off();
 uint8_t get_guard_st();
 uint8_t get_alarm_st();
 
-void check_TM();
-
+void TM_check_time();
 
 char tel_number[MAX_TEL_NUMBERS][10];
 uint8_t tel_access[MAX_TEL_NUMBERS];
-uint16_t time_to_check_TM;
 uint8_t last_control_ID_number;
 char last_control_guard[13];
 uint8_t device_settings;

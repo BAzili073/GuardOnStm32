@@ -4,14 +4,15 @@
 #include "defines.h"
 #include "guard_func.h"
 #include "1-Wire.h"
-#include "modem.h"
-#include "FingerPrint.h"
+#include "modem_module.h"
 #include "guard_func.h"
 #include "input.h"
 #include "led.h"
+#include "DS18x20.h"
+#include "TM_KEY.h"
 
 uint8_t m_sec = 0;
-int time_access_lock = 0;
+//int time_access_lock = 0;
 
 
 volatile int timeout_7;
@@ -38,21 +39,14 @@ void TIM7_init(){
 void  TIM7_IRQHandler(){
 
 	  if (timeout_7) timeout_7 --;
-	  if (modem_time_check) modem_time_check--;
-	  if (FP_detect_time) FP_detect_time--;
-	  if (FP_time_reset) FP_time_reset--;
-	  if (FP_time_check) FP_time_check--;
-	  if (time_to_check_TM) time_to_check_TM--;
+	  modem_time();
+	  TM_check_time();
 	  check_lamp_blink();
 	  check_led_blink();
 	  check_temp();
 	  m_sec++;
-
+	  FP_time();
 	  if (m_sec == 10) {
-		  if (time_access_lock) time_access_lock--;
-		  if (FP_time_reset) FP_time_reset--;
-		  if (FP_time_for_rec) FP_time_for_rec--;
-		  if (modem_time_on && (modem_time_on<200)) modem_time_on--;
 	  		m_sec = 0;
 	  		check_time_to_alarm();
 	  		check_time_to_guard_on();

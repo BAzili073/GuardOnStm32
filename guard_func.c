@@ -1,5 +1,5 @@
 #include "guard_func.h"
-#include "modem.h"
+#include "modem_module.h"
 #include "my_string.h"
 #include "EEPROMfunc.h"
 #include "1-Wire.h"
@@ -8,6 +8,8 @@
 #include "ADC_func.h"
 #include "output.h"
 #include "input.h"
+#include "TM_KEY.h"
+#include "DS18x20.h"
 
 
 
@@ -143,8 +145,11 @@ void check_battery(){
 }
 
 
-
+void TM_check_time(){
+	if (time_to_check_TM) time_to_check_TM --;
+}
 void check_TM(){
+	if (time_to_check_TM || get_flag_conv()) return;
 	out_off_mode(OUT_MODE_TM);
 	if (!get_tm_key_number()) return;
 	int current_TM = one_wire_check_keys();

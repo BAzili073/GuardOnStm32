@@ -47,19 +47,19 @@ char modem_setup();
 char check_number(char * number);
 void convert_number_to_upd(char * number);
 void ucs_to_eng(char * in_message, char * message);
-void send_text_as_ucs(char * out_message, unsigned int len);
+//void send_text_as_ucs(char * out_message, unsigned int len);
 char check_gsm_message();
 void modem_check_state();
 void modem_save_number(char ID_number,char * number);
-void modem_free();
-char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, int max_t);
+void incoming_call();
+void incoming_sms();
+void modem_no_carrier();
+//void modem_free();
+//char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, int max_t);
 
 
 ////VARIABLES
-int modem_time_on;
-int modem_state;
 int modem_action;
-char modem_time_check;
 char input_sms_message[70];
 char output_sms_message[70];
 char gsm_message[GSM_MESSAGE_SIZE];

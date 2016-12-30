@@ -4,10 +4,7 @@ char FP_time_for_rec;
 char FP_del_base;
 
 int alarm_flag[3];
-int FP_time_check;
 int FP_time_reset;
-int FP_time_reset;
-int time_LED[3];
 
 #define ALARM_FLAG_TEMPERATURE 0
 #define ALARM_FLAG_ACC 1
@@ -20,3 +17,4 @@ int time_LED[3];
 
 void give_access(int time);
 void FP_check_function();
+void FP_time();

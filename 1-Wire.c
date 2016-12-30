@@ -1,16 +1,13 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
 #include "1-Wire.h"
-#include "defines.h"
 #include "TIMs.h"
-#include "GPIO_func.h"
-#include "UART.h"
-#include "modem.h"
 #include "my_string.h"
-#include "EEPROMfunc.h"
 #include "guard_func.h"
 #include "led.h"
 #include "output.h"
+#include "DS18x20.h"
+#include "TM_KEY.h"
 
 
 uint8_t one_wire_crc_update(uint8_t crc, uint8_t b);
@@ -306,9 +303,11 @@ void one_wire_read_temp(){
         uint8_t crc = 0;
         uint8_t family_code = d; // Сохранение первого байта (код семейства)
         for (uint8_t i = 0; i < 8; i++) {
-        	send_char_to_GSM((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
-		    send_char_to_GSM((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
-		    send_char_to_GSM(' ');
+#ifdef DEBUG_1WIRE
+        	send_char_to_UART3((d >> 4) + (((d >> 4) >= 10) ? ('A' - 10) : '0'));
+        	send_char_to_UART3((d & 0x0F) + (((d & 0x0F) >= 10) ? ('A' - 10) : '0'));
+        	send_char_to_UART3(' ');
+#endif
           crc = one_wire_crc_update(crc, d);
           d = *(p++);
         }
@@ -348,7 +347,6 @@ void one_wire_read_temp(){
 //                }
 //              } // для DS18B20 DS1822 значение по умолчанию 4 бита в дробной части
 //              // Вывод температуры
-              send_int_to_GSM(t);
             }
           } else {
             // Неизвестное устройство
