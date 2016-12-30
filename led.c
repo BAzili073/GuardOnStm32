@@ -22,7 +22,7 @@ void read_led_settings(){
 	 int i;
 	 for (i = 0;i < MAX_LED;i++){
 		 uint8_t temp;
-		 temp = EEPROMRead(EEPROM_led_mode,1);
+		 temp = EEPROMRead((EEPROM_led_mode + i),1);
 		 if (temp != 0xFE) led[i].mode = temp;
 	 }
 }

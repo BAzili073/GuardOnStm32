@@ -22,6 +22,11 @@ void read_TM_KEY_settings(){
 		}
 	}
 }
+
+//void set_TM_KEY_settings(uint8_t tm, uint8_t name_tm){
+//
+//}
+
 void add_TM_key(uint8_t id[8]){
 	if (tm_key_number < MAX_TM){
 		led_on(4);

@@ -11,8 +11,9 @@ void add_DS18x20(uint8_t id[8]);
 int find_ds18x20(uint8_t id[8]);
 void get_all_temp();
 void check_temperature();
-void check_temp();
+void time_check_temp();
 uint8_t get_flag_conv();
+void set_ds18x20_settings(uint8_t ds, uint8_t min_temp_t, uint8_t max_temp_t ,uint8_t settings_t);
 
 #define DS18X20_ALARM_NORM 0
 #define DS18X20_ALARM_UP 1

@@ -19,7 +19,7 @@ void read_output_settings(){
 	 int i;
 	 for (i = 0;i < MAX_OUTPUT;i++){
 		 uint8_t temp;
-		 temp = EEPROMRead(EEPROM_output_mode,1);
+		 temp = EEPROMRead((EEPROM_output_mode + i),1);
 		 if (temp != 0xFE) output[i].mode = temp;
 	 }
 }

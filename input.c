@@ -31,13 +31,13 @@ void read_inputs_settings(){
  int i;
  uint8_t temp;
  for (i = 0;i < MAX_INPUT;i++){
-	 temp = EEPROMRead(EEPROM_input_v_max,1);
+	 temp = EEPROMRead((EEPROM_input_v_max + i),1);
 	 if (temp != 0xFE) input[i].v_max = temp;
-	 temp = EEPROMRead(EEPROM_input_v_min,1);
+	 temp = EEPROMRead((EEPROM_input_v_min + i),1);
 	 if (temp != 0xFE) input[i].v_min = temp;
-	 temp = EEPROMRead(EEPROM_input_mode,1);
+	 temp = EEPROMRead((EEPROM_input_mode + i),1);
 	 if (temp != 0xFE) input[i].mode = temp;
-	 temp = EEPROMRead(EEPROM_input_time_to_alarm,1);
+	 temp = EEPROMRead((EEPROM_input_time_to_alarm + i),1);
 	 if (temp != 0xFE) input[i].time_to_alarm = temp;
  }
  	 temp = EEPROMRead(EEPROM_time_alarm,1);

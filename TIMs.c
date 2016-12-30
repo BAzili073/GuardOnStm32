@@ -43,7 +43,7 @@ void  TIM7_IRQHandler(){
 	  TM_check_time();
 	  check_lamp_blink();
 	  check_led_blink();
-	  check_temp();
+	  time_check_temp();
 	  m_sec++;
 //	  FP_time();
 	  if (m_sec == 10) {

@@ -16,19 +16,28 @@ void read_ds18x20_settings(){
 	int y;
 	uint8_t temp;
 	temp = EEPROMRead(EEPROM_ds18x20_numbers,1);
-	if (temp != 0xFE )ds18x20_number = temp;
+	if (temp != 0xFE ) ds18x20_number = temp;
 	for (i = 0;i< ds18x20_number;i++){
 		for (y = 0;y < 8; y++){
 			DS18x20[i].id[y] = EEPROMRead_id((EEPROM_ds18x20_id + (i * 8) + y));
 		}
-
-
+		temp = EEPROMRead ((EEPROM_ds18x20_min + i),1);
 		if (temp != 0xFE ) DS18x20[i].min_temp = temp;
-		temp = EEPROMRead (EEPROM_ds18x20_max,1);
+		temp = EEPROMRead ((EEPROM_ds18x20_max + i),1);
 		if (temp != 0xFE )  DS18x20[i].max_temp = temp;
+		temp = EEPROMRead ((EEPROM_ds18x20_settings + i),1);
+		if (temp != 0xFE )  DS18x20[i].settings = temp;
 	}
 }
-void check_temp(){
+
+void set_ds18x20_settings(uint8_t ds, uint8_t min_temp_t, uint8_t max_temp_t ,uint8_t settings_t){
+	DS18x20[ds].min_temp = min_temp_t; EEPROMWrite((EEPROM_ds18x20_min + ds),DS18x20[ds].min_temp,1);
+	DS18x20[ds].max_temp = max_temp_t; EEPROMWrite((EEPROM_ds18x20_max + ds),DS18x20[ds].max_temp,1);
+	DS18x20[ds].settings = settings_t; EEPROMWrite((EEPROM_ds18x20_settings + ds),DS18x20[ds].settings,1);
+}
+
+
+void time_check_temp(){
 	if (time_to_check_temp > 0) time_to_check_temp--;
 }
 void add_DS18x20(uint8_t id[8]){
@@ -111,10 +120,10 @@ void check_temperature(){
 	if (DS18x20[i].last_temp != ONE_WIRE_CONVERSION_ERROR){
 				if (((DS18x20[i].last_temp) > DS18x20[i].max_temp)){
 					if (DS18x20[i].alarm == DS18X20_ALARM_NORM){
-						if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_OUT){
+						if (DS18x20[i].settings & DS18X20_SETTINGS_CONTROL_OUT){
 							for (y = 3;y<8;y++){
-								if (DS18x20[i].settings && (1<<y)){
-									if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_INVER){
+								if (DS18x20[i].settings & (1<<y)){
+									if (DS18x20[i].settings & DS18X20_SETTINGS_CONTROL_INVER){
 										output_off_hand(y-3);
 									}else{
 										output_on_hand(y-3);
@@ -138,10 +147,10 @@ void check_temperature(){
 					}
 				}else if (((DS18x20[i].last_temp) < DS18x20[i].min_temp)){
 						if (DS18x20[i].alarm == DS18X20_ALARM_NORM){
-							if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_OUT){
+							if (DS18x20[i].settings & DS18X20_SETTINGS_CONTROL_OUT){
 								for (y = 3;y<8;y++){
 									if (DS18x20[i].settings && (1<<y)){
-										if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_INVER){
+										if (DS18x20[i].settings & DS18X20_SETTINGS_CONTROL_INVER){
 											output_off_hand(y-3);
 										}else{
 											output_on_hand(y-3);
