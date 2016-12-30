@@ -227,7 +227,6 @@ uint8_t one_wire_crc_update(uint8_t crc, uint8_t b) {
 }
 
 uint8_t one_wire_skip() {
-	int a = !one_wire_send_presence();
   if (!one_wire_send_presence())
     return 0;
   one_wire_write_byte(0xCC);

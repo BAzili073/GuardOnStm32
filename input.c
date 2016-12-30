@@ -5,29 +5,44 @@ typedef struct INPUT_obj{
 	GPIO_TypeDef * port;
 	uint16_t  pin;
 	uint8_t mode;
-	uint16_t v_max;
-	uint16_t v_min;
-	uint16_t time_to_alarm;
+	uint8_t v_max;
+	uint8_t v_min;
+	uint8_t time_to_alarm;
 	uint32_t adc_channel;
 	uint8_t state;
 
 } INPUT_obj;
 
  INPUT_obj input[MAX_INPUT] ={
-	    [0] = {	.port = INPUT_PORT, .pin = INPUT_1, .mode = 0, .v_max = 2000, .v_min = 1000, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_1, .state = 0},
-	    [1] = {	.port = INPUT_PORT, .pin = INPUT_2, .mode = 0, .v_max = 2000, .v_min = 1000, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_4, .state = 0},
-	    [2] = {	.port = INPUT_PORT, .pin = INPUT_3, .mode = 0, .v_max = 2000, .v_min = 1000, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_5, .state = 0},
-	    [3] = {	.port = INPUT_PORT, .pin = INPUT_4, .mode = 0, .v_max = 2000, .v_min = 1000, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_6, .state = 0},
-	    [4] = {	.port = INPUT_PORT, .pin = INPUT_5, .mode = 0, .v_max = 2000, .v_min = 1000, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_7, .state = 0},
+	    [0] = {	.port = INPUT_PORT, .pin = INPUT_1, .mode = 0, .v_max = 7, .v_min = 3, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_1, .state = 0},
+	    [1] = {	.port = INPUT_PORT, .pin = INPUT_2, .mode = 0, .v_max = 7, .v_min = 3, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_4, .state = 0},
+	    [2] = {	.port = INPUT_PORT, .pin = INPUT_3, .mode = 0, .v_max = 7, .v_min = 3, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_5, .state = 0},
+	    [3] = {	.port = INPUT_PORT, .pin = INPUT_4, .mode = 0, .v_max = 7, .v_min = 3, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_6, .state = 0},
+	    [4] = {	.port = INPUT_PORT, .pin = INPUT_5, .mode = 0, .v_max = 7, .v_min = 3, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_7, .state = 0},
  };
 
  uint8_t last_input_alarm = 0;
  int16_t time_to_alarm = -1;
 
+void read_inputs_settings(){
+ int i;
+ for (i = 0;i < MAX_INPUT;i++){
+	 uint8_t temp;
+	 temp = EEPROMRead(EEPROM_input_v_max,1);
+	 if (temp != 0xFE) input[i].v_max = temp;
+	 temp = EEPROMRead(EEPROM_input_v_min,1);
+	 if (temp != 0xFE) input[i].v_min = temp;
+	 temp = EEPROMRead(EEPROM_input_mode,1);
+	 if (temp != 0xFE) input[i].mode = temp;
+	 temp = EEPROMRead(EEPROM_input_time_to_alarm,1);
+	 if (temp != 0xFE) input[i].time_to_alarm = temp;
+ }
+}
+
  int check_input(int input_t){
  		unsigned int adc_value;
  			adc_value = ADC_read(input[input_t - 1].adc_channel); // измерение со входа
- 			if ((((input[input_t - 1].v_max > adc_value) & (adc_value > input[input_t - 1].v_min)) ^ !((input[input_t - 1].mode & INPUTS_MODE_INVERS)>0)) ){//вход не в норме
+ 			if (((((input[input_t - 1].v_max*300) > adc_value) & ((input[input_t - 1].v_min)*300) < adc_value) ^ !((input[input_t - 1].mode & INPUTS_MODE_INVERS)>0)) ){//вход не в норме
  				return 1;
  			}
  				return 0;
@@ -56,8 +71,9 @@ typedef struct INPUT_obj{
  						}
  						if ((get_guard_st() || (input[i-1].mode & INPUTS_MODE_24H)) & !get_alarm_st()){ //если на охране или вход 24 часа
  							last_input_alarm = i; //запомним последний сработавший вход
- 							if ((time_to_alarm == -1) || (input[i - 1].time_to_alarm < time_to_alarm)){ //если время до тревоги нету
- 								time_to_alarm = input[i-1].time_to_alarm;
+ 							if ((time_to_alarm == -1) || ((input[i - 1].time_to_alarm * 5) < time_to_alarm)){ //если время до тревоги нету
+ 								time_to_alarm = input[i-1].time_to_alarm * 5;
+ 								led_blink(OUT_MODE_GUARD,5,5);
  							}
  						}
  				}

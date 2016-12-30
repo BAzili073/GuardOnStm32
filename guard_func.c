@@ -176,28 +176,14 @@ void read_settings(){
 
 //////////////////   			 READ NUMBER
 	for (i = 0;i< MAX_TEL_NUMBERS;i++){
-		for (y = 0;y < 11; y++)
-		tel[i].number[y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
+		for (y = 0;y < 11; y++) tel[i].number[y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
+		tel[i].access = EEPROMRead(EEPROM_tel_access,1);
 	}
-
-//////////////////   			 READ TM ID
-
 		read_TM_KEY_settings();
-
-//////////////////   			 READ DS18b20 ID
 		read_ds18x20_settings();
-
-//////////////////
-
-//////////////////
-
-//////////////////
-
-//////////////////
-
-//////////////////
-
-
+		read_inputs_settings();
+		read_output_settings();
+		read_led_settings();
 }
 
 void check_lamp_blink(){

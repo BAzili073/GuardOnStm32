@@ -9,10 +9,16 @@ uint8_t get_tm_key_number(){
 
 void read_TM_KEY_settings(){
 	int i,y;
-	tm_key_number = EEPROMRead(EEPROM_tms_numbers,1);
+	uint8_t temp;
+	temp = EEPROMRead(EEPROM_tms_numbers,1);
+	if (temp != 0xFE )tm_key_number = temp;
 	for (i = 0;i< tm_key_number;i++){
 		for (y = 0;y < 8; y++){
 			TM_KEY[i].id[y] = EEPROMRead_id((EEPROM_tms_id + (i * 8) + y));
+		}
+		for (y = 0;y < 10; y++){
+			TM_KEY[i].name[y] = EEPROMRead_id((EEPROM_tms_name + (i * 10) + y));
+			if (TM_KEY[i].name[y] == 0xFE) break;
 		}
 	}
 }

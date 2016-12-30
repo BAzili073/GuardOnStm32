@@ -9,13 +9,22 @@ typedef struct LED_obj{
 	int8_t  blink_time_off;
 } LED_obj;
 
-LED_obj led[LED_MAX] = {
+LED_obj led[MAX_LED] = {
 		[0] = { .port = LED_1_PORT, .pin = LED_1, .mode = OUT_MODE_LAMP, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
 		[1] = { .port = LED_2_PORT, .pin = LED_2, .mode = OUT_MODE_GUARD, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
 		[2] = { .port = LED_3_PORT, .pin = LED_3, .mode = OUT_MODE_TM, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
 		[3] = { .port = LED_4_PORT, .pin = LED_4, .mode = OUT_MODE_GSM, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
 		[4] = { .port = LED_5_PORT, .pin = LED_5, .mode = OUT_MODE_ALARM, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
 };
+
+void read_led_settings(){
+	 int i;
+	 for (i = 0;i < MAX_LED;i++){
+		 uint8_t temp;
+		 temp = EEPROMRead(EEPROM_led_mode,1);
+		 if (temp != 0xFE) led[i].mode = temp;
+	 }
+}
 
 void led_on(int id){
 	GPIO_HIGH(led[id].port,(led[id].pin));
@@ -27,14 +36,14 @@ void led_off(int id){
 
 void led_on_mode(uint8_t mode){
 	int i;
-	for (i = 0;i<LED_MAX;i++){
+	for (i = 0;i<MAX_LED;i++){
 		if (led[i].mode == mode) led_on(i);
 	}
 }
 
 void led_off_mode(uint8_t mode){
 	int i;
-	for (i = 0;i<LED_MAX;i++){
+	for (i = 0;i<MAX_LED;i++){
 		if (led[i].mode == mode) led_off(i);
 	}
 }
@@ -42,7 +51,7 @@ void led_off_mode(uint8_t mode){
 
 void led_blink(uint8_t mode, int8_t time_on,int8_t time_off){
 	int i;
-	for (i = 0;i < LED_MAX;i++){
+	for (i = 0;i < MAX_LED;i++){
 		if (led[i].mode == mode){
 			led[i].blink_time_on = time_on;
 			led[i].blink_time_off = time_off;
@@ -52,7 +61,7 @@ void led_blink(uint8_t mode, int8_t time_on,int8_t time_off){
 
 void led_blink_stop(uint8_t mode){
 	int i;
-	for (i = 0;i < LED_MAX;i++){
+	for (i = 0;i < MAX_LED;i++){
 		if (led[i].mode == mode){
 			led[i].blink_time_on = LED_BLINK_STOP;
 		}
@@ -62,7 +71,7 @@ void led_blink_stop(uint8_t mode){
 
 void check_led_blink(){
 	int i;
-	for (i = 0; i<LED_MAX;i++){
+	for (i = 0; i<MAX_LED;i++){
 		if (led[i].blink_time_on != LED_BLINK_STOP){
 			led[i].blink_time --;
 			if (led[i].blink_time > 0){

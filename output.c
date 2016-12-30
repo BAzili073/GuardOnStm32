@@ -7,7 +7,7 @@ typedef struct OUTPUT_obj{
 	uint8_t mode;
 } OUTPUT_obj;
 
-OUTPUT_obj output[OUTPUT_MAX] = {
+OUTPUT_obj output[MAX_OUTPUT] = {
 		[0] = {.port = OUTPUT_1_PORT, .pin = OUTPUT_1, .mode = OUT_MODE_LAMP,},
 		[1] = {.port = OUTPUT_2_PORT, .pin = OUTPUT_2, .mode = OUT_MODE_GUARD,},
 		[2] = {.port = OUTPUT_3_PORT, .pin = OUTPUT_3, .mode = OUT_MODE_TM,},
@@ -15,6 +15,14 @@ OUTPUT_obj output[OUTPUT_MAX] = {
 		[4] = {.port = OUTPUT_5_PORT, .pin = OUTPUT_5, .mode = OUT_MODE_LAMP,},
 };
 
+void read_output_settings(){
+	 int i;
+	 for (i = 0;i < MAX_OUTPUT;i++){
+		 uint8_t temp;
+		 temp = EEPROMRead(EEPROM_output_mode,1);
+		 if (temp != 0xFE) output[i].mode = temp;
+	 }
+}
 
 void output_on(uint8_t output_t){
 	GPIO_HIGH(output[output_t-1].port,(output[output_t-1].pin));
@@ -26,13 +34,13 @@ void output_off(uint8_t output_t){
 }
 
 void output_on_mode(uint8_t mode){
-	for (int i = 1;i<=OUTPUT_MAX;i++){
+	for (int i = 1;i<=MAX_OUTPUT;i++){
 		if (output[i-1].mode == mode) output_on(i);
 	}
 }
 
 void output_off_mode(uint8_t mode){
-	for (int i = 1;i<=OUTPUT_MAX;i++){
+	for (int i = 1;i<=MAX_OUTPUT;i++){
 			if (output[i-1].mode == mode) output_off(i);
 	}
 }

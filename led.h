@@ -13,6 +13,7 @@ void led_blink_stop(uint8_t led_mode);
 void led_on_mode(uint8_t mode);
 void led_off_mode(uint8_t mode);
 void check_led_blink();
+void read_led_settings();
 
 
 #endif

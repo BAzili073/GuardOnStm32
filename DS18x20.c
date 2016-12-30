@@ -1,5 +1,5 @@
 #include "DS18x20.h"
-#include "modem.h"
+#include "modem_module.h"
 
 
 DS18x20_obj DS18x20[MAX_DS18x20] = {
@@ -7,18 +7,25 @@ DS18x20_obj DS18x20[MAX_DS18x20] = {
 //		[1] = {.id = {0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40}},
 };
 
-uint8_t ds18x20_number;
+uint8_t ds18x20_number = 0;
 uint8_t time_to_check_temp = 0;
 uint8_t flag_conv = 0;
 
 void read_ds18x20_settings(){
 	int i;
 	int y;
-	ds18x20_number = EEPROMRead(EEPROM_ds18x20_numbers,1);
+	uint8_t temp;
+	temp = EEPROMRead(EEPROM_ds18x20_numbers,1);
+	if (temp != 0xFE )ds18x20_number = temp;
 	for (i = 0;i< ds18x20_number;i++){
 		for (y = 0;y < 8; y++){
 			DS18x20[i].id[y] = EEPROMRead_id((EEPROM_ds18x20_id + (i * 8) + y));
 		}
+
+
+		if (temp != 0xFE ) DS18x20[i].min_temp = temp;
+		temp = EEPROMRead (EEPROM_ds18x20_max,1);
+		if (temp != 0xFE )  DS18x20[i].max_temp = temp;
 	}
 }
 void check_temp(){

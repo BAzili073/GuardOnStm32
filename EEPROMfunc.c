@@ -67,8 +67,8 @@ uint8_t EEPROMRead_id(uint32_t address){
 void ERASE_EEPROM(){
 EEPROMEnable();
 	int i;
-	for (i = 0;i < 100; i++){
-		*(uint32_t *)(start_EEPROM + i*4) = 0xFFFFFFFF;
+	for (i = 0;i < 250; i++){
+		*(uint32_t *)(start_EEPROM + i*4) = 0xFEFEFEFE;
 		while (FLASH->SR & FLASH_SR_BSY);
 	}
 

@@ -11,6 +11,7 @@ uint8_t get_tm_key_number();
 
 typedef struct TM_KEY_obj{
 	uint8_t id[8];
+	char name[10];
 } TM_KEY_obj ;
 
 uint8_t find_key(uint8_t key[8]);

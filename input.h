@@ -11,4 +11,5 @@
 void check_inputs();
 void clear_alarm_input();
 void check_time_to_alarm();
+void read_inputs_settings();
 #endif

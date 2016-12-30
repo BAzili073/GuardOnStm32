@@ -12,7 +12,7 @@ void output_on_mode(uint8_t mode);
 void output_off_mode(uint8_t mode);
 void output_on_hand(uint8_t output);
 void output_off_hand(uint8_t output);
-
+void read_output_settings();
 
 
 

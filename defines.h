@@ -11,7 +11,7 @@
 //#define DEBUG_220V
 //#define DEBUG_DS18x20
 //#define DEBUG_1WIRE
-#define DEBUG_ADD_DEVICE
+//#define DEBUG_ADD_DEVICE
 #define DEBUG_GUARD
 #define DEBUG_INPUTS
 //#define DEBUG
@@ -27,6 +27,7 @@
 
 #define MAX_INPUT 5
 #define MAX_INPUT_B 3
+#define MAX_OUTPUT 5
 
 #define INPUT_PORT GPIOA
 #define INPUT_1 GPIO_PIN_1
@@ -44,8 +45,6 @@
 #define DET_220_PORT GPIOA
 #define DET_220_PIN GPIO_PIN_0
 #define DET_220_CHANNEL ADC_CHANNEL_0
-
-#define OUTPUT_MAX 5
 
 #define OUTPUT_1_PORT GPIOB
 #define OUTPUT_2_PORT GPIOB
@@ -83,7 +82,7 @@
 #define OUT_MODE_TM 'v'
 #define OUT_MODE_220V 'p'
 
-#define LED_MAX 5
+#define MAX_LED 5
 #define LED_1_PORT GPIOA
 #define LED_2_PORT GPIOA
 #define LED_3_PORT GPIOB
@@ -176,19 +175,23 @@
 #define TIME_CHECK_DS18B20 50
 
 #define start_EEPROM 0x08080000
-#define EEPROM_tel_numbers 			0
-#define EEPROM_tel_settings 		(EEPROM_tel_numbers + (10*MAX_TEL_NUMBERS))
-#define EEPROM_tms_id 				(EEPROM_tel_settings + MAX_TEL_NUMBERS)
-#define EEPROM_ds18x20_id 			(EEPROM_tms_id + (8 * MAX_TM))
+#define EEPROM_tel_numbers 			(0)
+#define EEPROM_tel_access 			(EEPROM_tel_numbers + (10*MAX_TEL_NUMBERS))
+#define EEPROM_tms_id 				(EEPROM_tel_access + MAX_TEL_NUMBERS)
+#define EEPROM_tms_name 			(EEPROM_tms_id + (8 * MAX_TM))
+#define EEPROM_ds18x20_id 			(EEPROM_tms_name + (10 * MAX_TM))
 #define EEPROM_ds18x20_numbers 		(EEPROM_ds18x20_id + (8 * MAX_DS18x20))
 #define EEPROM_tms_numbers 			(EEPROM_ds18x20_numbers + 1)
-//#define EEPROM_tms_names 			(EEPROM_ds18x20_id + (8 * MAX_TM))
-//#define EEPROM_ds18x20_settings		(EEPROM_tms_names + (10 * MAX_TM))
-//#define EEPROM_device_settings		(EEPROM_ds18x20_settings + (MAX_DS18x20 * 4))
-//#define EEPROM_outputs_settings		(EEPROM_device_settings + 10)
-//#define EEPROM_inputs_settings		(EEPROM_outputs_settings + (5 * 8))
-//#define EEPROM_next					(EEPROM_inputs_settings + (5 * 8))
-
+#define EEPROM_ds18x20_min			(EEPROM_tms_numbers + 1)
+#define EEPROM_ds18x20_max			(EEPROM_ds18x20_min + MAX_DS18x20)
+#define EEPROM_ds18x20_settings		(EEPROM_ds18x20_max + MAX_DS18x20)
+#define EEPROM_input_v_min			(EEPROM_ds18x20_settings + MAX_DS18x20)
+#define EEPROM_input_v_max			(EEPROM_input_v_min + MAX_INPUT)
+#define EEPROM_input_mode			(EEPROM_input_v_max + MAX_INPUT)
+#define EEPROM_input_time_to_alarm	(EEPROM_input_mode + MAX_INPUT)
+#define EEPROM_output_mode			(EEPROM_input_time_to_alarm + MAX_INPUT)
+#define EEPROM_led_mode				(EEPROM_output_mode + MAX_OUTPUT)
+//#define EEPROM_					(EEPROM_led_mode + MAX_OUTPUT)
 
 
 

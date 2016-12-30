@@ -26,8 +26,8 @@ uint8_t get_flag_conv();
 typedef struct DS18x20_obj{
 	uint8_t id[8];
 	int16_t  last_temp;
-	uint16_t max_temp;
-	uint16_t min_temp;
+	int8_t max_temp;
+	int8_t min_temp;
 	uint8_t alarm;
 	uint8_t settings;
 } DS18x20_obj;
