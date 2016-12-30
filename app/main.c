@@ -8,6 +8,7 @@
 #include "guard_func.h"
 #include "string.h"
 #include "main_guard.h"
+#include "modem_module.h"
  void add_device_check();
  void add_device_mode();
 
@@ -41,14 +42,15 @@ int main(void) {
 	read_settings();
 	add_device_check();
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
-//	if (device_settings & DEVICE_SETTING_AUTO_GUARD_AT_START){
-//		guard_on();
-//	}
+	if (check_device_setting(DEVICE_SETTING_AUTO_GUARD_AT_START)){
+		guard_on();
+	}
 //
-//	if (device_settings & DEVICE_SETTING_SMS_AT_STARTUP){
-//		str_add_str(output_sms_message,"ver:5.0 ");
-//		sms_command_r();
-//	}
+	if (check_device_setting(DEVICE_SETTING_AUTO_GUARD_AT_START)){
+		str_add_str(output_sms_message,"ver:5.0 ");
+		sms_command_r();
+	}
+
     while(1) {
 
 

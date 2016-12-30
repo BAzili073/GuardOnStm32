@@ -1,5 +1,5 @@
 #include "output.h"
-
+#include "EEPROMfunc.h"
 
 typedef struct OUTPUT_obj{
 	GPIO_TypeDef * port;
@@ -22,6 +22,10 @@ void read_output_settings(){
 		 temp = EEPROMRead(EEPROM_output_mode,1);
 		 if (temp != 0xFE) output[i].mode = temp;
 	 }
+}
+
+void set_output_settings(uint8_t output_t, uint8_t mode_t){
+	output[output_t].mode = mode_t; EEPROMWrite((EEPROM_output_mode + output_t),output[output_t].mode,1);
 }
 
 void output_on(uint8_t output_t){

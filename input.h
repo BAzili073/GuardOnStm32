@@ -12,4 +12,5 @@ void check_inputs();
 void clear_alarm_input();
 void check_time_to_alarm();
 void read_inputs_settings();
+void set_time_to_alarm(uint8_t time_to_alarm_t);
 #endif

@@ -8,6 +8,7 @@
 #include "my_string.h"
 #include "sms_command.h"
 #include "modem.h"
+#include "modem_module.h"
 #include "led.h"
 
 
@@ -36,8 +37,6 @@ unsigned int hexchar_to_dec(char a);
 void send_int_as_hex_to_GSM(int x);
 int modem_time_on = 0;
 
-char gsm_message[GSM_MESSAGE_SIZE];
-char output_sms_message[70];
 int modem_action = MODEM_ACTION_FREE;
 //char input_sms_message[70];
 int gsm_signal_quality;

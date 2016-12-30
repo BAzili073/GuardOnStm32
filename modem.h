@@ -60,9 +60,6 @@ void modem_no_carrier();
 
 ////VARIABLES
 int modem_action;
-char input_sms_message[70];
-char output_sms_message[70];
-char gsm_message[GSM_MESSAGE_SIZE];
 
 
 //

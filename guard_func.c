@@ -22,10 +22,12 @@ void changed_guard_sms(int status);
 
 int u_battary = 2680;
 
+uint8_t device_settings = 0b00000000;
+
 uint16_t time_to_guard_on = 0;
 uint16_t time_to_check_TM = 0;
-int16_t time_set_to_guard_on = 10;
-uint8_t device_settings = 0;
+int16_t time_set_to_guard_on = 0;
+
 uint8_t alarm_st = 0;
 uint8_t guard_st = 0;
 int8_t lamp_blink_time = 5;
@@ -44,7 +46,22 @@ uint8_t last_control_ID_number = 254;
 char last_control_guard[13];
 
 
+void read_guard_settings(){
+	 uint8_t temp;
+	 temp = EEPROMRead(EEPROM_time_to_guard,1);
+	 if (temp != 0xFE) time_set_to_guard_on = temp;
+	 temp = EEPROMRead(EEPROM_device_settings,1);
+	 if (temp != 0xFE) device_settings = temp;
+}
 
+void set_device_setting(uint8_t settings, uint8_t time_to_guard_t){
+	device_settings = settings; EEPROMWrite(EEPROM_device_settings,settings,1);
+	time_to_guard_on = time_to_guard_t; EEPROMWrite(EEPROM_time_to_guard,time_to_guard_t,1);
+}
+
+uint8_t check_device_setting(uint8_t opt){
+	return (device_settings & opt);
+}
 /////////////////////////////////                      GUARD
 void guard_on(){
 		led_blink_stop(OUT_MODE_GUARD);
@@ -184,6 +201,7 @@ void read_settings(){
 		read_inputs_settings();
 		read_output_settings();
 		read_led_settings();
+		read_guard_settings();
 }
 
 void check_lamp_blink(){

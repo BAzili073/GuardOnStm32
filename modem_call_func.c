@@ -1,8 +1,8 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
-#include "modem.h"
+#include "modem_module.h"
 #include "guard_func.h"
-
+#include "modem.h"
 
 char incoming_rings = 0;
 

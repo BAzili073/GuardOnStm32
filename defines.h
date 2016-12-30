@@ -175,7 +175,10 @@
 #define TIME_CHECK_DS18B20 50
 
 #define start_EEPROM 0x08080000
-#define EEPROM_tel_numbers 			(0)
+#define EEPROM_device_settings		(0)
+#define EEPROM_time_alarm			(EEPROM_device_settings + 1)
+#define EEPROM_time_to_guard		(EEPROM_time_alarm + 1)
+#define EEPROM_tel_numbers 			(EEPROM_time_to_guard + 1)
 #define EEPROM_tel_access 			(EEPROM_tel_numbers + (10*MAX_TEL_NUMBERS))
 #define EEPROM_tms_id 				(EEPROM_tel_access + MAX_TEL_NUMBERS)
 #define EEPROM_tms_name 			(EEPROM_tms_id + (8 * MAX_TM))
