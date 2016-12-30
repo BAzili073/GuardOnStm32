@@ -7,9 +7,13 @@
 char output_sms_message[70];
 char input_sms_message[70];
 char gsm_message[GSM_MESSAGE_SIZE];
+int16_t parse_int_in_message(char * mes,uint8_t start);
 
 void modem_time();
 
-
+typedef struct TEL_obj{
+	char number[11];
+	uint8_t  access;
+} TEL_obj;
 
 #endif

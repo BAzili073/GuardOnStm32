@@ -12,6 +12,9 @@
 #include "FingerPrint.h"
 #include "input.h"
 
+extern TEL_obj tel[MAX_TEL_NUMBERS];
+
+
 void sms_command_nn();
 void sms_command_r();
 
@@ -40,13 +43,14 @@ void parse_incoming_sms(){
 			if (input_sms_message[1] == 'n') {
 				sms_command_nn();
 			}
+			if (input_sms_message[1] == 't') {
+				set_ds18x20_settings((input_sms_message[2]-'0'),parse_int_in_message(input_sms_message,4),parse_int_in_message(input_sms_message,8),parse_int_in_message(input_sms_message,12));
+			}
 		break;
 //oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 		case 'o':
-				str_add_str(last_control_guard,"+79");
-				char number_x[10];
-				str_add_str(number_x,tel_number[last_control_ID_number]);
-				str_add_str(last_control_guard,number_x);
+				str_add_str(last_control_guard,sizeof(last_control_guard),"+79",0);
+				str_add_str(last_control_guard,sizeof(last_control_guard),tel[last_control_ID_number].number,10);
 				if((input_sms_message[1] - '0')){
 					guard_on();
 				}else{
@@ -57,9 +61,9 @@ void parse_incoming_sms(){
 		case 'r':
 				sms_command_r();
 		break;
-
+//
 	}
-	for (i = 0;i<70;i++)	input_sms_message[i] = 0;
+	for (i = 0;i<70;i++) input_sms_message[i] = 0;
 
 }
 
@@ -77,18 +81,18 @@ void sms_command_nn(){
 void sms_command_r(){
 		char a[1];
 		unsigned int i;
-		str_add_str(output_sms_message,(get_guard_st() ? "na ohrane" : "snqt s ohranQ "));
-		str_add_str(output_sms_message,"vh:");
+		str_add_str(output_sms_message,sizeof(output_sms_message),(get_guard_st() ? "na ohrane" : "snqt s ohranQ "),0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"vh:",0);
 		for (i = 1;i<6;i++) {
 			a[0] = (('-' - (check_input(i)*2)));
-			str_add_str(output_sms_message,a);
+			str_add_str(output_sms_message,sizeof(output_sms_message),a,MAX_INPUT);
 		}
-		str_add_str(output_sms_message," ");
-		str_add_str(output_sms_message,"vQh:");
+		str_add_str(output_sms_message,sizeof(output_sms_message)," ",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"vQh:",0);
 		for (i = 1;i<6;i++) {
 		//	a[0] = ('1' - (GPIO_READ((outputs_port[(i-1)]),(output[i-1].pin))*2));
-			str_add_str(output_sms_message,a);
+			str_add_str(output_sms_message,sizeof(output_sms_message),a,MAX_OUTPUT);
 		}
-		str_add_str(output_sms_message," ");
+		str_add_str(output_sms_message,sizeof(output_sms_message)," ",0);
 		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
 }

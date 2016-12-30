@@ -25,8 +25,6 @@ uint8_t get_alarm_st();
 
 void TM_check_time();
 
-char tel_number[MAX_TEL_NUMBERS][10];
-uint8_t tel_access[MAX_TEL_NUMBERS];
 uint8_t last_control_ID_number;
 char last_control_guard[13];
 

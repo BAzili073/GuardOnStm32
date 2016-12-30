@@ -1,6 +1,7 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
 #include "modem_module.h"
+#include "sms_command.h"
 //#include "sms_command.h"
 
 void incoming_sms(){

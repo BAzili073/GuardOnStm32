@@ -12,6 +12,7 @@
 #include "DS18x20.h"
 
 
+extern TEL_obj tel[MAX_TEL_NUMBERS];
 
 void guard_on_TM();
 void check_battery();
@@ -33,12 +34,9 @@ uint8_t guard_st = 0;
 int8_t lamp_blink_time = 5;
 
 
- typedef struct TEL_obj{
-	char number[10];
-	uint8_t  access;
-} TEL_obj;
 
-TEL_obj tel[MAX_TEL_NUMBERS] ={};
+
+
 
 char tel_number_temp[10];
 
@@ -108,8 +106,8 @@ uint8_t get_alarm_st(){
 }
 
 void changed_guard_sms(int status){
-	str_add_str(output_sms_message,(status ? "na ohranu " : "snqt s ohranu " ));
-	str_add_str(output_sms_message,last_control_guard);
+	str_add_str(output_sms_message,sizeof(output_sms_message),(status ? "na ohranu " : "snqt s ohranu " ),0);
+	str_add_str(output_sms_message,sizeof(output_sms_message),last_control_guard, 13);
 	if (last_control_guard[0]) send_sms_message_for_all(output_sms_message,SMS_FUNCTION_CHANGE_GUARD_ALARM);
 	clear_last_control_guard();
 }
@@ -174,7 +172,7 @@ void check_TM(){
 		time_to_check_TM = 20;
 		out_on_mode(OUT_MODE_TM);
 		clear_last_control_guard();
-		str_add_str(last_control_guard,"TM = ");
+		str_add_str(last_control_guard,sizeof(last_control_guard),"TM = ",0);
 		str_add_num(last_control_guard,current_TM);
 //		last_control_ID_number = current_TM + 100;
 		if (guard_st){
@@ -193,8 +191,11 @@ void read_settings(){
 
 //////////////////   			 READ NUMBER
 	for (i = 0;i< MAX_TEL_NUMBERS;i++){
-		for (y = 0;y < 11; y++) tel[i].number[y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
-		tel[i].access = EEPROMRead(EEPROM_tel_access,1);
+		for (y = 0;y < 10; y++){
+			tel[i].number[y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
+		}
+		tel[i].number[10] = 0;
+		if (i != 0) tel[i].access = EEPROMRead(EEPROM_tel_access+i,1);
 	}
 		read_TM_KEY_settings();
 		read_ds18x20_settings();

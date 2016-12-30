@@ -58,6 +58,7 @@ void modem_no_carrier();
 //char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, int max_t);
 
 
+
 ////VARIABLES
 int modem_action;
 

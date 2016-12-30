@@ -7,14 +7,14 @@
 #include "stm32l151xba.h"
 
 //#define DEBUG_FINGER
-//#define DEBUG_MODEM
+#define DEBUG_MODEM
 //#define DEBUG_220V
 //#define DEBUG_DS18x20
 //#define DEBUG_1WIRE
 //#define DEBUG_ADD_DEVICE
 #define DEBUG_GUARD
 #define DEBUG_INPUTS
-//#define DEBUG
+#define DEBUG
 
 #define true 1
 #define false 0

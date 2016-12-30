@@ -5,7 +5,7 @@
 #include "modem.h"
 
 char incoming_rings = 0;
-
+extern TEL_obj tel[MAX_TEL_NUMBERS];
 
 void modem_call(char * number){
 	if (modem_errors[MODEM_ERRORS_NO_CARRIER] > 3){
@@ -53,9 +53,9 @@ void incoming_call(){
 				if (send_command_to_GSM("ATH0","OK",gsm_message,2,50)){
 					modem_free();
 				}
-				if (tel_number[0][0] == 0){ ////////////
+				if (tel[0].number[0] == 0){ ////////////
 					modem_save_number(0,tel_number_temp);
-					modem_send_sms_message(tel_number[0],"vaw nomer dobavlen v sistemu");
+					modem_send_sms_message(tel[0].number,"vaw nomer dobavlen v sistemu");
 				}
 				modem_free();
 			}

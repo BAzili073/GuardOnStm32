@@ -1,10 +1,6 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
-
-unsigned int str_length(char * str);
-int find_str(char * find,char * string);
-void str_add_str (char * out, char * in);
-void str_add_num(char * out,int num);
+#include "my_string.h"
 
 int find_str(char * find,char * string){
 	 int counter = 0;
@@ -37,12 +33,14 @@ unsigned int str_length(char * str){
 	return i;
 }
 
-void str_add_str ( char * in,char * out){
+void str_add_str ( char * in,int size_in,char * out,unsigned int len){
 	unsigned int i = 0;
-	int in_len = str_length(in);
+	unsigned int in_len = str_length(in);
+	unsigned int out_len = str_length(out);
+	if ((out_len > len) && (len)) out_len = len;
 //	in_len ? in_len++ : 0;
-	int out_len = str_length(out);
 	for (i = 0;i<out_len;i++){
+		if ((in_len+i) >= size_in) return;
 		in[in_len+i] = out[i];
 	}
 }

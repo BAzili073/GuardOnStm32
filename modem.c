@@ -11,6 +11,9 @@
 #include "modem_module.h"
 #include "led.h"
 
+TEL_obj tel[MAX_TEL_NUMBERS] ={
+		[0] = {.access = 9,},
+};
 
 void send_text_as_ucs(char * out_message, unsigned int len);
 char parse_gsm_message();
@@ -45,6 +48,7 @@ char modem_time_check = 0;
 
 
 char modem_errors[2];
+
 void modem_time(){
 	if (modem_time_check) modem_time_check--;
 }
@@ -283,10 +287,10 @@ void modem_free(){
 }
 
 void clear_gsm_message(){
-	int i = 0;
-	while ((gsm_message[i] != 0) && (i<GSM_MESSAGE_SIZE)){
+	int i;
+	for (i = 0; i < GSM_MESSAGE_SIZE;i++){
+		if (!gsm_message[i]) break;
 		gsm_message[i] = 0;
-		i++;
 	}
 }
 
@@ -327,7 +331,7 @@ char modem_setup(){
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("MODEM: setup ok! ");
 	send_string_to_UART3(" \n\r");
-	if (tel_number[0][0] == 0){
+	if (tel[0].number[0] == 0){
 		send_string_to_UART3("MODEM: Vnimanie nety osnovnogo nomera! \n\r ");
 	}
 #endif
@@ -338,8 +342,8 @@ char modem_setup(){
 char send_sms_message_for_all(char * text,int function){
 	unsigned int i;
 	for (i=0;i<MAX_TEL_NUMBERS;i++){
-		if ((tel_access[i] == TEL_ACCESS_ADMIN) || (tel_access[i] == TEL_ACCESS_DOUBLE_SMS) || (tel_access[i] == function)){
-			if (!modem_send_sms_message(tel_number[i],text)) return 0;
+		if ((tel[i].access == TEL_ACCESS_ADMIN) || (tel[i].access == TEL_ACCESS_DOUBLE_SMS) || (tel[i].access == function)){
+			if (!modem_send_sms_message(tel[i].number,text));// return 0;
 		}
 	}
 	clear_output_sms_message();
@@ -375,6 +379,13 @@ char modem_send_sms_message(char * number,char * text){
 	send_string_to_GSM(text);
 	send_char_to_GSM(0x1a);
 #else
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: SEND SMS! NUMBER:  ");
+	send_string_to_UART3(number);
+	send_string_to_UART3(" TEXT: ");
+		send_string_to_UART3(text);
+	send_string_to_UART3(" \n\r");
+#endif
 	send_string_to_GSM("AT+CMGS=");
 	send_int_to_GSM(((str_length(text) * 2)+13));
 	if (!send_command_to_GSM("",">",gsm_message,2,30)) return 0;
@@ -406,11 +417,7 @@ char modem_send_sms_message(char * number,char * text){
 	 }
 #endif
 #ifdef DEBUG_MODEM
-	send_string_to_UART3("MODEM: SEND SMS OK! NUMBER:  ");
-	send_string_to_UART3(number);
-	send_string_to_UART3(" TEXT: ");
-		send_string_to_UART3(text);
-	send_string_to_UART3(" \n\r");
+	send_string_to_UART3("MODEM: SEND SMS OK! \n\r");
 #endif
 	modem_errors[MODEM_ERRORS_SEND_SMS] = 0;
 	 modem_free();
@@ -519,12 +526,12 @@ char check_number(char * number){
 	for (y = 0;y<MAX_TEL_NUMBERS;y++){
 		access = 1;
 		for (i = 0;i < 10;i++){
-			if (tel_number[y][i] != number[i]){
+			if (tel[y].number[i] != number[i]){
 				access = 0;
 				break;
 			}
 		}
-		if ((tel_access[y] == TEL_ACCESS_ADMIN) && access) return y;
+		if ((tel[y].access == TEL_ACCESS_ADMIN) & access) return y;
 	}
 	return TEL_NUMBER_DENY;
 }
@@ -532,7 +539,7 @@ char check_number(char * number){
 void modem_save_number(char ID_number,char * number){
 	int i;
 	for (i = 0;i<10;i++){
-		tel_number[ID_number][i] = number[i];
+		tel[ID_number].number[i] = number[i];
 		EEPROMWrite((EEPROM_tel_numbers + ID_number*10+i),number[i],1);
 	}
 #ifdef DEBUG_MODEM
@@ -542,4 +549,18 @@ void modem_save_number(char ID_number,char * number){
 	send_string_to_UART3(number);
 	send_string_to_UART3(" \n\r");
 #endif
+}
+
+int16_t parse_int_in_message(char * mes,uint8_t start){
+	int16_t num = 0;
+	int8_t mult = 1;
+	while((mes[start] >= 48) & (mes[start] < 58) || (mes[start] == '-') || (mes[start] == '+')){
+		if ((mes[start] == '-')) mult = mult*(-1);
+		else if ((mes[start] >= 48) & (mes[start] < 58)){
+			num = (num*10 + (mes[start] - '0'));
+		}
+		start++;
+	}
+	num = num * mult;
+	return num;
 }
