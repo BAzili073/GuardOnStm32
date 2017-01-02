@@ -181,7 +181,8 @@ void GPIO_init(){
 		HAL_GPIO_Init( OUTPUT_5_PORT, &initSrtuct);
 ///////////////////////////////////////////////////////////////////////MODEM ON
 		initSrtuct.Alternate = 0;
-		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
+		initSrtuct.Mode = GPIO_MODE_OUTPUT_OD;
+		initSrtuct.Pull = GPIO_PULLUP;
 		initSrtuct.Pin = MODEM_ON_PIN ;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( MODEM_ON_PORT, &initSrtuct);

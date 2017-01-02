@@ -24,6 +24,7 @@ void changed_guard_sms(int status);
 int u_battary = 2680;
 
 uint8_t device_settings = 0b00000000;
+uint8_t time_set_alarm = 6;
 
 uint16_t time_to_guard_on = 0;
 uint16_t time_to_check_TM = 0;
@@ -50,11 +51,23 @@ void read_guard_settings(){
 	 if (temp != 0xFE) time_set_to_guard_on = temp;
 	 temp = EEPROMRead(EEPROM_device_settings,1);
 	 if (temp != 0xFE) device_settings = temp;
+	 temp = EEPROMRead(EEPROM_time_set_alarm,1);
+	 if (temp != 0xFE) time_set_alarm = temp;
 }
 
-void set_device_setting(uint8_t settings, uint8_t time_to_guard_t){
+void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t){
 	device_settings = settings; EEPROMWrite(EEPROM_device_settings,settings,1);
 	time_to_guard_on = time_to_guard_t; EEPROMWrite(EEPROM_time_to_guard,time_to_guard_t,1);
+	time_set_alarm = time_alarm_t; EEPROMWrite(EEPROM_time_set_alarm,time_alarm_t,1);
+#ifdef DEBUG
+	send_string_to_UART3("Device: Set setting device! Settings: ");
+	send_int_to_UART3(settings);
+	send_string_to_UART3(" Time to guard: ");
+	send_int_to_UART3(time_to_guard_t);
+	send_string_to_UART3(" Time alarm: ");
+	send_int_to_UART3(time_alarm_t);
+	send_string_to_UART3(" \n\r ");
+#endif
 }
 
 uint8_t check_device_setting(uint8_t opt){

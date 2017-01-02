@@ -17,7 +17,7 @@ void guard_off();
 
 void alarm_on();
 void alarm_off();
-void set_device_setting(uint8_t settings, uint8_t time_to_guard_t);
+void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t);
 
 
 uint8_t get_guard_st();

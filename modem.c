@@ -174,7 +174,13 @@ char get_next_gsm_message(){
 		}
 	}
 
-	if (gsm_message[0]) return OK_ANSWER;
+	if (gsm_message[0]){
+#ifdef MODEM_UART
+		send_string_to_UART3(gsm_message);
+		send_string_to_UART3(" \n\r");
+#endif
+		return OK_ANSWER;
+	}
 	else return NO_ANSWER;
 }
 
@@ -329,9 +335,8 @@ char modem_setup(){
 	if (!send_command_to_GSM("AT+CLIP=1","OK",gsm_message,2,5)) return 0;   // for AON
 	if (!send_command_to_GSM("AT+CPBS=\"SM\"","OK",gsm_message,2,5)) return 0;   // select sim as memory
 #ifdef DEBUG_MODEM
-	send_string_to_UART3("MODEM: setup ok! ");
-	send_string_to_UART3(" \n\r");
-	if (tel[0].number[0] == 0){
+	send_string_to_UART3("MODEM: setup ok!  \n\r");
+	if (tel[0].number[0] == 0xFE){
 		send_string_to_UART3("MODEM: Vnimanie nety osnovnogo nomera! \n\r ");
 	}
 #endif
@@ -536,17 +541,21 @@ char check_number(char * number){
 	return TEL_NUMBER_DENY;
 }
 
-void modem_save_number(char ID_number,char * number){
+void modem_save_number(char ID_number,char * number,uint8_t acc){
 	int i;
 	for (i = 0;i<10;i++){
 		tel[ID_number].number[i] = number[i];
 		EEPROMWrite((EEPROM_tel_numbers + ID_number*10+i),number[i],1);
 	}
+	tel[ID_number].access = acc;
+	EEPROMWrite((EEPROM_tel_access + ID_number),acc,1);
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("MODEM : Save number! ID:  ");
 	send_int_to_UART3(ID_number);
 	send_string_to_UART3(" Number: ");
 	send_string_to_UART3(number);
+	send_string_to_UART3(" Access: ");
+	send_string_to_UART3(acc);
 	send_string_to_UART3(" \n\r");
 #endif
 }

@@ -53,8 +53,8 @@ void incoming_call(){
 				if (send_command_to_GSM("ATH0","OK",gsm_message,2,50)){
 					modem_free();
 				}
-				if (tel[0].number[0] == 0){ ////////////
-					modem_save_number(0,tel_number_temp);
+				if (tel[0].number[0] == 0xFE){ ////////////
+					modem_save_number(0,tel_number_temp,9);
 					modem_send_sms_message(tel[0].number,"vaw nomer dobavlen v sistemu");
 				}
 				modem_free();

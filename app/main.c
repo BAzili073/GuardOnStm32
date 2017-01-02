@@ -41,6 +41,9 @@ int main(void) {
 //	ERASE_EEPROM();
 	read_settings();
 	add_device_check();
+#ifdef DEBUG
+	send_string_to_UART3("START PROGTAMM! \n\r");
+#endif
 //	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
 	if (check_device_setting(DEVICE_SETTING_AUTO_GUARD_AT_START)){
 		guard_on();

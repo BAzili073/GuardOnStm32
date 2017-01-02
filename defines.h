@@ -8,6 +8,7 @@
 
 //#define DEBUG_FINGER
 #define DEBUG_MODEM
+#define MODEM_UART
 //#define DEBUG_220V
 //#define DEBUG_DS18x20
 //#define DEBUG_1WIRE
@@ -114,9 +115,6 @@
 #define OPEN_CAP_PIN GPIO_PIN_15
 
 //INPUTS_MODE
-#define INPUT_MODE_NORMAL 1
-#define INPUT_MODE_INVERS 0
-
 #define INPUTS_MODE_24H 0b00000001
 #define INPUTS_MODE_BUTTON_GUARD 0b00000010
 #define INPUTS_MODE_INVERS 0b00000100
@@ -176,8 +174,8 @@
 
 #define start_EEPROM 0x08080000
 #define EEPROM_device_settings		(0)
-#define EEPROM_time_alarm			(EEPROM_device_settings + 1)
-#define EEPROM_time_to_guard		(EEPROM_time_alarm + 1)
+#define EEPROM_time_set_alarm		(EEPROM_device_settings + 1)
+#define EEPROM_time_to_guard		(EEPROM_time_set_alarm + 1)
 #define EEPROM_tel_numbers 			(EEPROM_time_to_guard + 1)
 #define EEPROM_tel_access 			(EEPROM_tel_numbers + (10*MAX_TEL_NUMBERS))
 #define EEPROM_tms_id 				(EEPROM_tel_access + MAX_TEL_NUMBERS)

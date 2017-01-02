@@ -40,19 +40,28 @@ void read_inputs_settings(){
 	 temp = EEPROMRead((EEPROM_input_time_to_alarm + i),1);
 	 if (temp != 0xFE) input[i].time_to_alarm = temp;
  }
- 	 temp = EEPROMRead(EEPROM_time_alarm,1);
-	 if (temp != 0xFE) time_to_alarm = temp;
 }
 
-void set_time_to_alarm(uint8_t time_to_alarm_t){
-	time_to_alarm = time_to_alarm_t; EEPROMWrite(EEPROM_time_alarm,time_to_alarm_t,1);
-}
 
 void set_input_settings(uint8_t inp, uint8_t v_max_t, uint8_t v_min_t,uint8_t mode_t,uint8_t time_to_alarm_t){
 	input[inp].v_max = v_max_t; EEPROMWrite((EEPROM_input_v_max + inp),input[inp].v_max,1);
 	input[inp].v_min = v_min_t; EEPROMWrite((EEPROM_input_v_min + inp),input[inp].v_min,1);
 	input[inp].mode = mode_t; EEPROMWrite((EEPROM_input_mode + inp),input[inp].mode,1);
 	input[inp].time_to_alarm = time_to_alarm_t; EEPROMWrite((EEPROM_input_time_to_alarm + inp),input[inp].time_to_alarm,1);
+
+#ifdef DEBUG
+	send_string_to_UART3("Device: Set setting input! ID:");
+	send_int_to_UART3(inp);
+	send_string_to_UART3(" MIN: ");
+	send_int_to_UART3(v_min_t);
+	send_string_to_UART3(" MAX: ");
+	send_int_to_UART3(v_max_t);
+	send_string_to_UART3(" Mode: ");
+	send_int_to_UART3(mode_t);
+	send_string_to_UART3(" Time to alarm: ");
+	send_int_to_UART3(time_to_alarm_t);
+	send_string_to_UART3(" \n\r ");
+#endif
 }
 
  int check_input(int input_t){
