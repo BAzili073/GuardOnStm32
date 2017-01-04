@@ -47,13 +47,20 @@ void str_add_str ( char * in,int size_in,char * out,unsigned int len){
 
 void str_add_num(char * out,int num){
 	int i = 5;
+	int y;
 	int out_len = str_length(out);
-	for (i = 5;i;i--){
-		int a = num/(10^i);
-		if (a || (i == 1)){
-			num = num-(a*(10^i));
+	if (num < 0) {
+		num = num * (-1);
+		out[out_len] = '-';
+	}
+	for (i = 9;i>=0;i--){
+		int a = num;
+		for (y = i;y>0;y--) a = a/10;
+		if (a || !i){
 			out[out_len] = (48 + a);
 			out_len++;
+			for (y = i;y>0;y--) a = a*10;
+			num = num-a;
 		}
 	}
 }

@@ -175,7 +175,7 @@ char get_next_gsm_message(){
 	}
 
 	if (gsm_message[0]){
-#ifdef MODEM_UART
+#ifdef DEBUG_MODEM_UART
 		send_string_to_UART3(gsm_message);
 		send_string_to_UART3(" \n\r");
 #endif
@@ -258,6 +258,7 @@ char parse_gsm_message(){
 	send_string_to_UART3("MODEM : QUALITY = ");
 	send_int_to_UART3(gsm_signal_quality);
 	send_string_to_UART3(" \n\r");
+//	alarm_on();
 #endif
 		if (gsm_signal_quality > 31 || gsm_signal_quality < 6){
 			out_off_mode(OUT_MODE_GSM);

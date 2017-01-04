@@ -26,18 +26,13 @@ int u_battary = 2680;
 uint8_t device_settings = 0b00000000;
 uint8_t time_set_alarm = 6;
 
-uint16_t time_to_guard_on = 0;
+int16_t time_to_guard_on = 0;
 uint16_t time_to_check_TM = 0;
 int16_t time_set_to_guard_on = 0;
 
 uint8_t alarm_st = 0;
 uint8_t guard_st = 0;
 int8_t lamp_blink_time = 5;
-
-
-
-
-
 
 char tel_number_temp[10];
 
@@ -119,15 +114,22 @@ uint8_t get_alarm_st(){
 }
 
 void changed_guard_sms(int status){
-	str_add_str(output_sms_message,sizeof(output_sms_message),(status ? "na ohranu " : "snqt s ohranu " ),0);
+	str_add_str(output_sms_message,sizeof(output_sms_message),(status ? "na ohrane " : "snqt s ohranQ " ),0);
 	str_add_str(output_sms_message,sizeof(output_sms_message),last_control_guard, 13);
 	if (last_control_guard[0]) send_sms_message_for_all(output_sms_message,SMS_FUNCTION_CHANGE_GUARD_ALARM);
 	clear_last_control_guard();
+	clear_output_sms_message();
 }
 
 void alarm_on(){
 	out_on_mode(OUT_MODE_ALARM);
 	alarm_st = ALARM_ON;
+
+	str_add_str(output_sms_message,sizeof(output_sms_message),"srabotal vhod ",0);
+	str_add_num(output_sms_message,get_alarm_input());
+	str_add_str(output_sms_message,sizeof(output_sms_message),": ",0);
+	add_input_text(output_sms_message, get_alarm_input());
+	send_sms_message_for_all(output_sms_message,get_alarm_input());
 #ifdef DEBUG_GUARD
 	send_string_to_UART3("ALAAAAARM: ON! \n\r");
 #endif
@@ -176,6 +178,7 @@ void check_battery(){
 void TM_check_time(){
 	if (time_to_check_TM) time_to_check_TM --;
 }
+
 void check_TM(){
 	if (time_to_check_TM || get_flag_conv()) return;
 	out_off_mode(OUT_MODE_TM);
@@ -185,7 +188,7 @@ void check_TM(){
 		time_to_check_TM = 20;
 		out_on_mode(OUT_MODE_TM);
 		clear_last_control_guard();
-		str_add_str(last_control_guard,sizeof(last_control_guard),"TM = ",0);
+		str_add_str(last_control_guard,sizeof(last_control_guard),"tm = ",0);
 		str_add_num(last_control_guard,current_TM);
 //		last_control_ID_number = current_TM + 100;
 		if (guard_st){
@@ -218,7 +221,7 @@ void read_settings(){
 		read_guard_settings();
 }
 
-void check_lamp_blink(){
+void check_lamp_blink_time(){
 	if (alarm_st){
 		if (lamp_blink_time > 0) {
 			out_on_mode(OUT_MODE_LAMP);
@@ -231,9 +234,8 @@ void check_lamp_blink(){
 }
 
 void check_time_to_guard_on(){
-	if (time_to_guard_on){
+	if (time_to_guard_on > 0){
 		time_to_guard_on--;
-		if (!time_to_guard_on) guard_on();
 	}
 }
 
@@ -241,5 +243,12 @@ void clear_last_control_guard(){
 	unsigned int i;
 	for (i=0;i<13;i++) {
 		last_control_guard[i] = 0;
+	}
+}
+
+void check_guard_on(){
+	if (!time_to_guard_on){
+		time_to_guard_on = -1;
+		guard_on();
 	}
 }

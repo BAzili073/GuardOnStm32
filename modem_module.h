@@ -10,6 +10,7 @@ char gsm_message[GSM_MESSAGE_SIZE];
 int16_t parse_int_in_message(char * mes,uint8_t start);
 
 void modem_time();
+void clear_output_sms_message();
 
 typedef struct TEL_obj{
 	char number[11];

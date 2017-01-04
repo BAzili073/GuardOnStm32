@@ -51,15 +51,25 @@ void parse_incoming_sms(){
 				break;
 				case 'v':
 					temp = 0;
-					for (i = 0;1;i++) {
-						if ((input_sms_message[6 + i] != '1') && (input_sms_message[6 + i] != '0')) break;
-						temp = temp | ((input_sms_message[6 + i] - '0') << i);
+					if (input_sms_message[2] == 't'){
+						set_input_text((input_sms_message[3]-'0'),input_sms_message);
+					}else{
+						for (i = 0;;i++) {
+						if ((input_sms_message[6 + i] != '0') && (input_sms_message[6 + i] != '1')) break;
+							temp = (temp<<1) | (input_sms_message [6 + i] - '0');
+						}
+						set_input_settings((input_sms_message[2]-'0'),(input_sms_message[5]-'0'),(input_sms_message[4]-'0'),temp,parse_int_in_message(input_sms_message,(6+i+1)));
 					}
-					set_input_settings((input_sms_message[2]-'0'),(input_sms_message[5]-'0'),(input_sms_message[4]-'0'),temp,parse_int_in_message(input_sms_message,(6+i+1)));
+
 				break;
 				case 'r':
 					for (i = 0;i < MAX_OUTPUT;i++){
 						set_output_settings(i,(input_sms_message[3 + i]));
+					}
+				break;
+				case 'i':
+					for (i = 0;i < MAX_LED;i++){
+						set_led_settings(i,(input_sms_message[3 + i]));
 					}
 				break;
 				case 's':

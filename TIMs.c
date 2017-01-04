@@ -41,7 +41,7 @@ void  TIM7_IRQHandler(){
 	  if (timeout_7) timeout_7 --;
 	  modem_time();
 	  TM_check_time();
-	  check_lamp_blink();
+	  check_lamp_blink_time();
 	  check_led_blink();
 	  time_check_temp();
 	  m_sec++;

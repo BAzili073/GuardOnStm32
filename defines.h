@@ -8,7 +8,7 @@
 
 //#define DEBUG_FINGER
 #define DEBUG_MODEM
-#define MODEM_UART
+//#define DEBUG_MODEM_UART
 //#define DEBUG_220V
 //#define DEBUG_DS18x20
 //#define DEBUG_1WIRE
@@ -171,6 +171,7 @@
 #define MAX_DS18x20 5
 
 #define TIME_CHECK_DS18B20 50
+#define INPUT_TEXT_SIZE 15
 
 #define start_EEPROM 0x08080000
 #define EEPROM_device_settings		(0)
@@ -190,7 +191,8 @@
 #define EEPROM_input_v_max			(EEPROM_input_v_min + MAX_INPUT)
 #define EEPROM_input_mode			(EEPROM_input_v_max + MAX_INPUT)
 #define EEPROM_input_time_to_alarm	(EEPROM_input_mode + MAX_INPUT)
-#define EEPROM_output_mode			(EEPROM_input_time_to_alarm + MAX_INPUT)
+#define EEPROM_input_text 			(EEPROM_input_time_to_alarm + MAX_INPUT)
+#define EEPROM_output_mode			(EEPROM_input_text + MAX_INPUT * INPUT_TEXT_SIZE)
 #define EEPROM_led_mode				(EEPROM_output_mode + MAX_OUTPUT)
 //#define EEPROM_					(EEPROM_led_mode + MAX_OUTPUT)
 
