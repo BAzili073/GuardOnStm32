@@ -14,7 +14,7 @@
 
 void main_guard(){
 	check_TM();
-	check_guard_on();
+	check_guard_change();
 	check_temperature();
 	check_inputs();
 	check_battery();

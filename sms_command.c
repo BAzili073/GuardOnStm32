@@ -91,12 +91,8 @@ void parse_incoming_sms(){
 //oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 		case 'o':
 				str_add_str(last_control_guard,sizeof(last_control_guard),"+79",0);
-				str_add_str(last_control_guard,sizeof(last_control_guard),tel[last_control_ID_number].number,10);
-				if((input_sms_message[1] - '0')){
-					guard_on();
-				}else{
-					guard_off();
-				}
+				str_add_str(last_control_guard,sizeof(last_control_guard),convert_number_to_eng(tel_number_temp),10);
+				set_new_guard_st((input_sms_message[1] - '0'));
 		break;
 //rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
 		case 'r':

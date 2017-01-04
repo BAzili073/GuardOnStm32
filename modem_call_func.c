@@ -33,9 +33,16 @@ void modem_call(char * number){
 }
 
 void incoming_call(){
-	led_blink(OUT_MODE_GSM,8,2);
 	if (modem_action == MODEM_ACTION_FREE){
+		led_blink(OUT_MODE_GSM,8,2);
 		modem_action = MODEM_ACTION_INCOMING_CALL;
+		int i;
+			for (i = 0;i<10;i++){
+				tel_number_temp[i] = gsm_message[i+11];
+			}
+			convert_number_to_upd(tel_number_temp);
+			last_control_ID_number = check_number(tel_number_temp);
+
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("INCOMING CALL! NUMBER: ");
 	send_string_to_UART3(tel_number_temp);
@@ -43,12 +50,7 @@ void incoming_call(){
 	send_int_to_UART3(last_control_ID_number);
 	send_string_to_UART3(" \n\r");
 #endif
-		int i;
-			for (i = 0;i<10;i++){
-				tel_number_temp[i] = gsm_message[i+11];
-			}
-			convert_number_to_upd(tel_number_temp);
-			last_control_ID_number = check_number(tel_number_temp);
+
 			if (last_control_ID_number > MAX_TEL_NUMBERS){
 				if (send_command_to_GSM("ATH0","OK",gsm_message,2,50)){
 					modem_free();
@@ -60,8 +62,6 @@ void incoming_call(){
 				modem_free();
 			}
 
-
-
 	}
 
 	  incoming_rings ++;
@@ -72,13 +72,16 @@ void incoming_call(){
 }
 
 void modem_no_carrier(){
-	if (modem_action == MODEM_ACTION_INCOMING_CALL){
-		if (incoming_rings == 2){
-			incoming_rings = 0;
+	if ((modem_action == MODEM_ACTION_INCOMING_CALL) & (last_control_ID_number < MAX_TEL_NUMBERS)){
+		if (incoming_rings < 4){
+			str_add_str(last_control_guard,sizeof(last_control_guard),"+79",0);
+			str_add_str(last_control_guard,sizeof(last_control_guard),convert_number_to_eng(tel_number_temp),10);
+			get_guard_st() ? set_new_guard_st(0) : set_new_guard_st(1);
 		}
 	}else if (modem_action == MODEM_ACTION_OUTGOING_CALL){
 		modem_errors[MODEM_ERRORS_NO_CARRIER]++;
 	}
+	incoming_rings = 0;
 	modem_free();
 }
 

@@ -19,14 +19,14 @@ void check_battery();
 void clear_last_control_guard();
 void changed_guard_sms(int status);
 
-
+uint8_t new_guard_st;
 
 int u_battary = 2680;
 
 uint8_t device_settings = 0b00000000;
 uint8_t time_set_alarm = 6;
 
-int16_t time_to_guard_on = 0;
+int16_t time_to_guard_on = -1;
 uint16_t time_to_check_TM = 0;
 int16_t time_set_to_guard_on = 0;
 
@@ -94,7 +94,7 @@ void guard_on_TM(){
 
 void guard_off(){
 	led_blink_stop(OUT_MODE_GUARD);
-	time_to_guard_on = 0;
+	time_to_guard_on = -1;
 	guard_st = GUARD_OFF;
 	clear_alarm_input();
 	out_off_mode(OUT_MODE_GUARD);
@@ -246,9 +246,15 @@ void clear_last_control_guard(){
 	}
 }
 
-void check_guard_on(){
+void check_guard_change(){
+	if (last_control_guard[0]) new_guard_st ? guard_on() : guard_off();
+
 	if (!time_to_guard_on){
 		time_to_guard_on = -1;
 		guard_on();
 	}
+}
+
+void set_new_guard_st(uint8_t new_st){
+	new_guard_st = new_st;
 }

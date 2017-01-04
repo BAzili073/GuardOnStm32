@@ -11,6 +11,8 @@
 #include "modem_module.h"
 #include "led.h"
 
+extern char last_control_guard[13];
+
 TEL_obj tel[MAX_TEL_NUMBERS] ={
 		[0] = {.access = 9,},
 };
