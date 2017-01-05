@@ -10,6 +10,16 @@
 void out_on_mode(uint8_t mode);
 void out_off_mode(uint8_t mode);
 void check_time_to_guard_on();
+
+#define DEVICE_SETTING_SMS_AT_STARTUP 1<<7
+#define DEVICE_SETTING_SMS_AT_CHANGE_GUARD 1<<6
+#define DEVICE_SETTING_SMS_AT_SMS_COMMAND 1<<5
+#define DEVICE_SETTING_BAN_OUTPUT_CALL 1<<4
+#define DEVICE_SETTING_CHANGE_GUARD_USE_CALL 1<<3
+#define DEVICE_SETTING_SMS_AT_ALARM 1<<2
+#define DEVICE_SETTING_AUTO_GUARD_AT_START 1<<1
+#define DEVICE_SETTING_SMS_AT_UNCORRECT_SMS 1<<0
+
 void check_lamp_blink();
 void read_guard_settings();
 void guard_on();
@@ -22,7 +32,7 @@ void set_new_guard_st(uint8_t new_st);
 
 uint8_t get_guard_st();
 uint8_t get_alarm_st();
-
+uint8_t get_powered();
 void TM_check_time();
 
 uint8_t last_control_ID_number;

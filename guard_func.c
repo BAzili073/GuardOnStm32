@@ -15,14 +15,14 @@
 extern TEL_obj tel[MAX_TEL_NUMBERS];
 
 void guard_on_TM();
-void check_battery();
+
 void clear_last_control_guard();
 void changed_guard_sms(int status);
-
+void check_battery();
 uint8_t new_guard_st;
 
-int u_battary = 2680;
-
+int u_220V = 2680;
+uint8_t powered = POWERED_220V;
 uint8_t device_settings = 0b00000000;
 uint8_t time_set_alarm = 6;
 
@@ -48,6 +48,8 @@ void read_guard_settings(){
 	 if (temp != 0xFE) device_settings = temp;
 	 temp = EEPROMRead(EEPROM_time_set_alarm,1);
 	 if (temp != 0xFE) time_set_alarm = temp;
+
+	 device_settings |= DEVICE_SETTING_SMS_AT_STARTUP | DEVICE_SETTING_AUTO_GUARD_AT_START;
 }
 
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t){
@@ -155,16 +157,21 @@ void out_off_mode(uint8_t mode){
 }
 
 void check_battery(){
-	if (ADC_read(DET_220_CHANNEL) < (u_battary * 0.93)){
-		out_on_mode(OUT_MODE_220V); // измерение со входа
-	}else{
-		out_off_mode(OUT_MODE_220V);
-	}
+	unsigned int U = ADC_read(DET_220_CHANNEL);
 #ifdef DEBUG_220V
 	send_string_to_UART3("DETECT 220v: ");
-	send_int_to_UART3(ADC_read(DET_220_CHANNEL));
+	send_int_to_UART3(U);
 	send_string_to_UART3(" \n\r");
 #endif
+
+	if ((U < (u_220V * 0.93)) & (powered == POWERED_220V)){
+		powered = POWERED_BATTERY;
+		out_on_mode(OUT_MODE_220V); // измерение со входа
+	}else if ((U > (u_220V * 0.95)) & (powered == POWERED_BATTERY)){
+		powered = POWERED_220V;
+		out_off_mode(OUT_MODE_220V);
+	}
+
 //	2115 - 11.2 V
 //	2185 - 11.6 V
 //	2271 - 12.0 V
@@ -174,6 +181,9 @@ void check_battery(){
 //	2684 - 13.9 V
 }
 
+uint8_t get_powered(){
+	return powered;
+}
 
 void TM_check_time(){
 	if (time_to_check_TM) time_to_check_TM --;
@@ -219,6 +229,7 @@ void read_settings(){
 		read_output_settings();
 		read_led_settings();
 		read_guard_settings();
+		checkValidCode(1);
 }
 
 void check_lamp_blink_time(){
@@ -257,4 +268,15 @@ void check_guard_change(){
 
 void set_new_guard_st(uint8_t new_st){
 	new_guard_st = new_st;
+}
+
+int checkValidCode(int Step){
+	static int valid = 0;
+	if (Step == 1){
+	  unsigned long *uid = (unsigned long *)0x1FF80050;
+	  if (UUID_1 == uid[0])
+		  if (UUID_2 == uid[1])
+			  if (UUID_3 == uid[2]) valid = 1;
+	}
+	return valid;
 }

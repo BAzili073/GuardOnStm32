@@ -11,7 +11,6 @@
 #include "DS18x20.h"
 #include "TM_KEY.h"
 
-uint8_t m_sec = 0;
 //int time_access_lock = 0;
 
 
@@ -37,9 +36,15 @@ void TIM7_init(){
 }
 
 void  TIM7_IRQHandler(){
+	static uint8_t m_sec = 0;
+	static uint8_t sec = 0;
+	static uint8_t min = 0;
+	static uint8_t hour = 0;
+	static uint16_t day = 0;
 
 	  if (timeout_7) timeout_7 --;
 	  modem_time();
+
 	  TM_check_time();
 	  check_lamp_blink_time();
 	  check_led_blink();
@@ -47,10 +52,24 @@ void  TIM7_IRQHandler(){
 	  m_sec++;
 //	  FP_time();
 	  if (m_sec == 10) {
-	  		m_sec = 0;
-	  		check_time_to_alarm();
-	  		check_time_to_guard_on();
-	  	}
+		  sec++;
+		  if (sec == 60){
+			  sec = 0;
+			  min++;
+			  if (min == 60){
+				  min = 0;
+				  hour++;
+				  if (hour == 24){
+					  last_control_guard[0] = "!";
+					  hour = 0;
+					  day++;
+				  }
+			  }
+		  }
+		m_sec = 0;
+		check_time_to_alarm();
+		check_time_to_guard_on();
+	  }
 	   TIM7 -> SR &= ~TIM_SR_UIF;
 }
 

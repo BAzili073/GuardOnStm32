@@ -9,6 +9,11 @@
 #include "string.h"
 #include "main_guard.h"
 #include "modem_module.h"
+
+#define STM32_UUID ((uint32_t *)0x7b747800)
+
+
+
  void add_device_check();
  void add_device_mode();
 
@@ -37,20 +42,27 @@ int main(void) {
 	UART1_init();
 	UART2_init();
 	UART3_init();
+
 //	GPIO_interrupt_init();
 //	ERASE_EEPROM();
 	read_settings();
 	add_device_check();
+	one_wire_start_conversion_temp();
+	modem_online();
+
 #ifdef DEBUG
 	send_string_to_UART3("START PROGTAMM! \n\r");
 #endif
-//	device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
+
 	if (check_device_setting(DEVICE_SETTING_AUTO_GUARD_AT_START)){
 		guard_on();
 	}
 //
-	if (check_device_setting(DEVICE_SETTING_AUTO_GUARD_AT_START)){
-		str_add_str(output_sms_message,"ver:5.0 ");
+
+	if (check_device_setting(DEVICE_SETTING_SMS_AT_STARTUP)){
+		get_all_temp();
+		str_add_str(output_sms_message,sizeof(output_sms_message),"ver:5.0 ",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
 		sms_command_r();
 	}
 

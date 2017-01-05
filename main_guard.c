@@ -18,7 +18,6 @@ void main_guard(){
 	check_temperature();
 	check_inputs();
 	check_battery();
-	check_gsm_message();
 }
 
 

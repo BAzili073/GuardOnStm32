@@ -10,7 +10,7 @@
 #define DEBUG_MODEM
 //#define DEBUG_MODEM_UART
 //#define DEBUG_220V
-//#define DEBUG_DS18x20
+#define DEBUG_DS18x20
 //#define DEBUG_1WIRE
 //#define DEBUG_ADD_DEVICE
 #define DEBUG_GUARD
@@ -46,6 +46,8 @@
 #define DET_220_PORT GPIOA
 #define DET_220_PIN GPIO_PIN_0
 #define DET_220_CHANNEL ADC_CHANNEL_0
+#define POWERED_220V 0
+#define POWERED_BATTERY 1
 
 #define OUTPUT_1_PORT GPIOB
 #define OUTPUT_2_PORT GPIOB
@@ -197,7 +199,9 @@
 //#define EEPROM_					(EEPROM_led_mode + MAX_OUTPUT)
 
 
-
+#define UUID_1 0x09473333
+#define UUID_2 0x32373931
+#define UUID_3 0x817b7f00
 /*
  * 4096 EEPROM all
  *

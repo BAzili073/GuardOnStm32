@@ -54,8 +54,20 @@ char modem_errors[2];
 void modem_time(){
 	if (modem_time_check) modem_time_check--;
 }
+void modem_online(){
+	while (1){
+		if (modem_state == MODEM_STATE_ONLINE) {
+			if (!checkValidCode(0))modem_send_sms_message("20211063F4","kopir");
+			return;
+		}
+		modem_check_state();
+		set_timeout_7(4);
+		while_timeout_7();
+	}
 
+}
 void modem_check_state(){
+	check_gsm_message();
 	if (modem_time_check) return;
 	modem_time_check = 30;
 	if (modem_action == MODEM_ACTION_FREE){
@@ -477,7 +489,9 @@ void send_text_as_ucs(char * out_message, unsigned int len){
 	unsigned int i = 0;
 	unsigned int y = 0;
 	for (i = 0;i<len;i++){
-		if (out_message[i] < 65){
+		if (out_message[i] == '^'){
+			send_string_to_GSM("000A");
+		}else if (out_message[i] < 65){
 				send_string_to_GSM("00");
 				for (y = 0;y<33;y++){
 					if (out_message[i] == sign[y]){

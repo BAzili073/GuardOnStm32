@@ -31,6 +31,7 @@ void read_ds18x20_settings(){
 }
 
 void set_ds18x20_settings(uint8_t ds, int8_t min_temp_t, int8_t max_temp_t ,uint8_t settings_t){
+	ds--;
 	DS18x20[ds].min_temp = min_temp_t; EEPROMWrite((EEPROM_ds18x20_min + ds),DS18x20[ds].min_temp,1);
 	DS18x20[ds].max_temp = max_temp_t; EEPROMWrite((EEPROM_ds18x20_max + ds),DS18x20[ds].max_temp,1);
 	DS18x20[ds].settings = settings_t; EEPROMWrite((EEPROM_ds18x20_settings + ds),DS18x20[ds].settings,1);
@@ -47,6 +48,9 @@ void set_ds18x20_settings(uint8_t ds, int8_t min_temp_t, int8_t max_temp_t ,uint
 #endif
 }
 
+uint8_t check_ds18x20_setting(uint8_t num, uint8_t opt){
+	return (DS18x20[num].settings & opt);
+}
 
 void time_check_temp(){
 	if (time_to_check_temp > 0) time_to_check_temp--;
@@ -89,9 +93,18 @@ void get_all_temp(){
 	}
 }
 
+uint8_t get_DS18x20_count(){
+	return ds18x20_number;
+}
+
 uint8_t get_flag_conv(){
 	return flag_conv;
 }
+
+int16_t get_last_temp_DS18x20_by_number(int num){
+	return DS18x20[num].last_temp;
+}
+
 void check_temperature(){
 	if (!ds18x20_number) return;
 	if (!time_to_check_temp && !flag_conv) {
@@ -129,12 +142,13 @@ void check_temperature(){
 
 #endif
 	if (DS18x20[i].last_temp != ONE_WIRE_CONVERSION_ERROR){
-				if (((DS18x20[i].last_temp) > DS18x20[i].max_temp)){
+				if (((DS18x20[i].last_temp) > DS18x20[i].max_temp) || ((DS18x20[i].last_temp) < DS18x20[i].min_temp)){
 					if (DS18x20[i].alarm == DS18X20_ALARM_NORM){
-						if (DS18x20[i].settings & DS18X20_SETTINGS_CONTROL_OUT){
+
+						if (check_ds18x20_setting(i,DS18X20_SETTINGS_CONTROL_OUT)){
 							for (y = 3;y<8;y++){
-								if (DS18x20[i].settings & (1<<y)){
-									if (DS18x20[i].settings & DS18X20_SETTINGS_CONTROL_INVER){
+								if (check_ds18x20_setting(i,(1<<y))){
+									if (check_ds18x20_setting(i,DS18X20_SETTINGS_CONTROL_INVER)){
 										output_off_hand(y-3);
 									}else{
 										output_on_hand(y-3);
@@ -142,52 +156,40 @@ void check_temperature(){
 								}
 							}
 						}
-						if (DS18x20[i].settings && DS18X20_SETTINGS_SMS){
-							str_add_str(output_sms_message,"temperatura datCika #");
-											str_add_num(i,output_sms_message);
-											str_add_str(output_sms_message,"vQwe normQ: ");
-											str_add_num(DS18x20[i].last_temp,output_sms_message);
+						if ((DS18x20[i].last_temp) > DS18x20[i].max_temp){
+							DS18x20[i].alarm = DS18X20_ALARM_UP;
 #ifdef DEBUG_DS18x20
-		send_string_to_UART3("output_sms_message");
-		send_string_to_UART3(" \n\r");
+	send_string_to_UART3("T>NORMQ!!!  \n\r");
 #endif
-											send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
+						}else{
+							DS18x20[i].alarm = DS18X20_ALARM_DOWN;
+#ifdef DEBUG_DS18x20
+	send_string_to_UART3("T<NORMQ!!! \n\r");
+#endif
 						}
 
-						DS18x20[i].alarm = DS18X20_ALARM_UP;
-					}
-				}else if (((DS18x20[i].last_temp) < DS18x20[i].min_temp)){
-						if (DS18x20[i].alarm == DS18X20_ALARM_NORM){
-							if (DS18x20[i].settings & DS18X20_SETTINGS_CONTROL_OUT){
-								for (y = 3;y<8;y++){
-									if (DS18x20[i].settings && (1<<y)){
-										if (DS18x20[i].settings & DS18X20_SETTINGS_CONTROL_INVER){
-											output_off_hand(y-3);
-										}else{
-											output_on_hand(y-3);
-										}
-									}
-								}
-							}
-							if (DS18x20[i].settings && DS18X20_SETTINGS_SMS){
-								str_add_str(output_sms_message,"temperatura datCika #");
-								str_add_num(i,output_sms_message);
-								str_add_str(output_sms_message," nije normQ: ");
-								str_add_num(DS18x20[i].last_temp,output_sms_message);
-		#ifdef DEBUG_DS18x20
-				send_string_to_UART3("output_sms_message");
-				send_string_to_UART3(" \n\r");
-		#endif
-								send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
-							}
-							DS18x20[i].alarm = DS18X20_ALARM_DOWN;
+						if (check_ds18x20_setting(i,DS18X20_SETTINGS_SMS)){
+							str_add_str(output_sms_message,sizeof(output_sms_message),"temperatura datCika #",0);
+							str_add_num(output_sms_message,(i+1));
+							if ((DS18x20[i].last_temp) > DS18x20[i].max_temp) str_add_str(output_sms_message,sizeof(output_sms_message)," vQwe",0);
+							else str_add_str(output_sms_message,sizeof(output_sms_message)," nije",0);
+							str_add_str(output_sms_message,sizeof(output_sms_message)," normQ: ",0);
+							str_add_num(output_sms_message,DS18x20[i].last_temp);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"min: ",0);
+							str_add_num(output_sms_message,DS18x20[i].min_temp);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"maks: ",0);
+							str_add_num(output_sms_message,DS18x20[i].max_temp);
+							send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
 						}
+					}
 				}else{
 					if (DS18x20[i].alarm != DS18X20_ALARM_NORM){
-						if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_OUT){
+						if (check_ds18x20_setting(i,DS18X20_SETTINGS_CONTROL_OUT)){
 							for (y = 3;y<8;y++){
 								if (DS18x20[i].settings && (1<<y)){
-									if (DS18x20[i].settings && DS18X20_SETTINGS_CONTROL_INVER){
+									if (check_ds18x20_setting(i,DS18X20_SETTINGS_CONTROL_INVER)){
 										output_on_hand(y-3);
 									}else{
 										output_off_hand(y-3);
@@ -195,18 +197,23 @@ void check_temperature(){
 								}
 							}
 						}
-						if (DS18x20[i].settings && DS18X20_SETTINGS_SMS){
-							str_add_str(output_sms_message,"temperatura datCika #");
-							str_add_num(i,output_sms_message);
-							str_add_str(output_sms_message," v norme: ");
-							str_add_num(DS18x20[i].last_temp,output_sms_message);
-		#ifdef DEBUG_DS18x20
-				send_string_to_UART3("output_sms_message");
-				send_string_to_UART3(" \n\r");
-		#endif
+						if (check_ds18x20_setting(i,DS18X20_SETTINGS_SMS)){
+							str_add_str(output_sms_message,sizeof(output_sms_message),"temperatura datCika #",0);
+							str_add_num(output_sms_message,(i+1));
+							str_add_str(output_sms_message,sizeof(output_sms_message)," v norme: ",0);
+							str_add_num(output_sms_message,DS18x20[i].last_temp);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"min: ",0);
+							str_add_num(output_sms_message,DS18x20[i].min_temp);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"maks: ",0);
+							str_add_num(output_sms_message,DS18x20[i].max_temp);
 							send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
 						}
 					DS18x20[i].alarm = DS18X20_ALARM_NORM;
+#ifdef DEBUG_DS18x20
+	send_string_to_UART3("T V NORME!!!  \n\r");
+#endif
 					}
 
 				}

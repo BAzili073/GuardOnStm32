@@ -52,6 +52,7 @@ void str_add_num(char * out,int num){
 	if (num < 0) {
 		num = num * (-1);
 		out[out_len] = '-';
+		out_len++;
 	}
 	for (i = 9;i>=0;i--){
 		int a = num;
