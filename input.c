@@ -4,6 +4,7 @@
 #include "EEPROMfunc.h"
 #include "led.h"
 #include "my_string.h"
+ uint8_t check_input_setting(int inp,int opt);
 
 typedef struct INPUT_obj{
 	GPIO_TypeDef * port;
@@ -55,7 +56,7 @@ void read_inputs_settings(){
 }
 
 
-void set_input_settings(uint8_t inp, uint8_t v_max_t, uint8_t v_min_t,uint8_t mode_t,uint8_t time_to_alarm_t){
+void set_input_settings(uint8_t inp, uint8_t v_min_t, uint8_t v_max_t,uint8_t mode_t,uint8_t time_to_alarm_t){
 	inp--;
 	input[inp].v_max = v_max_t; EEPROMWrite((EEPROM_input_v_max + inp),input[inp].v_max,1);
 	input[inp].v_min = v_min_t; EEPROMWrite((EEPROM_input_v_min + inp),input[inp].v_min,1);
@@ -64,15 +65,22 @@ void set_input_settings(uint8_t inp, uint8_t v_max_t, uint8_t v_min_t,uint8_t mo
 
 #ifdef DEBUG
 	send_string_to_UART3("Device: Set setting input! ID:");
-	send_int_to_UART3(inp);
+	send_int_to_UART3((inp + 1));
 	send_string_to_UART3(" MIN: ");
-	send_int_to_UART3(v_min_t);
+	send_int_to_UART3(input[inp].v_min);
 	send_string_to_UART3(" MAX: ");
-	send_int_to_UART3(v_max_t);
-	send_string_to_UART3(" Mode: ");
-	send_int_to_UART3(mode_t);
+	send_int_to_UART3(input[inp].v_max);
+	send_string_to_UART3("\n\rMODE_24H: ");
+	check_input_setting(inp,INPUTS_MODE_24H) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("MODE_BUTTON_GUARD: ");
+	check_input_setting(inp,INPUTS_MODE_BUTTON_GUARD) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("MODE_INVERS: ");
+	check_input_setting(inp,INPUTS_MODE_INVERS) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
 	send_string_to_UART3(" Time to alarm: ");
-	send_int_to_UART3(time_to_alarm_t);
+	send_int_to_UART3(input[inp].time_to_alarm);
 	send_string_to_UART3(" \n\r ");
 #endif
 }
@@ -100,7 +108,7 @@ void set_input_text(uint8_t inp, char * text_t){
  int check_input(int input_t){
  		unsigned int adc_value;
  			adc_value = ADC_read(input[input_t - 1].adc_channel); // измерение со входа
- 			if (((((input[input_t - 1].v_max*300) > adc_value) & ((input[input_t - 1].v_min)*300) < adc_value) ^ !((input[input_t - 1].mode & INPUTS_MODE_INVERS)>0)) ){//вход не в норме
+ 			if (((((input[input_t - 1].v_max*300) > adc_value) & ((input[input_t - 1].v_min)*300) < adc_value) ^ !(check_input_setting((input_t-1),INPUTS_MODE_INVERS)>0)) ){//вход не в норме
  				return 1;
  			}
  				return 0;
@@ -123,11 +131,11 @@ void set_input_text(uint8_t inp, char * text_t){
  				input[i-1].state = 1;
  				out_on_mode(i);
  				if (last_input_alarm != i){
- 						if (input[i-1].mode & INPUTS_MODE_BUTTON_GUARD){ //если вход управл€ющий охраной
+ 						if (check_input_setting((i-1),INPUTS_MODE_BUTTON_GUARD)){ //если вход управл€ющий охраной
  							if (!get_guard_st()) guard_on();
  							return;
  						}
- 						if ((get_guard_st() || (input[i-1].mode & INPUTS_MODE_24H)) & !get_alarm_st()){ //если на охране или вход 24 часа
+ 						if ((get_guard_st() || check_input_setting((i-1),INPUTS_MODE_24H)) & !get_alarm_st()){ //если на охране или вход 24 часа
  							last_input_alarm = i; //запомним последний сработавший вход
  							if ((time_to_alarm == -1) || ((input[i - 1].time_to_alarm * 5) < time_to_alarm)){ //если врем€ до тревоги нету
  								led_blink(OUT_MODE_GUARD,5,5);
@@ -140,7 +148,7 @@ void set_input_text(uint8_t inp, char * text_t){
  			if (input[i-1].state){
  				input[i-1].state = 0;
  				out_off_mode(i);
- 				if (input[i-1].mode & INPUTS_MODE_BUTTON_GUARD){//если вход управл€ющий охраной
+ 				if (check_input_setting((i-1),INPUTS_MODE_BUTTON_GUARD)){//если вход управл€ющий охраной
  					if (get_guard_st()) guard_off();
  					return;
  				}
@@ -179,4 +187,8 @@ void set_input_text(uint8_t inp, char * text_t){
 		 if (!input[inp - 1].text[i]) break;
 		 str[len_str + i] = input[inp - 1].text[i];
 	 }
+ }
+
+ uint8_t check_input_setting(int inp,int opt){
+	 return (input[inp].mode & opt);
  }

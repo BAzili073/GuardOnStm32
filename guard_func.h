@@ -21,7 +21,7 @@ void check_time_to_guard_on();
 #define DEVICE_SETTING_SMS_AT_UNCORRECT_SMS 1<<0
 
 void check_lamp_blink();
-void read_guard_settings();
+void read_device_settings();
 void guard_on();
 void guard_off();
 void check_guard_change();
@@ -29,11 +29,14 @@ void alarm_on();
 void alarm_off();
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t);
 void set_new_guard_st(uint8_t new_st);
+uint8_t check_device_setting(uint8_t opt);
 
 uint8_t get_guard_st();
 uint8_t get_alarm_st();
 uint8_t get_powered();
 void TM_check_time();
+void check_battery();
+void check_lamp_blink_time();
 
 uint8_t last_control_ID_number;
 char last_control_guard[13];

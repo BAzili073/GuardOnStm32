@@ -18,7 +18,6 @@ void guard_on_TM();
 
 void clear_last_control_guard();
 void changed_guard_sms(int status);
-void check_battery();
 uint8_t new_guard_st;
 
 int u_220V = 2680;
@@ -40,7 +39,7 @@ uint8_t last_control_ID_number = 254;
 char last_control_guard[13];
 
 
-void read_guard_settings(){
+void read_device_settings(){
 	 uint8_t temp;
 	 temp = EEPROMRead(EEPROM_time_to_guard,1);
 	 if (temp != 0xFE) time_set_to_guard_on = temp;
@@ -49,7 +48,7 @@ void read_guard_settings(){
 	 temp = EEPROMRead(EEPROM_time_set_alarm,1);
 	 if (temp != 0xFE) time_set_alarm = temp;
 
-	 device_settings |= DEVICE_SETTING_SMS_AT_STARTUP | DEVICE_SETTING_AUTO_GUARD_AT_START;
+//	 device_settings |= DEVICE_SETTING_SMS_AT_STARTUP | DEVICE_SETTING_AUTO_GUARD_AT_START;
 }
 
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t){
@@ -57,9 +56,32 @@ void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_
 	time_to_guard_on = time_to_guard_t; EEPROMWrite(EEPROM_time_to_guard,time_to_guard_t,1);
 	time_set_alarm = time_alarm_t; EEPROMWrite(EEPROM_time_set_alarm,time_alarm_t,1);
 #ifdef DEBUG
-	send_string_to_UART3("Device: Set setting device! Settings: ");
-	send_int_to_UART3(settings);
-	send_string_to_UART3(" Time to guard: ");
+	send_string_to_UART3("Device: Set setting device! Settings: \n\r");
+	send_string_to_UART3("SMS_AT_UNCORRECT_SMS: ");
+	check_device_setting(DEVICE_SETTING_SMS_AT_UNCORRECT_SMS) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("AUTO_GUARD_AT_START: ");
+	check_device_setting(DEVICE_SETTING_AUTO_GUARD_AT_START) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("SMS_AT_ALARM: ");
+	check_device_setting(DEVICE_SETTING_SMS_AT_ALARM) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("CHANGE_GUARD_USE_CALL: ");
+	check_device_setting(DEVICE_SETTING_CHANGE_GUARD_USE_CALL) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("BAN_OUTPUT_CALL: ");
+	check_device_setting(DEVICE_SETTING_BAN_OUTPUT_CALL) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("SMS_AT_SMS_COMMAND: ");
+	check_device_setting(DEVICE_SETTING_SMS_AT_SMS_COMMAND) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("SMS_AT_CHANGE_GUARD: ");
+	check_device_setting(DEVICE_SETTING_SMS_AT_CHANGE_GUARD) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("SMS_AT_STARTUP: ");
+	check_device_setting(DEVICE_SETTING_SMS_AT_STARTUP) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+
+	send_string_to_UART3("\n\r Time to guard: ");
 	send_int_to_UART3(time_to_guard_t);
 	send_string_to_UART3(" Time alarm: ");
 	send_int_to_UART3(time_alarm_t);
@@ -132,6 +154,7 @@ void alarm_on(){
 	str_add_str(output_sms_message,sizeof(output_sms_message),": ",0);
 	add_input_text(output_sms_message, get_alarm_input());
 	send_sms_message_for_all(output_sms_message,get_alarm_input());
+	alarm_call();
 #ifdef DEBUG_GUARD
 	send_string_to_UART3("ALAAAAARM: ON! \n\r");
 #endif
@@ -228,7 +251,7 @@ void read_settings(){
 		read_inputs_settings();
 		read_output_settings();
 		read_led_settings();
-		read_guard_settings();
+		read_device_settings();
 		checkValidCode(1);
 }
 

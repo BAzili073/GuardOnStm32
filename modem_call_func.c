@@ -7,7 +7,12 @@
 char incoming_rings = 0;
 extern TEL_obj tel[MAX_TEL_NUMBERS];
 
+int modem_call_state = CALL_STATE_NO_CALL;
+
+
 void modem_call(char * number){
+
+	modem_call_state = CALL_STATE_CALL;
 	if (modem_errors[MODEM_ERRORS_NO_CARRIER] > 3){
 		return;
 	}
@@ -29,6 +34,26 @@ void modem_call(char * number){
 	send_string_to_UART3(" \n\r");
 #endif
 
+	}
+}
+
+uint8_t alarm_call(){
+	uint8_t need_alarm_call = 1;
+	while (need_alarm_call){
+		int i;
+		for (i = 0;i < MAX_TEL_NUMBERS;i++){
+			if (tel[i].access == TEL_ACCESS_ADMIN){
+				modem_call(tel[i].number);
+			}
+			while (1){
+				check_gsm_message();
+				if (modem_call_state == CALL_STATE_BUSY) return 1;
+				send_string_to_GSM("AT+CLCC=1");
+				send_char_to_GSM('\r');
+				set_timeout_7(30);
+				while_timeout_7();
+			}
+		}
 	}
 }
 
@@ -75,12 +100,14 @@ void modem_no_carrier(){
 	if ((modem_action == MODEM_ACTION_INCOMING_CALL) & (last_control_ID_number < MAX_TEL_NUMBERS)){
 		if (incoming_rings < 4){
 			str_add_str(last_control_guard,sizeof(last_control_guard),"+79",0);
-			str_add_str(last_control_guard,sizeof(last_control_guard),convert_number_to_eng(tel_number_temp),10);
+			convert_number_to_eng(tel_number_temp);
+			str_add_str(last_control_guard,sizeof(last_control_guard),tel_number_temp,10);
 			get_guard_st() ? set_new_guard_st(0) : set_new_guard_st(1);
 		}
 	}else if (modem_action == MODEM_ACTION_OUTGOING_CALL){
 		modem_errors[MODEM_ERRORS_NO_CARRIER]++;
 	}
+	modem_call_state = CALL_STATE_NO_CARRIER;
 	incoming_rings = 0;
 	modem_free();
 }

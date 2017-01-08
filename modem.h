@@ -1,3 +1,7 @@
+#ifdef MODEM_H
+#else
+#define MODEM_H
+
 #include "defines.h"
 
 #define MODEM_ON_PORT GPIOB
@@ -54,13 +58,22 @@ void modem_save_number(char ID_number,char * number,uint8_t acc);
 void incoming_call();
 void incoming_sms();
 void modem_no_carrier();
-//void modem_free();
+void convert_number_to_eng(char * number);
+void modem_free();
 //char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, int max_t);
-
+//int modem_state = MODEM_STATE_OFF;
 
 
 ////VARIABLES
 int modem_action;
 
+#define CALL_STATE_NO_CALL 0
+#define CALL_STATE_CALL 1
+#define CALL_STATE_BUSY 2
+#define CALL_STATE_NO_CARRIER 3
+#define CALL_STATE_NO_ANSWER 4
+
 
 //
+
+#endif

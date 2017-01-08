@@ -11,6 +11,8 @@
 #include "guard_func.h"
 #include "FingerPrint.h"
 #include "input.h"
+#include "DS18x20.h"
+#include "led.h"
 
 extern TEL_obj tel[MAX_TEL_NUMBERS];
 
@@ -63,10 +65,16 @@ void parse_incoming_sms(){
 						set_input_text((input_sms_message[3]-'0'),input_sms_message);
 					}else{
 						for (i = 0;;i++) {
-						if ((input_sms_message[6 + i] != '0') && (input_sms_message[6 + i] != '1')) break;
-							temp = (temp<<1) | (input_sms_message [6 + i] - '0');
+						if ((input_sms_message[8 + i] != '0') && (input_sms_message[8 + i] != '1')) break;
+							temp = (temp<<1) | (input_sms_message [8 + i] - '0');
 						}
-						set_input_settings((input_sms_message[2]-'0'),(input_sms_message[5]-'0'),(input_sms_message[4]-'0'),temp,parse_int_in_message(input_sms_message,(6+i+1)));
+						set_input_settings(
+									(input_sms_message[2]-'0'),
+									(input_sms_message[4]-'0'),
+									(input_sms_message[6]-'0'),
+									temp,
+									parse_int_in_message(input_sms_message,(8+i+1))
+								);
 					}
 
 				break;
@@ -99,7 +107,8 @@ void parse_incoming_sms(){
 //oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 		case 'o':
 				str_add_str(last_control_guard,sizeof(last_control_guard),"+79",0);
-				str_add_str(last_control_guard,sizeof(last_control_guard),convert_number_to_eng(tel_number_temp),10);
+				convert_number_to_eng(tel_number_temp);
+				str_add_str(last_control_guard,sizeof(last_control_guard),tel_number_temp,10);
 				set_new_guard_st((input_sms_message[1] - '0'));
 		break;
 //rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr

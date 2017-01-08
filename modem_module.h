@@ -1,6 +1,7 @@
-#ifdef MODEM_CALL_H
+#ifdef MODEM_MODULE_H
 #else
-#define MODEM_CALL_H
+#define MODEM_MODULE_H
+
 
 #include "defines.h"
 

@@ -6,15 +6,15 @@
 #include "UART.h"
 #include "guard_func.h"
 #include "my_string.h"
-#include "sms_command.h"
 #include "modem.h"
 #include "modem_module.h"
 #include "led.h"
-
+int modem_state = MODEM_STATE_OFF;
 extern char last_control_guard[13];
+extern int modem_call_state;
 
 TEL_obj tel[MAX_TEL_NUMBERS] ={
-		[0] = {.access = 9,},
+		[0] = {.access = TEL_ACCESS_ADMIN,},
 };
 
 void send_text_as_ucs(char * out_message, unsigned int len);
@@ -26,13 +26,12 @@ void del_all_gsm_message();
 char modem_send_sms_message(char * number,char * text);
 char send_sms_message_for_all(char * text,int function);
 char modem_setup();
-void modem_free();
 void modem_check_online();
 void modem_check_quality();
 void clear_output_sms_message();
 char check_number_of_sms();
 
-int modem_state = MODEM_STATE_OFF;
+
 char get_next_gsm_message();
 volatile unsigned int gsm_message_check_counter = 0;
 char send_command_to_GSM(char * s,char * await_ans, char * answer, int t, int max_t);
@@ -249,6 +248,7 @@ char parse_gsm_message(){
 	send_string_to_UART3("MODEM: CALL BUSY ");
 	send_string_to_UART3(" \n\r");
 #endif
+			modem_call_state = CALL_STATE_BUSY;
 			modem_free();
 			return_gsm_message = GSM_MESSAGE_CALL_BUSY;
 	}
@@ -258,6 +258,7 @@ char parse_gsm_message(){
 	send_string_to_UART3("MODEM: CALL NO ANSWER ");
 	send_string_to_UART3(" \n\r");
 #endif
+			modem_call_state = CALL_STATE_NO_ANSWER;
 				modem_free();
 			return_gsm_message = GSM_MESSAGE_CALL_NO_ANSWER;
 	}
@@ -349,24 +350,15 @@ char modem_setup(){
 	if (!send_command_to_GSM("AT+CSCS=\"GSM\"","OK",gsm_message,2,5)) return 0;
 	if (!send_command_to_GSM("AT+CLIP=1","OK",gsm_message,2,5)) return 0;   // for AON
 	if (!send_command_to_GSM("AT+CPBS=\"SM\"","OK",gsm_message,2,5)) return 0;   // select sim as memory
-#ifdef DEBUG_MODEM
+
+
+	#ifdef DEBUG_MODEM
 	send_string_to_UART3("MODEM: setup ok!  \n\r");
 	if (tel[0].number[0] == 0xFE){
 		send_string_to_UART3("MODEM: Vnimanie nety osnovnogo nomera! \n\r ");
 	}
 #endif
 	led_blink_stop(OUT_MODE_GSM);
-	return 1;
-}
-
-char send_sms_message_for_all(char * text,int function){
-	unsigned int i;
-	for (i=0;i<MAX_TEL_NUMBERS;i++){
-		if ((tel[i].access == TEL_ACCESS_ADMIN) || (tel[i].access == TEL_ACCESS_DOUBLE_SMS) || (tel[i].access == function)){
-			if (!modem_send_sms_message(tel[i].number,text));// return 0;
-		}
-	}
-	clear_output_sms_message();
 	return 1;
 }
 
@@ -379,70 +371,7 @@ void clear_output_sms_message(){
 
 
 
-char modem_send_sms_message(char * number,char * text){
-	led_blink(OUT_MODE_GSM,5,5);
-	if ((modem_errors[MODEM_ERRORS_SEND_SMS] > 3)){
-		modem_call(number);
-		return 0;
-	}
-	if ((modem_state != MODEM_STATE_ONLINE) || (number[0] == 0) || (modem_action != MODEM_ACTION_FREE)){
-		if (modem_state == MODEM_STATE_NOT_NEED){
-				modem_state = MODEM_STATE_OFF;
-		}
-		return 0;
-	}
-	modem_action = MODEM_ACTION_SMS;
-#ifdef MODEM_TEXT_MODE
-	send_string_to_GSM("AT+CMGS=\"+7");
-	send_string_to_GSM(number);
-	if (!send_command_to_GSM("\"",">",gsm_message,2,5)) return 0;
-	send_string_to_GSM(text);
-	send_char_to_GSM(0x1a);
-#else
-#ifdef DEBUG_MODEM
-	send_string_to_UART3("MODEM: SEND SMS! NUMBER:  ");
-	send_string_to_UART3(number);
-	send_string_to_UART3(" TEXT: ");
-		send_string_to_UART3(text);
-	send_string_to_UART3(" \n\r");
-#endif
-	send_string_to_GSM("AT+CMGS=");
-	send_int_to_GSM(((str_length(text) * 2)+13));
-	if (!send_command_to_GSM("",">",gsm_message,2,30)) return 0;
-	 send_string_to_GSM("0001000B91");
-	 send_string_to_GSM("97");
-	 int i;
-	 for (i = 0;i<10;i++) send_char_to_GSM(number[i]);
-//	 send_string_to_GSM(number);//number);
-	 send_string_to_GSM("0008");
-	 send_int_as_hex_to_GSM((str_length(text) * 2));
-//	 send_string_to_GSM("0C");
-	 send_text_as_ucs(text,str_length(text));
-//	 send_string_to_GSM("041F04400438043204350442");
-//	 send_string_to_GSM(int_to_hex(str_length(text))); // send length text as HEX
-//	 send_string_to_GSM(eng_to_ucs(text)); //send text as hex
-	 send_char_to_GSM(0x1a);
-//	 if (!send_command_to_GSM(0x1a,">",gsm_message,2,12)) return 0;
-//	 if (!send_command_to_GSM("\x1a",">",gsm_message,2,12)) return 0;
-	 if (!send_command_to_GSM("","+CMGS:",gsm_message,5,50)) {
 
-#ifdef DEBUG_MODEM
-	send_string_to_UART3("MODEM: SEND SMS ERROR!");
-	send_string_to_UART3(" \n\r");
-#endif
-
-		 modem_free();
-		 modem_errors[MODEM_ERRORS_SEND_SMS]++;
-		 return 0;
-	 }
-#endif
-#ifdef DEBUG_MODEM
-	send_string_to_UART3("MODEM: SEND SMS OK! \n\r");
-#endif
-	modem_errors[MODEM_ERRORS_SEND_SMS] = 0;
-	 modem_free();
-	return 1;
-}
 
 
 void send_int_as_hex_to_GSM(int x){
@@ -572,7 +501,7 @@ void modem_save_number(char ID_number,char * number,uint8_t acc){
 	send_string_to_UART3(" Number: ");
 	send_string_to_UART3(number);
 	send_string_to_UART3(" Access: ");
-	send_string_to_UART3(acc);
+	send_int_to_UART3(acc);
 	send_string_to_UART3(" \n\r");
 #endif
 }

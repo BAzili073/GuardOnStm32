@@ -1,6 +1,6 @@
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
-#include "defines.h"
+#include "EEPROMfunc.h"
 
 
  uint32_t * EEPROM_Address_32 = (uint32_t *)start_EEPROM;

@@ -8,9 +8,9 @@
 
 //#define DEBUG_FINGER
 #define DEBUG_MODEM
-//#define DEBUG_MODEM_UART
+#define DEBUG_MODEM_UART
 //#define DEBUG_220V
-#define DEBUG_DS18x20
+//#define DEBUG_DS18x20
 //#define DEBUG_1WIRE
 //#define DEBUG_ADD_DEVICE
 #define DEBUG_GUARD
@@ -117,9 +117,11 @@
 #define OPEN_CAP_PIN GPIO_PIN_15
 
 //INPUTS_MODE
-#define INPUTS_MODE_24H 0b00000001
-#define INPUTS_MODE_BUTTON_GUARD 0b00000010
-#define INPUTS_MODE_INVERS 0b00000100
+#define INPUTS_MODE_INVERS 1<<2
+#define INPUTS_MODE_BUTTON_GUARD 1<<1
+#define INPUTS_MODE_24H 1<<0
+
+
 
 
 #define ONE_WIRE_PORT GPIOB
@@ -175,28 +177,7 @@
 #define TIME_CHECK_DS18B20 50
 #define INPUT_TEXT_SIZE 15
 
-#define start_EEPROM 0x08080000
-#define EEPROM_device_settings		(0)
-#define EEPROM_time_set_alarm		(EEPROM_device_settings + 1)
-#define EEPROM_time_to_guard		(EEPROM_time_set_alarm + 1)
-#define EEPROM_tel_numbers 			(EEPROM_time_to_guard + 1)
-#define EEPROM_tel_access 			(EEPROM_tel_numbers + (10*MAX_TEL_NUMBERS))
-#define EEPROM_tms_id 				(EEPROM_tel_access + MAX_TEL_NUMBERS)
-#define EEPROM_tms_name 			(EEPROM_tms_id + (8 * MAX_TM))
-#define EEPROM_ds18x20_id 			(EEPROM_tms_name + (10 * MAX_TM))
-#define EEPROM_ds18x20_numbers 		(EEPROM_ds18x20_id + (8 * MAX_DS18x20))
-#define EEPROM_tms_numbers 			(EEPROM_ds18x20_numbers + 1)
-#define EEPROM_ds18x20_min			(EEPROM_tms_numbers + 1)
-#define EEPROM_ds18x20_max			(EEPROM_ds18x20_min + MAX_DS18x20)
-#define EEPROM_ds18x20_settings		(EEPROM_ds18x20_max + MAX_DS18x20)
-#define EEPROM_input_v_min			(EEPROM_ds18x20_settings + MAX_DS18x20)
-#define EEPROM_input_v_max			(EEPROM_input_v_min + MAX_INPUT)
-#define EEPROM_input_mode			(EEPROM_input_v_max + MAX_INPUT)
-#define EEPROM_input_time_to_alarm	(EEPROM_input_mode + MAX_INPUT)
-#define EEPROM_input_text 			(EEPROM_input_time_to_alarm + MAX_INPUT)
-#define EEPROM_output_mode			(EEPROM_input_text + MAX_INPUT * INPUT_TEXT_SIZE)
-#define EEPROM_led_mode				(EEPROM_output_mode + MAX_OUTPUT)
-//#define EEPROM_					(EEPROM_led_mode + MAX_OUTPUT)
+
 
 
 #define UUID_1 0x09473333

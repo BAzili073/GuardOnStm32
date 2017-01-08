@@ -4,12 +4,13 @@
 
 #include "stm32l1xx_hal.h"
 #include "stm32l151xba.h"
-#include "modem.h"
+#include "modem_module.h"
 #include "my_string.h"
 #include "defines.h"
 #include "EEPROMfunc.h"
 #include "guard_func.h"
 #include "1-Wire.h"
+#include "input.h"
 
 
 void main_guard(){
