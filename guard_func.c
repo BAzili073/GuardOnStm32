@@ -48,7 +48,7 @@ void read_device_settings(){
 	 temp = EEPROMRead(EEPROM_time_set_alarm,1);
 	 if (temp != 0xFE) time_set_alarm = temp;
 
-//	 device_settings |= DEVICE_SETTING_SMS_AT_STARTUP | DEVICE_SETTING_AUTO_GUARD_AT_START;
+	 device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
 }
 
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t){
@@ -112,7 +112,8 @@ void guard_on_TM(){
 			guard_off();
 		}
 	}else{
-		guard_on();
+		if (alarm_st) alarm_off();
+		else guard_on();
 	}
 }
 
@@ -120,7 +121,6 @@ void guard_off(){
 	led_blink_stop(OUT_MODE_GUARD);
 	time_to_guard_on = -1;
 	guard_st = GUARD_OFF;
-	clear_alarm_input();
 	out_off_mode(OUT_MODE_GUARD);
 	alarm_off();
 	changed_guard_sms(GUARD_OFF);
@@ -164,6 +164,7 @@ void alarm_off(){
 		out_off_mode(OUT_MODE_ALARM);
 		out_off_mode(OUT_MODE_LAMP);
 		alarm_st = ALARM_OFF;
+		clear_alarm_input();
 #ifdef DEBUG_GUARD
 	send_string_to_UART3("ALAAAAARM: OFF! \n\r");
 #endif

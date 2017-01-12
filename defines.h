@@ -15,6 +15,7 @@
 //#define DEBUG_ADD_DEVICE
 #define DEBUG_GUARD
 #define DEBUG_INPUTS
+#define DEBUG_ALARM
 #define DEBUG
 
 #define true 1

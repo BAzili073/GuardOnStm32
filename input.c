@@ -23,7 +23,7 @@ typedef struct INPUT_obj{
 	    [0] = {	.port = INPUT_PORT, .pin = INPUT_1, .mode = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_1, .state = 0},
 	    [1] = {	.port = INPUT_PORT, .pin = INPUT_2, .mode = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_4, .state = 0},
 	    [2] = {	.port = INPUT_PORT, .pin = INPUT_3, .mode = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_5, .state = 0},
-	    [3] = {	.port = INPUT_PORT, .pin = INPUT_4, .mode = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_6, .state = 0},
+	    [3] = {	.port = INPUT_PORT, .pin = INPUT_4, .mode = 5, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_6, .state = 0},
 	    [4] = {	.port = INPUT_PORT, .pin = INPUT_5, .mode = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_7, .state = 0},
  };
 

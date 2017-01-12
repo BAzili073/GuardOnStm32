@@ -67,11 +67,15 @@ void modem_free();
 ////VARIABLES
 int modem_action;
 
-#define CALL_STATE_NO_CALL 0
-#define CALL_STATE_CALL 1
-#define CALL_STATE_BUSY 2
-#define CALL_STATE_NO_CARRIER 3
-#define CALL_STATE_NO_ANSWER 4
+#define CALL_STATE_NO_CALL 100
+#define CALL_STATE_ACTIVE 0
+#define CALL_STATE_DIALING 2
+#define CALL_STATE_ALERTING 3
+#define CALL_STATE_CALL 101
+#define CALL_STATE_BUSY 102
+#define CALL_STATE_NO_CARRIER 103
+#define CALL_STATE_NO_ANSWER 104
+
 
 
 //

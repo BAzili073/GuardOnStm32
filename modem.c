@@ -297,6 +297,10 @@ char parse_gsm_message(){
 		return_gsm_message = GSM_MESSAGE_ERROR;
 	}else if (find_str("+QTONEDET\r\n",gsm_message)){ ///////////////////////////////// DTMF
 
+	}else if (find_str("+CLCC:",gsm_message)){ ///////////////////////////////// DTMF
+		if (gsm_message[7] == '1'){
+			modem_call_state = (gsm_message[11] - '0');
+		}
 	}
 	clear_gsm_message();
 	return return_gsm_message;
@@ -490,6 +494,10 @@ char check_number(char * number){
 void modem_save_number(char ID_number,char * number,uint8_t acc){
 	int i;
 	for (i = 0;i<10;i++){
+		if (((number[i] -'0') > 9) || ((number[i] -'0') < 0) ){
+			acc = 0;
+			break;
+		}
 		tel[ID_number].number[i] = number[i];
 		EEPROMWrite((EEPROM_tel_numbers + ID_number*10+i),number[i],1);
 	}

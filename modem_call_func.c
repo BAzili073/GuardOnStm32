@@ -3,6 +3,8 @@
 #include "modem_module.h"
 #include "guard_func.h"
 #include "modem.h"
+#include "DS18x20.h"
+
 
 char incoming_rings = 0;
 extern TEL_obj tel[MAX_TEL_NUMBERS];
@@ -39,19 +41,39 @@ void modem_call(char * number){
 
 uint8_t alarm_call(){
 	uint8_t need_alarm_call = 1;
+	int try = 3;
 	while (need_alarm_call){
 		int i;
 		for (i = 0;i < MAX_TEL_NUMBERS;i++){
 			if (tel[i].access == TEL_ACCESS_ADMIN){
 				modem_call(tel[i].number);
-			}
-			while (1){
-				check_gsm_message();
-				if (modem_call_state == CALL_STATE_BUSY) return 1;
-				send_string_to_GSM("AT+CLCC=1");
-				send_char_to_GSM('\r');
-				set_timeout_7(30);
-				while_timeout_7();
+#ifdef DEBUG_ALARM
+		send_string_to_UART3("Alarm call! Lost try: ");
+		send_int_to_UART3(try);
+		send_string_to_UART3("\r\n");
+#endif
+				while (1){
+					int h = 3;
+					if ((modem_call_state == CALL_STATE_ACTIVE) || (modem_call_state == CALL_STATE_NO_CARRIER)) {
+						need_alarm_call = 0;
+						return 1;
+					}
+					if ((modem_call_state == CALL_STATE_NO_ANSWER) || (modem_call_state == CALL_STATE_BUSY)) {
+						try --;
+						if (!try) return 0;
+						break;
+					}
+					send_string_to_GSM("AT+CLCC\r");
+					while (h){
+						set_timeout_7(1);
+						while_timeout_7();
+						h--;
+						check_TM();
+						check_temperature();
+						check_gsm_message();
+					}
+
+				}
 			}
 		}
 	}
