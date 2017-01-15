@@ -241,11 +241,26 @@ void read_settings(){
 
 //////////////////   			 READ NUMBER
 	for (i = 0;i< MAX_TEL_NUMBERS;i++){
-		for (y = 0;y < 10; y++){
-			tel[i].number[y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
+		tel[i].access = EEPROMRead(EEPROM_tel_access+i,1);
+		if (tel[i].access != 0xFE){
+			for (y = 0;y < 10; y++){
+				tel[i].number[y] = EEPROMRead((EEPROM_tel_numbers + (i * 11) + y),1);
+				if ((tel[i].number[y] < 48 || tel[i].number[y] > 58) & tel[i].number[y] != 'F') {
+					tel[i].access = TEL_ACCESS_OFF;
+				}
+			}
+			tel[i].number[10] = 0;
+			#ifdef DEBUG_READ_SETTINGS
+				send_string_to_UART3("READ NUMBER: ");
+				send_string_to_UART3(tel[i].number);
+				send_string_to_UART3(" Dost: ");
+				if ((tel[i].access >= 0) & (tel[i].access <10)) send_int_to_UART3(tel[i].access);
+				else send_char_to_UART3(tel[i].access);
+				send_string_to_UART3(" \n\r");
+			#endif
+		}else{
+			tel[i].access = TEL_ACCESS_OFF;
 		}
-		tel[i].number[10] = 0;
-		if (i != 0) tel[i].access = EEPROMRead(EEPROM_tel_access+i,1);
 	}
 		read_TM_KEY_settings();
 		read_ds18x20_settings();

@@ -28,7 +28,7 @@ char send_sms_message_for_all(char * text,int function){
 
 
 char modem_send_sms_message(char * number,char * text){
-	led_blink(OUT_MODE_GSM,5,5);
+
 	if ((modem_errors[MODEM_ERRORS_SEND_SMS] > 3)){
 		modem_call(number);
 		return 0;
@@ -39,6 +39,8 @@ char modem_send_sms_message(char * number,char * text){
 		}
 		return 0;
 	}
+
+	led_blink(OUT_MODE_GSM,5,5);
 	modem_action = MODEM_ACTION_SMS;
 #ifdef MODEM_TEXT_MODE
 	send_string_to_GSM("AT+CMGS=\"+7");

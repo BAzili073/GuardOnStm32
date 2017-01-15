@@ -31,7 +31,8 @@ void set_output_settings(uint8_t output_t, uint8_t mode_t){
 	send_string_to_UART3("Device: Set setting output! ID:");
 	send_int_to_UART3(output_t);
 	send_string_to_UART3(" Mode: ");
-	send_int_to_UART3(mode_t);
+	if ((mode_t >= 0) & (mode_t <10)) send_int_to_UART3(mode_t);
+	else send_char_to_UART3(mode_t);
 	send_string_to_UART3(" \n\r ");
 #endif
 }
@@ -63,4 +64,10 @@ void output_on_hand(uint8_t output_t){
 
 void output_off_hand(uint8_t output_t){
 	if (output[output_t].mode == OUT_MODE_HAND) output_off(output_t);
+}
+
+void control_out_by_id_and_mode(uint8_t output_t,uint8_t mode,uint8_t state){
+	if (output[output_t].mode == mode){
+		state ? output_on(output_t) : output_off(output_t);
+	}
 }

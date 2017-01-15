@@ -10,14 +10,11 @@ char incoming_rings = 0;
 extern TEL_obj tel[MAX_TEL_NUMBERS];
 
 int modem_call_state = CALL_STATE_NO_CALL;
-
+extern char tel_number_temp[10];
 
 void modem_call(char * number){
 
 	modem_call_state = CALL_STATE_CALL;
-	if (modem_errors[MODEM_ERRORS_NO_CARRIER] > 3){
-		return;
-	}
 	if (modem_action == MODEM_ACTION_FREE){
 		int i;
 		for (i=0;i<11;i++){
@@ -102,8 +99,8 @@ void incoming_call(){
 				if (send_command_to_GSM("ATH0","OK",gsm_message,2,50)){
 					modem_free();
 				}
-				if (tel[0].number[0] == 0xFE){ ////////////
-					modem_save_number(0,tel_number_temp,9);
+				if (tel[0].access != TEL_ACCESS_ADMIN){ ////////////
+					modem_save_number(0,tel_number_temp,TEL_ACCESS_ADMIN);
 					modem_send_sms_message(tel[0].number,"vaw nomer dobavlen v sistemu");
 				}
 				modem_free();

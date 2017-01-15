@@ -19,7 +19,7 @@ extern TEL_obj tel[MAX_TEL_NUMBERS];
 
 void sms_command_nn();
 void sms_command_r();
-
+extern char tel_number_temp[10];
 void parse_incoming_sms(){
 	uint8_t temp = 0;
 	int32_t temp2 = 0;
@@ -109,7 +109,9 @@ void parse_incoming_sms(){
 				str_add_str(last_control_guard,sizeof(last_control_guard),"+79",0);
 				convert_number_to_eng(tel_number_temp);
 				str_add_str(last_control_guard,sizeof(last_control_guard),tel_number_temp,10);
-				set_new_guard_st((input_sms_message[1] - '0'));
+				if (input_sms_message[1]) set_new_guard_st((input_sms_message[1] - '0'));
+				else set_new_guard_st(!get_guard_st());
+
 		break;
 //rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
 		case 'r':
@@ -131,7 +133,8 @@ void sms_command_nn(){
 		row_number[i] = input_sms_message[8+i];
 	}
 	convert_number_to_upd(row_number);
-	uint8_t acc = input_sms_message[18] - '0';
+	uint8_t acc = input_sms_message[18];
+	if ((acc > 47) & (acc < 58)) acc = acc - '0';
 	modem_save_number(ID_number,row_number,acc);
 }
 

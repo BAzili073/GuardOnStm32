@@ -42,6 +42,4 @@ uint8_t last_control_ID_number;
 char last_control_guard[13];
 
 
-char tel_number_temp[10];
-
 #endif

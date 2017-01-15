@@ -1,6 +1,7 @@
 #include "DS18x20.h"
 #include "modem_module.h"
 
+uint8_t check_ds18x20_setting(uint8_t num, uint8_t opt);
 
 DS18x20_obj DS18x20[MAX_DS18x20] = {
 		[0] = {.max_temp =  25, .min_temp = -20},
@@ -42,7 +43,15 @@ void set_ds18x20_settings(uint8_t ds, int8_t min_temp_t, int8_t max_temp_t ,uint
 	send_int_to_UART3(min_temp_t);
 	send_string_to_UART3(" MAX: ");
 	send_int_to_UART3(max_temp_t);
-	send_string_to_UART3(" settings: ");
+	send_string_to_UART3("\n\r SMS: ");
+	if (check_ds18x20_setting(ds,DS18X20_SETTINGS_SMS)) 	send_string_to_UART3("ON \n\r");
+	else send_string_to_UART3("OFF \n\r");
+	send_string_to_UART3("CONTROL OUT: ");
+	if (check_ds18x20_setting(ds,DS18X20_SETTINGS_CONTROL_OUT)) 	send_string_to_UART3("ON \n\r");
+	else send_string_to_UART3("OFF \n\r");
+	send_string_to_UART3("INVERS: ");
+	if (check_ds18x20_setting(ds,DS18X20_SETTINGS_CONTROL_INVER)) 	send_string_to_UART3("ON \n\r");
+	else send_string_to_UART3("OFF \n\r");
 	send_int_to_UART3(settings_t);
 	send_string_to_UART3(" \n\r ");
 #endif
@@ -149,9 +158,9 @@ void check_temperature(){
 							for (y = 3;y<8;y++){
 								if (check_ds18x20_setting(i,(1<<y))){
 									if (check_ds18x20_setting(i,DS18X20_SETTINGS_CONTROL_INVER)){
-										output_off_hand(y-3);
+										control_out_by_id_and_mode((y-3),OUT_MODE_SENSOR,0);
 									}else{
-										output_on_hand(y-3);
+										control_out_by_id_and_mode((y-3),OUT_MODE_SENSOR,1);
 									}
 								}
 							}
@@ -188,11 +197,11 @@ void check_temperature(){
 					if (DS18x20[i].alarm != DS18X20_ALARM_NORM){
 						if (check_ds18x20_setting(i,DS18X20_SETTINGS_CONTROL_OUT)){
 							for (y = 3;y<8;y++){
-								if (DS18x20[i].settings && (1<<y)){
+								if (check_ds18x20_setting(i,(1<<y))){
 									if (check_ds18x20_setting(i,DS18X20_SETTINGS_CONTROL_INVER)){
-										output_on_hand(y-3);
+										control_out_by_id_and_mode((y-3),OUT_MODE_SENSOR,1);
 									}else{
-										output_off_hand(y-3);
+										control_out_by_id_and_mode((y-3),OUT_MODE_SENSOR,0);
 									}
 								}
 							}

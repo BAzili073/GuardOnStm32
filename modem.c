@@ -494,7 +494,7 @@ char check_number(char * number){
 void modem_save_number(char ID_number,char * number,uint8_t acc){
 	int i;
 	for (i = 0;i<10;i++){
-		if (((number[i] -'0') > 9) || ((number[i] -'0') < 0) ){
+		if ((((number[i] -'0') > 9) || ((number[i] -'0') < 0)) & (number[i] != 'F')){
 			acc = 0;
 			break;
 		}
@@ -509,7 +509,8 @@ void modem_save_number(char ID_number,char * number,uint8_t acc){
 	send_string_to_UART3(" Number: ");
 	send_string_to_UART3(number);
 	send_string_to_UART3(" Access: ");
-	send_int_to_UART3(acc);
+	if ((acc >= 0) & (acc <10)) send_int_to_UART3(acc);
+	else send_char_to_UART3(acc);
 	send_string_to_UART3(" \n\r");
 #endif
 }
