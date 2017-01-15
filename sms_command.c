@@ -46,9 +46,11 @@ void parse_incoming_sms(){
 		case 'n':
 			switch(input_sms_message[1]){
 				case 'n':
+					//nn X +79021201364
 					sms_command_nn();
 				break;
 				case 't':
+					//ntX -10,29,00010011
 					temp = 0;
 					temp2 = parse_int_in_message(input_sms_message,4);
 					temp3 = parse_int_in_message(input_sms_message,(4 + get_size_number(temp2) + 1));
@@ -62,8 +64,10 @@ void parse_incoming_sms(){
 				case 'v':
 					temp = 0;
 					if (input_sms_message[2] == 't'){
+						//nvt1 dverb zapili
 						set_input_text((input_sms_message[3]-'0'),input_sms_message);
 					}else{
+						//nv1 3,7,000,2
 						for (i = 0;;i++) {
 						if ((input_sms_message[8 + i] != '0') && (input_sms_message[8 + i] != '1')) break;
 							temp = (temp<<1) | (input_sms_message [8 + i] - '0');
@@ -79,11 +83,13 @@ void parse_incoming_sms(){
 
 				break;
 				case 'r':
+					//nr lov12
 					for (i = 0;i < MAX_OUTPUT;i++){
 						set_output_settings(i,(input_sms_message[3 + i]));
 					}
 				break;
 				case 'i':
+					//ni lov12
 					for (i = 0;i < MAX_LED;i++){
 						set_led_settings(i,(input_sms_message[3 + i]));
 					}
@@ -106,6 +112,7 @@ void parse_incoming_sms(){
 		break;
 //oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 		case 'o':
+			//o0 o1 o
 				str_add_str(last_control_guard,sizeof(last_control_guard),"+79",0);
 				convert_number_to_eng(tel_number_temp);
 				str_add_str(last_control_guard,sizeof(last_control_guard),tel_number_temp,10);
@@ -115,6 +122,7 @@ void parse_incoming_sms(){
 		break;
 //rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
 		case 'r':
+			//r
 				sms_command_r();
 		break;
 //

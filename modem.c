@@ -17,6 +17,8 @@ TEL_obj tel[MAX_TEL_NUMBERS] ={
 		[0] = {.access = TEL_ACCESS_ADMIN,},
 };
 
+
+
 void send_text_as_ucs(char * out_message, unsigned int len);
 char parse_gsm_message();
 void clear_gsm_message();
@@ -50,6 +52,32 @@ char modem_time_check = 0;
 
 char modem_errors[2];
 
+void read_numbers(){
+	int y;
+	int i;
+	for (i = 0;i< MAX_TEL_NUMBERS;i++){
+		tel[i].access = EEPROMRead(EEPROM_tel_access+i,1);
+		if (tel[i].access != 0xFE){
+			for (y = 0;y < 10; y++){
+				tel[i].number[y] = EEPROMRead((EEPROM_tel_numbers + (i * 10) + y),1);
+				if ((tel[i].number[y] < 48 || tel[i].number[y] > 58) & tel[i].number[y] != 'F') {
+					tel[i].access = TEL_ACCESS_OFF;
+				}
+			}
+			tel[i].number[10] = 0;
+			#ifdef DEBUG_READ_SETTINGS
+				send_string_to_UART3("READ NUMBER: ");
+				send_string_to_UART3(tel[i].number);
+				send_string_to_UART3(" Dost: ");
+				if ((tel[i].access >= 0) & (tel[i].access <10)) send_int_to_UART3(tel[i].access);
+				else send_char_to_UART3(tel[i].access);
+				send_string_to_UART3(" \n\r");
+			#endif
+		}else{
+			tel[i].access = TEL_ACCESS_OFF;
+		}
+	}
+}
 void modem_time(){
 	if (modem_time_check) modem_time_check--;
 }
