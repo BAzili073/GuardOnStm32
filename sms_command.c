@@ -20,6 +20,7 @@ extern TEL_obj tel[MAX_TEL_NUMBERS];
 void sms_command_nn();
 void sms_command_r();
 extern char tel_number_temp[10];
+
 void parse_incoming_sms(){
 	uint8_t temp = 0;
 	int32_t temp2 = 0;
@@ -29,7 +30,7 @@ void parse_incoming_sms(){
 	last_control_ID_number = check_number(tel_number_temp);
 
 	if (last_control_ID_number > MAX_TEL_NUMBERS) return;
-	ucs_to_eng(gsm_message, input_sms_message);
+	sms_ucs_to_eng(gsm_message, input_sms_message);
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("INCOMING SMS! NUMBER: ");
 	send_string_to_UART3(tel_number_temp);
@@ -46,11 +47,14 @@ void parse_incoming_sms(){
 		case 'n':
 			switch(input_sms_message[1]){
 				case 'n':
-					//nn X +79021201364
+					//nnX +79021201364
+					if (input_sms_message[2] < '0' || input_sms_message[2] > '9')  break;
 					sms_command_nn();
+
 				break;
 				case 't':
 					//ntX -10,29,00010011
+					if (input_sms_message[2] < '0' || input_sms_message[2] > '9') break;
 					temp = 0;
 					temp2 = parse_int_in_message(input_sms_message,4);
 					temp3 = parse_int_in_message(input_sms_message,(4 + get_size_number(temp2) + 1));
@@ -64,9 +68,11 @@ void parse_incoming_sms(){
 				case 'v':
 					temp = 0;
 					if (input_sms_message[2] == 't'){
+						if (input_sms_message[3] < '0' || input_sms_message[3] > '9') break;
 						//nvt1 dverb zapili
 						set_input_text((input_sms_message[3]-'0'),input_sms_message);
 					}else{
+						if (input_sms_message[2] < '0' || input_sms_message[2] > '9') break;
 						//nv1 3,7,000,2
 						for (i = 0;;i++) {
 						if ((input_sms_message[8 + i] != '0') && (input_sms_message[8 + i] != '1')) break;
@@ -125,6 +131,10 @@ void parse_incoming_sms(){
 			//r
 				sms_command_r();
 		break;
+		case 'b':
+			//r
+
+		break;
 //
 	}
 	for (i = 0;i<70;i++) input_sms_message[i] = 0;
@@ -134,14 +144,14 @@ void parse_incoming_sms(){
 
 void sms_command_nn(){
 
-	unsigned int ID_number  = (input_sms_message[3] - '0');
+	unsigned int ID_number  = (input_sms_message[2] - '0');
 	char row_number[10];
 	unsigned int i;
 	for (i = 0;i<10;i++){
-		row_number[i] = input_sms_message[8+i];
+		row_number[i] = input_sms_message[7+i];
 	}
 	convert_number_to_upd(row_number);
-	uint8_t acc = input_sms_message[18];
+	uint8_t acc = input_sms_message[17];
 	if ((acc > 47) & (acc < 58)) acc = acc - '0';
 	modem_save_number(ID_number,row_number,acc);
 }
@@ -150,19 +160,19 @@ void sms_command_r(){
 		char a[1];
 		unsigned int i;
 		str_add_str(output_sms_message,sizeof(output_sms_message),(get_guard_st() ? "na ohrane" : "snqt s ohranQ"),0);
-		str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"vh:",0);
 		for (i = 1;i<6;i++) {
 			a[0] = (('-' - (check_input(i)*2)));
 			str_add_str(output_sms_message,sizeof(output_sms_message),a,MAX_INPUT);
 		}
-		str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"vQh:",0);
 		for (i = 1;i<6;i++) {
 		//	a[0] = ('1' - (GPIO_READ((outputs_port[(i-1)]),(output[i-1].pin))*2));
 			str_add_str(output_sms_message,sizeof(output_sms_message),a,MAX_OUTPUT);
 		}
-		str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"temp:",0);
 		for (i = 0;i < get_DS18x20_count();i++){
 			int16_t tp = get_last_temp_DS18x20_by_number(i);
@@ -170,7 +180,7 @@ void sms_command_r(){
 			else str_add_num(output_sms_message,tp);
 			str_add_str(output_sms_message,sizeof(output_sms_message),";",0);
 		}
-		str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		if (get_powered() == POWERED_220V) str_add_str(output_sms_message,sizeof(output_sms_message),"220v",0);
 		else str_add_str(output_sms_message,sizeof(output_sms_message),"аккум!",0);
 		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);

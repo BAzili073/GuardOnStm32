@@ -96,3 +96,13 @@ char modem_send_sms_message(char * number,char * text){
 	 modem_free();
 	return 1;
 }
+
+void sms_ucs_to_eng(char * in_message, char * message){
+	unsigned int len;
+	if (in_message[53] > 64) len = 10 + 'A' - in_message[53];
+	else len = in_message[53]- '0';
+	len = (((in_message[52] - '0')*16 + len)*4);
+	ucs_to_eng(in_message, message,len,54);
+
+//	char sign[] = " !{034}#$%&'()*+,-./0123456789:;<=>?";
+}

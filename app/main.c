@@ -17,7 +17,7 @@
  void add_device_check();
  void add_device_mode();
 
-char temp_address[2][8] = {{0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40},{0x28,0xB8,0xa3,0xA0,0x04,0x00,0x00,0xf2}};
+//char temp_address[2][8] = {{0x28,0x62,0x57,0xA0,0x04,0x00,0x00,0x40},{0x28,0xB8,0xa3,0xA0,0x04,0x00,0x00,0xf2}};
 
 void EXTI0_IRQHandler(){
 }
@@ -62,7 +62,7 @@ int main(void) {
 	if (check_device_setting(DEVICE_SETTING_SMS_AT_STARTUP)){
 		get_all_temp();
 		str_add_str(output_sms_message,sizeof(output_sms_message),"ver:5.0 ",0);
-		str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		sms_command_r();
 	}
 

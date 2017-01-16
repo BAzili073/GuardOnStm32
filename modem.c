@@ -60,7 +60,7 @@ void read_numbers(){
 		if (tel[i].access != 0xFE){
 			for (y = 0;y < 10; y++){
 				tel[i].number[y] = EEPROMRead((EEPROM_tel_numbers + (i * 10) + y),1);
-				if ((tel[i].number[y] < 48 || tel[i].number[y] > 58) & tel[i].number[y] != 'F') {
+				if ((tel[i].number[y] < '0' || tel[i].number[y] > '9') & tel[i].number[y] != 'F') {
 					tel[i].access = TEL_ACCESS_OFF;
 				}
 			}
@@ -329,6 +329,12 @@ char parse_gsm_message(){
 		if (gsm_message[7] == '1'){
 			modem_call_state = (gsm_message[11] - '0');
 		}
+	}else if (find_str("+CUSD:",gsm_message)){
+		usd_ucs_to_eng(gsm_message,input_sms_message);
+		send_sms_message_for_all(input_sms_message,SMS_FUNCTION_SERVICE);
+#ifdef DEBUG_MODEM
+		send_string_to_UART3(input_sms_message);
+#endif
 	}
 	clear_gsm_message();
 	return return_gsm_message;
@@ -391,6 +397,7 @@ char modem_setup(){
 	}
 #endif
 	led_blink_stop(OUT_MODE_GSM);
+	send_command_to_GSM("AT+CUSD=1,\"*102#\"","OK",gsm_message,2,5);
 	return 1;
 }
 
@@ -422,27 +429,28 @@ void int_to_hex(int x){
 
 }
 
-
-void ucs_to_eng(char * in_message, char * message){
+void ucs_to_eng(char * in_message, char * message, int len, int start_pos){
 	unsigned int i;
 	char abc[] = "abvgdejziIklmnoprstufhcCwWDQBEUq";
-	unsigned int len;
-	if (in_message[53] > 64) len = 10 + 'A' - in_message[53];
-	else len = in_message[53]- '0';
-	len = (((in_message[52] - '0')*16 + len)*4);
-//	char sign[] = " !{034}#$%&'()*+,-./0123456789:;<=>?";
-	for (i = 54;i<(54 + len);i=i+4){
+	for (i = start_pos;i<(start_pos + len);i=i+4){
 		if (in_message[i+1] == '4'){
 			if (in_message[i+2] == '1' || in_message[i+2] == '3'){
-				message[((i - 54)/4)] = abc[(hexchar_to_dec(in_message[i+3]))];
+				message[((i - start_pos)/4)] = abc[(hexchar_to_dec(in_message[i+3]))];
 			}else if(in_message[i+2] == '2' || in_message[i+2] == '4'){
-				message[((i - 54)/4)] = abc[(hexchar_to_dec(in_message[i+3]) + 16)];
+				message[((i - start_pos)/4)] = abc[(hexchar_to_dec(in_message[i+3]) + 16)];
 			}
 		}else if (in_message[i+1] == '0'){
-			message[((i - 54)/4)] = (hexchar_to_dec(in_message[i+2])<<4) + (hexchar_to_dec(in_message[i+3]));
+			message[((i - start_pos)/4)] = (hexchar_to_dec(in_message[i+2])<<4) + (hexchar_to_dec(in_message[i+3]));
+//			if (message[((i - start_pos)/4)] == '\n') message[((i - start_pos)/4)] = '^';
 		}
 	}
 }
+
+void usd_ucs_to_eng(char * in_message, char * message){
+	int len = (str_length(in_message) - 10);
+	ucs_to_eng(in_message, message,len,10);
+}
+
 
 void send_text_as_ucs(char * out_message, unsigned int len){
 	char abc[] = "abvgdejziIklmnoprstufhcCwWDQBEUq";
@@ -450,9 +458,10 @@ void send_text_as_ucs(char * out_message, unsigned int len){
 	unsigned int i = 0;
 	unsigned int y = 0;
 	for (i = 0;i<len;i++){
-		if (out_message[i] == '^'){
-			send_string_to_GSM("000A");
-		}else if (out_message[i] < 65){
+//		if (out_message[i] == '^'){
+//			send_string_to_GSM("000A");
+//		}else
+			if (out_message[i] < 65){
 				send_string_to_GSM("00");
 				for (y = 0;y<33;y++){
 					if (out_message[i] == sign[y]){

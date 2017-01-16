@@ -50,7 +50,7 @@ char send_sms_message_for_all(char * text,int function);
 char modem_setup();
 char check_number(char * number);
 void convert_number_to_upd(char * number);
-void ucs_to_eng(char * in_message, char * message);
+void ucs_to_eng(char * in_message, char * message,int start_pos, int len);
 //void send_text_as_ucs(char * out_message, unsigned int len);
 char check_gsm_message();
 void modem_check_state();

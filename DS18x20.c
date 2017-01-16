@@ -184,10 +184,10 @@ void check_temperature(){
 							else str_add_str(output_sms_message,sizeof(output_sms_message)," nije",0);
 							str_add_str(output_sms_message,sizeof(output_sms_message)," normQ: ",0);
 							str_add_num(output_sms_message,DS18x20[i].last_temp);
-							str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 							str_add_str(output_sms_message,sizeof(output_sms_message),"min: ",0);
 							str_add_num(output_sms_message,DS18x20[i].min_temp);
-							str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 							str_add_str(output_sms_message,sizeof(output_sms_message),"maks: ",0);
 							str_add_num(output_sms_message,DS18x20[i].max_temp);
 							send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);
@@ -211,10 +211,10 @@ void check_temperature(){
 							str_add_num(output_sms_message,(i+1));
 							str_add_str(output_sms_message,sizeof(output_sms_message)," v norme: ",0);
 							str_add_num(output_sms_message,DS18x20[i].last_temp);
-							str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 							str_add_str(output_sms_message,sizeof(output_sms_message),"min: ",0);
 							str_add_num(output_sms_message,DS18x20[i].min_temp);
-							str_add_str(output_sms_message,sizeof(output_sms_message),"^",0);
+							str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 							str_add_str(output_sms_message,sizeof(output_sms_message),"maks: ",0);
 							str_add_num(output_sms_message,DS18x20[i].max_temp);
 							send_sms_message_for_all(output_sms_message,SMS_FUNCTION_ALERT);

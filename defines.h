@@ -9,13 +9,14 @@
 //#define DEBUG_FINGER
 #define DEBUG_MODEM
 #define DEBUG_READ_SETTINGS
-//#define DEBUG_MODEM_UART
+#define DEBUG_MODEM_UART
 //#define DEBUG_220V
 //#define DEBUG_DS18x20
 //#define DEBUG_1WIRE
 //#define DEBUG_ADD_DEVICE
 #define DEBUG_GUARD
 #define DEBUG_INPUTS
+//#define DEBUG_INPUTS_ADC
 #define DEBUG_ALARM
 #define DEBUG
 

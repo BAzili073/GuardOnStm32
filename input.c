@@ -109,6 +109,17 @@ void set_input_text(uint8_t inp, char * text_t){
  int check_input(int input_t){
  		unsigned int adc_value;
  			adc_value = ADC_read(input[input_t - 1].adc_channel); // измерение со входа
+#ifdef DEBUG_INPUTS_ADC
+ 			send_string_to_UART3("INPUT:");
+ 			send_int_to_UART3(input_t);
+ 			send_string_to_UART3(" Value:");
+ 			send_int_to_UART3(adc_value);
+ 			send_string_to_UART3(" Min:");
+			send_int_to_UART3((input[input_t - 1].v_min)*300);
+			send_string_to_UART3(" Max:");
+			send_int_to_UART3(input[input_t - 1].v_max*300);
+ 			send_string_to_UART3(" \n\r");
+#endif
  			if (((((input[input_t - 1].v_max*300) > adc_value) & ((input[input_t - 1].v_min)*300) < adc_value) ^ !(check_input_setting((input_t-1),INPUTS_MODE_INVERS)>0)) ){//вход не в норме
  				return 1;
  			}
