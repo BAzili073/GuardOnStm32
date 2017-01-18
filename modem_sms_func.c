@@ -9,9 +9,10 @@ extern int modem_state;
 void incoming_sms(){
 	send_command_to_GSM("AT+CMGR=1,0","+CMGR:",gsm_message,2,5);
 	send_command_to_GSM("","0008",gsm_message,2,5);
+	send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,2,0);
 //					get_next_gsm_message();
 	parse_incoming_sms();
-	send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,2,5);
+
 }
 
 char send_sms_message_for_all(char * text,int function){
@@ -105,4 +106,27 @@ void sms_ucs_to_eng(char * in_message, char * message){
 	ucs_to_eng(in_message, message,len,54);
 
 //	char sign[] = " !{034}#$%&'()*+,-./0123456789:;<=>?";
+}
+
+char get_next_command_from_sms(char * sms, char * command, char num_cmd){
+	char i;
+	char command_char = 0;
+	char n_count = 0;
+	for (i = 0;i<70;i++){
+		if (sms[i] == '\n' || sms[i] == 0){
+			n_count++;
+			if (n_count == num_cmd){
+				for (;command_char<70;command_char++){
+					command[command_char] = 0;
+				}
+				if (command[0]) return 1;
+				else return 0;
+			}
+			command_char = 0;
+		}else{
+			command [command_char] = sms[i];
+			command_char++;
+		}
+	}
+	return 0;
 }

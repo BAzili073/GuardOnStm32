@@ -61,6 +61,7 @@ void incoming_sms();
 void modem_no_carrier();
 void convert_number_to_eng(char * number);
 void modem_free();
+char get_next_command_from_sms(char * sms, char * command, char num_cmd);
 //char send_command_to_GSM(char * s,char * await_ans, char * answer, int t_msec, int max_t);
 //int modem_state = MODEM_STATE_OFF;
 

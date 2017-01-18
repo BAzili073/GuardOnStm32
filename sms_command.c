@@ -17,7 +17,7 @@
 extern TEL_obj tel[MAX_TEL_NUMBERS];
 
 
-void sms_command_nn();
+void sms_command_nn(char * command_str);
 void sms_command_r();
 extern char tel_number_temp[10];
 
@@ -26,7 +26,9 @@ void parse_incoming_sms(){
 	int32_t temp2 = 0;
 	int32_t temp3 = 0;
 	int i;
+	char command_str[70];
 	char command[20];
+	char command_count = 1;
 	for (i = 0;i<11;i++) tel_number_temp[i] = gsm_message[i+24];
 	last_control_ID_number = check_number(tel_number_temp);
 
@@ -42,126 +44,148 @@ void parse_incoming_sms(){
 	send_string_to_UART3(input_sms_message);
 	send_string_to_UART3(" \n\r");
 #endif
+	while(get_next_command_from_sms(input_sms_message,command_str,command_count)){
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("Progessing command: ");
+	send_string_to_UART3(command_str);
+	send_string_to_UART3("\n\r");
+#endif
+		switch(command_str[0]){
+	//nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+			case 'n':
+				switch(command_str[1]){
+					case 'n':
+						//nnX +79021201364
+						if (command_str[2] < '0' || command_str[2] > '9')  break;
+						sms_command_nn(command_str);
 
-	switch(input_sms_message[0]){
-//nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
-		case 'n':
-			switch(input_sms_message[1]){
-				case 'n':
-					//nnX +79021201364
-					if (input_sms_message[2] < '0' || input_sms_message[2] > '9')  break;
-					sms_command_nn();
-
-				break;
-				case 't':
-					//ntX -10,29,00010011
-					if (input_sms_message[2] < '0' || input_sms_message[2] > '9') break;
-					temp = 0;
-					temp2 = parse_int_in_message(input_sms_message,4);
-					temp3 = parse_int_in_message(input_sms_message,(4 + get_size_number(temp2) + 1));
-					for (i = 0;;i++) {
-						char a = input_sms_message[4 + i + get_size_number(temp2) + 1 + get_size_number(temp3) +1];
-						if ((a != '0') && (a != '1')) break;
-							temp = (temp<<1) | (a - '0');
-					}
-					set_ds18x20_settings((input_sms_message[2]-'0'),temp2,temp3,temp);
-				break;
-				case 'v':
-					temp = 0;
-					if (input_sms_message[2] == 't'){
-						if (input_sms_message[3] < '0' || input_sms_message[3] > '9') break;
-						//nvt1 dverb zapili
-						set_input_text((input_sms_message[3]-'0'),input_sms_message);
-					}else{
-						if (input_sms_message[2] < '0' || input_sms_message[2] > '9') break;
-						//nv1 3,7,000,2
+					break;
+					case 't':
+						//ntX -10,29,00010011
+						if (command_str[2] < '0' || command_str[2] > '9') break;
+						temp = 0;
+						temp2 = parse_int_in_message(command_str,4);
+						temp3 = parse_int_in_message(command_str,(4 + get_size_number(temp2) + 1));
 						for (i = 0;;i++) {
-						if ((input_sms_message[8 + i] != '0') && (input_sms_message[8 + i] != '1')) break;
-							temp = (temp<<1) | (input_sms_message [8 + i] - '0');
+							char a = command_str[4 + i + get_size_number(temp2) + 1 + get_size_number(temp3) +1];
+							if ((a != '0') && (a != '1')) break;
+								temp = (temp<<1) | (a - '0');
 						}
-						set_input_settings(
-									(input_sms_message[2]-'0'),
-									(input_sms_message[4]-'0'),
-									(input_sms_message[6]-'0'),
-									temp,
-									parse_int_in_message(input_sms_message,(8+i+1))
-								);
-					}
+						set_ds18x20_settings((command_str[2]-'0'),temp2,temp3,temp);
+					break;
+					case 'v':
+						temp = 0;
+						if (command_str[2] == 't'){
+							if (command_str[3] < '0' || command_str[3] > '9') break;
+							//nvt1 dverb zapili
+							set_input_text((command_str[3]-'0'),command_str);
+						}else{
+							if (command_str[2] < '0' || command_str[2] > '9') break;
+							//nv1 3,7,000,2
+							for (i = 0;;i++) {
+							if ((command_str[8 + i] != '0') && (command_str[8 + i] != '1')) break;
+								temp = (temp<<1) | (command_str [8 + i] - '0');
+							}
+							set_input_settings(
+										(command_str[2]-'0'),
+										(command_str[4]-'0'),
+										(command_str[6]-'0'),
+										temp,
+										parse_int_in_message(command_str,(8+i+1))
+									);
+						}
 
-				break;
-				case 'r':
-					//nr lov12
-					for (i = 0;i < MAX_OUTPUT;i++){
-						set_output_settings(i,(input_sms_message[3 + i]));
-					}
-				break;
-				case 'i':
-					//ni lov12
-					for (i = 0;i < MAX_LED;i++){
-						set_led_settings(i,(input_sms_message[3 + i]));
-					}
-				break;
-				case 's':
-					temp = 0;
-					temp2 = 0;
-					temp3 = 0;
-					for (i = 0;;i++) {
-						if ((input_sms_message[3 + i] != '0') && (input_sms_message[3 + i] != '1')) break;
-						temp = (temp<<1) | (input_sms_message[3 + i] - '0');
-					}
-					temp2 = parse_int_in_message(input_sms_message,(3+i+1));
-					temp3 = parse_int_in_message(input_sms_message,(3+i+1+ get_size_number(temp2) +1));
-					set_device_setting(temp,temp2,temp3);
+					break;
+					case 'r':
+						//nr lov12
+						for (i = 0;i < MAX_OUTPUT;i++){
+							set_output_settings(i,(command_str[3 + i]));
+						}
+					break;
+					case 'i':
+						//ni lov12
+						for (i = 0;i < MAX_LED;i++){
+							set_led_settings(i,(command_str[3 + i]));
+						}
+					break;
+					case 's':
+						temp = 0;
+						temp2 = 0;
+						temp3 = 0;
+						for (i = 0;;i++) {
+							if ((command_str[3 + i] != '0') && (command_str[3 + i] != '1')) break;
+							temp = (temp<<1) | (command_str[3 + i] - '0');
+						}
+						temp2 = parse_int_in_message(command_str,(3+i+1));
+						temp3 = parse_int_in_message(command_str,(3+i+1+ get_size_number(temp2) +1));
+						set_device_setting(temp,temp2,temp3);
 
-				break;
+					break;
 
-			}
-		break;
-//oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
-		case 'o':
-			//o0 o1 o
-				str_add_str(last_control_guard,sizeof(last_control_guard),"+79",0);
-				convert_number_to_eng(tel_number_temp);
-				str_add_str(last_control_guard,sizeof(last_control_guard),tel_number_temp,10);
-				if (input_sms_message[1]) set_new_guard_st((input_sms_message[1] - '0'));
-				else set_new_guard_st(!get_guard_st());
+				}
+			break;
+	//oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+			case 'o':
+				//o0 o1 o
+					str_add_str(last_control_guard,sizeof(last_control_guard),"+79",0);
+					convert_number_to_eng(tel_number_temp);
+					str_add_str(last_control_guard,sizeof(last_control_guard),tel_number_temp,10);
+					if (command_str[1]) set_new_guard_st((command_str[1] - '0'));
+					else set_new_guard_st(!get_guard_st());
 
-		break;
-//rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
-		case 'r':
-			//r
-				sms_command_r();
-		break;
-		case 'b':
-			//b *102#
+			break;
+	//rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+			case 'r':
+				//r
+					sms_command_r();
+			break;
+			case 'b':
+				//b *102#
 
-			temp = str_length(input_sms_message);
-			for (i = 0; i < (temp - 2);i++){
-				command[i] = input_sms_message[i+2];
-			}
-			command[i+1] = 0;
-			send_string_to_GSM("AT+CUSD=1,\"");
-			send_string_to_GSM(command);
-			send_command_to_GSM("\"","OK",gsm_message,2,5);
-//			send_command_to_GSM("AT+CUSD=1,\"*102#\"","OK",gsm_message,2,5);
-		break;
-//
+				temp = str_length(command_str);
+				for (i = 0; i < (temp - 2);i++){
+					command[i] = command_str[i+2];
+				}
+				command[i+1] = 0;
+				send_string_to_GSM("AT+CUSD=1,\"");
+				send_string_to_GSM(command);
+				send_command_to_GSM("\"","OK",gsm_message,2,5);
+	//			send_command_to_GSM("AT+CUSD=1,\"*102#\"","OK",gsm_message,2,5);
+			break;
+	//
+		}
+		command_count++;
+		for (i = 0;i<70;i++){
+			if (!command_str[i]) break;
+			command_str[i] = 0;
+		}
+	}
+	if (!command_count){
+		if (check_device_setting(DEVICE_SETTING_SMS_AT_UNCORRECT_SMS)){
+			str_add_str(output_sms_message,sizeof(output_sms_message)," nevernaq komanda",0);
+			send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+		}
+	}else{
+		if (check_device_setting(DEVICE_SETTING_SMS_AT_SMS_COMMAND)){
+			str_add_str(output_sms_message,sizeof(output_sms_message),"prinqto komand: ",0);
+			str_add_num(output_sms_message,(command_count - 1));
+			send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+		}
 	}
 	for (i = 0;i<70;i++) input_sms_message[i] = 0;
-
 }
 
 
-void sms_command_nn(){
+void sms_command_nn(char * command_str){
 
-	unsigned int ID_number  = (input_sms_message[2] - '0');
+	unsigned int ID_number  = (command_str[2] - '0');
 	char row_number[10];
 	unsigned int i;
 	for (i = 0;i<10;i++){
-		row_number[i] = input_sms_message[7+i];
+		row_number[i] = command_str[7+i];
 	}
 	convert_number_to_upd(row_number);
-	uint8_t acc = input_sms_message[17];
+	uint8_t acc = command_str[17];
 	if ((acc > 47) & (acc < 58)) acc = acc - '0';
 	modem_save_number(ID_number,row_number,acc);
 }
@@ -174,13 +198,13 @@ void sms_command_r(){
 		str_add_str(output_sms_message,sizeof(output_sms_message),"vh:",0);
 		for (i = 1;i<6;i++) {
 			a[0] = (('-' - (check_input(i)*2)));
-			str_add_str(output_sms_message,sizeof(output_sms_message),a,MAX_INPUT);
+			str_add_str(output_sms_message,sizeof(output_sms_message),a,1);
 		}
 		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"vQh:",0);
 		for (i = 1;i<6;i++) {
 		//	a[0] = ('1' - (GPIO_READ((outputs_port[(i-1)]),(output[i-1].pin))*2));
-			str_add_str(output_sms_message,sizeof(output_sms_message),a,MAX_OUTPUT);
+			str_add_str(output_sms_message,sizeof(output_sms_message),a,1);
 		}
 		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"temp:",0);

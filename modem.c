@@ -189,6 +189,7 @@ void modem_check_quality(){
 
 char get_next_gsm_message(){
 	int k = 0;
+	clear_gsm_message();
 	while(1){
 		if ((gsm_message_check_counter == gsm_buffer_char_counter)) {
 			break;
@@ -392,7 +393,7 @@ char modem_setup(){
 	if (!send_command_to_GSM("AT+CSCS=\"GSM\"","OK",gsm_message,2,5)) return 0;
 	if (!send_command_to_GSM("AT+CLIP=1","OK",gsm_message,2,5)) return 0;   // for AON
 	if (!send_command_to_GSM("AT+CPBS=\"SM\"","OK",gsm_message,2,5)) return 0;   // select sim as memory
-
+	send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,2,5);
 
 	#ifdef DEBUG_MODEM
 	send_string_to_UART3("MODEM: setup ok!  \n\r");
@@ -401,7 +402,6 @@ char modem_setup(){
 	}
 #endif
 	led_blink_stop(OUT_MODE_GSM);
-	send_command_to_GSM("AT+CUSD=1,\"*102#\"","OK",gsm_message,2,5);
 	return 1;
 }
 

@@ -72,10 +72,10 @@ uint8_t get_size_number(int32_t num){
 		mult = 1;
 		num = num * (-1);
 	}
-	if (num > 100000) return (mult + 6);
-	if (num > 10000) return (mult + 5);
-	if (num > 1000) return (mult + 4);
-	if (num > 100) return (mult + 3);
-	if (num > 10) return (mult + 2);
+	if (num >= 100000) return (mult + 6);
+	if (num >= 10000) return (mult + 5);
+	if (num >= 1000) return (mult + 4);
+	if (num >= 100) return (mult + 3);
+	if (num >= 10) return (mult + 2);
 	return (mult + 1);
 }

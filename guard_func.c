@@ -48,7 +48,7 @@ void read_device_settings(){
 	 temp = EEPROMRead(EEPROM_time_set_alarm,1);
 	 if (temp != 0xFE) time_set_alarm = temp;
 
-//	 device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
+	 device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
 }
 
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t){
