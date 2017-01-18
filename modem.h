@@ -36,6 +36,7 @@
 #define GSM_MESSAGE_COPS 5
 #define GSM_MESSAGE_CALL_BUSY 6
 #define GSM_MESSAGE_CALL_NO_ANSWER 7
+#define GSM_MESSAGE_CUSD 8
 
 char modem_errors[2];
 #define MODEM_ERRORS_SEND_SMS 0

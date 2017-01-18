@@ -26,6 +26,7 @@ void parse_incoming_sms(){
 	int32_t temp2 = 0;
 	int32_t temp3 = 0;
 	int i;
+	char command[20];
 	for (i = 0;i<11;i++) tel_number_temp[i] = gsm_message[i+24];
 	last_control_ID_number = check_number(tel_number_temp);
 
@@ -132,8 +133,17 @@ void parse_incoming_sms(){
 				sms_command_r();
 		break;
 		case 'b':
-			//r
+			//b *102#
 
+			temp = str_length(input_sms_message);
+			for (i = 0; i < (temp - 2);i++){
+				command[i] = input_sms_message[i+2];
+			}
+			command[i+1] = 0;
+			send_string_to_GSM("AT+CUSD=1,\"");
+			send_string_to_GSM(command);
+			send_command_to_GSM("\"","OK",gsm_message,2,5);
+//			send_command_to_GSM("AT+CUSD=1,\"*102#\"","OK",gsm_message,2,5);
 		break;
 //
 	}

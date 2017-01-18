@@ -77,7 +77,7 @@ char modem_send_sms_message(char * number,char * text){
 	 send_char_to_GSM(0x1a);
 //	 if (!send_command_to_GSM(0x1a,">",gsm_message,2,12)) return 0;
 //	 if (!send_command_to_GSM("\x1a",">",gsm_message,2,12)) return 0;
-	 if (!send_command_to_GSM("","+CMGS:",gsm_message,5,50)) {
+	 if (!send_command_to_GSM("","+CMGS:",gsm_message,5,200)) {
 
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("MODEM: SEND SMS ERROR!");
@@ -99,7 +99,7 @@ char modem_send_sms_message(char * number,char * text){
 
 void sms_ucs_to_eng(char * in_message, char * message){
 	unsigned int len;
-	if (in_message[53] > 64) len = 10 + 'A' - in_message[53];
+	if (in_message[53] > 64) len = (in_message[53] - 55)/2;
 	else len = in_message[53]- '0';
 	len = (((in_message[52] - '0')*16 + len)*4);
 	ucs_to_eng(in_message, message,len,54);

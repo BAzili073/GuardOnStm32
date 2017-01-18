@@ -330,13 +330,17 @@ char parse_gsm_message(){
 			modem_call_state = (gsm_message[11] - '0');
 		}
 	}else if (find_str("+CUSD:",gsm_message)){
-		usd_ucs_to_eng(gsm_message,input_sms_message);
-		send_sms_message_for_all(input_sms_message,SMS_FUNCTION_SERVICE);
+		return_gsm_message = GSM_MESSAGE_CUSD;
+		usd_ucs_to_eng(gsm_message,output_sms_message);
+
 #ifdef DEBUG_MODEM
-		send_string_to_UART3(input_sms_message);
+		send_string_to_UART3(output_sms_message);
 #endif
 	}
 	clear_gsm_message();
+	if (return_gsm_message == GSM_MESSAGE_CUSD){
+		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+	}
 	return return_gsm_message;
 }
 
@@ -468,6 +472,9 @@ void send_text_as_ucs(char * out_message, unsigned int len){
 						send_int_as_hex_to_GSM((32 + y));
 						break;
 					}
+				}
+				if (out_message[i] == '\n'){
+					send_string_to_GSM("0A");
 				}
 		}else{
 			send_string_to_GSM("04");
