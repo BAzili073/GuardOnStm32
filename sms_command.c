@@ -28,7 +28,8 @@ void parse_incoming_sms(){
 	int i;
 	char command_str[70];
 	char command[20];
-	char command_count = 1;
+	char command_count = 0;
+	char bug_command_count = 0;
 	for (i = 0;i<11;i++) tel_number_temp[i] = gsm_message[i+24];
 	last_control_ID_number = check_number(tel_number_temp);
 
@@ -45,6 +46,7 @@ void parse_incoming_sms(){
 	send_string_to_UART3(" \n\r");
 #endif
 	while(get_next_command_from_sms(input_sms_message,command_str,command_count)){
+		command_count++;
 #ifdef DEBUG_MODEM
 	send_string_to_UART3("Progessing command: ");
 	send_string_to_UART3(command_str);
@@ -152,26 +154,30 @@ void parse_incoming_sms(){
 				send_command_to_GSM("\"","OK",gsm_message,2,5);
 	//			send_command_to_GSM("AT+CUSD=1,\"*102#\"","OK",gsm_message,2,5);
 			break;
-	//
+			default:
+				bug_command_count++;
+			break;
 		}
-		command_count++;
+
 		for (i = 0;i<70;i++){
 			if (!command_str[i]) break;
 			command_str[i] = 0;
 		}
+
 	}
-	if (!command_count){
+	if (bug_command_count){
 		if (check_device_setting(DEVICE_SETTING_SMS_AT_UNCORRECT_SMS)){
 			str_add_str(output_sms_message,sizeof(output_sms_message)," nevernaq komanda",0);
 			send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
 		}
-	}else{
-		if (check_device_setting(DEVICE_SETTING_SMS_AT_SMS_COMMAND)){
-			str_add_str(output_sms_message,sizeof(output_sms_message),"prinqto komand: ",0);
-			str_add_num(output_sms_message,(command_count - 1));
-			send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
-		}
 	}
+		if ((command_count - bug_command_count)){
+			if (check_device_setting(DEVICE_SETTING_SMS_AT_SMS_COMMAND)){
+				str_add_str(output_sms_message,sizeof(output_sms_message),"prinqto komand: ",0);
+				str_add_num(output_sms_message,(command_count - bug_command_count));
+				send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+			}
+		}
 	for (i = 0;i<70;i++) input_sms_message[i] = 0;
 }
 

@@ -114,7 +114,6 @@ char get_next_command_from_sms(char * sms, char * command, char num_cmd){
 	char n_count = 0;
 	for (i = 0;i<70;i++){
 		if (sms[i] == '\n' || sms[i] == 0){
-			n_count++;
 			if (n_count == num_cmd){
 				for (;command_char<70;command_char++){
 					command[command_char] = 0;
@@ -123,6 +122,7 @@ char get_next_command_from_sms(char * sms, char * command, char num_cmd){
 				else return 0;
 			}
 			command_char = 0;
+			n_count++;
 		}else{
 			command [command_char] = sms[i];
 			command_char++;
