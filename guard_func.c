@@ -123,6 +123,7 @@ void guard_off(){
 	guard_st = GUARD_OFF;
 	out_off_mode(OUT_MODE_GUARD);
 	alarm_off();
+	clear_alarm_input();
 	changed_guard_sms(GUARD_OFF);
 #ifdef DEBUG_GUARD
 	send_string_to_UART3("GUARD: OFF! \n\r");
@@ -164,7 +165,6 @@ void alarm_off(){
 		out_off_mode(OUT_MODE_ALARM);
 		out_off_mode(OUT_MODE_LAMP);
 		alarm_st = ALARM_OFF;
-		clear_alarm_input();
 #ifdef DEBUG_GUARD
 	send_string_to_UART3("ALAAAAARM: OFF! \n\r");
 #endif

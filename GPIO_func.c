@@ -134,7 +134,7 @@ void GPIO_init(){
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_INPUT;
 		initSrtuct.Pull = GPIO_NOPULL;
-		initSrtuct.Pin = B_INPUT_3;
+		initSrtuct.Pin = B_INPUT_1 | B_INPUT_2 | B_INPUT_3;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( B_INPUT_PORT, &initSrtuct);
 
@@ -144,7 +144,7 @@ void GPIO_init(){
 		initSrtuct.Pin = OPEN_CAP_PIN;
 		initSrtuct.Speed = GPIO_SPEED_HIGH;
 		HAL_GPIO_Init( OPEN_CAP_PORT, &initSrtuct);
-/////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////OUTPUTS
 		initSrtuct.Alternate = 0;
 		initSrtuct.Mode = GPIO_MODE_OUTPUT_PP;
 		initSrtuct.Pull = GPIO_NOPULL;

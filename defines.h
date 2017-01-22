@@ -16,6 +16,7 @@
 //#define DEBUG_ADD_DEVICE
 #define DEBUG_GUARD
 #define DEBUG_INPUTS
+#define DEBUG_B_INPUTS
 //#define DEBUG_INPUTS_ADC
 #define DEBUG_ALARM
 #define DEBUG
@@ -30,7 +31,7 @@
 #define time_out ((TIM6->SR & TIM_SR_UIF) != 0)
 
 #define MAX_INPUT 5
-#define MAX_INPUT_B 3
+#define MAX_B_INPUT 4
 #define MAX_OUTPUT 5
 
 #define INPUT_PORT GPIOA
@@ -41,9 +42,10 @@
 #define INPUT_5 GPIO_PIN_7
 
 #define B_INPUT_PORT GPIOB
-#define B_INPUT_1 GPIO_PIN_13
-#define B_INPUT_2 GPIO_PIN_12
+#define B_INPUT_1 GPIO_PIN_12
+#define B_INPUT_2 GPIO_PIN_13
 #define B_INPUT_3 GPIO_PIN_14
+
 
 
 #define DET_220_PORT GPIOA

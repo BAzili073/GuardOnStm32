@@ -63,6 +63,9 @@ int main(void) {
 		get_all_temp();
 		str_add_str(output_sms_message,sizeof(output_sms_message),"ver:5.0 ",0);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"tm: ",0);
+		str_add_num(output_sms_message,get_tm_key_number() );
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		sms_command_r();
 	}
 
