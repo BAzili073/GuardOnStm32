@@ -5,5 +5,6 @@
 	unsigned int str_length(char * str);
 	int find_str(char * find,char * string);
 	void str_add_str ( char * in,int size_in,char * out,unsigned int len);
+	uint8_t get_size_number(int32_t num);
 	 unsigned int counter;
 #endif

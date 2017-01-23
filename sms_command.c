@@ -13,6 +13,7 @@
 #include "input.h"
 #include "DS18x20.h"
 #include "led.h"
+#include "output.h"
 
 extern TEL_obj tel[MAX_TEL_NUMBERS];
 

@@ -30,7 +30,7 @@
 
 #define time_out ((TIM6->SR & TIM_SR_UIF) != 0)
 
-#define MAX_INPUT 5
+#define MAX_INPUT 9
 #define MAX_B_INPUT 4
 #define MAX_OUTPUT 5
 
@@ -81,6 +81,10 @@
 #define OUT_MODE_INPUT_3 3
 #define OUT_MODE_INPUT_4 4
 #define OUT_MODE_INPUT_5 5
+#define OUT_MODE_B_INPUT_1 6
+#define OUT_MODE_B_INPUT_2 7
+#define OUT_MODE_B_INPUT_3 8
+#define OUT_MODE_B_INPUT_4 9
 #define OUT_MODE_LAMP 'l'
 #define OUT_MODE_ALARM 't'
 #define OUT_MODE_HAND 'r'

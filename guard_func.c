@@ -10,10 +10,11 @@
 #include "input.h"
 #include "TM_KEY.h"
 #include "DS18x20.h"
+#include "modem.h"
 
 
 extern TEL_obj tel[MAX_TEL_NUMBERS];
-
+int checkValidCode(int Step);
 void guard_on_TM();
 
 void clear_last_control_guard();
@@ -236,11 +237,6 @@ void check_TM(){
 }
 
 void read_settings(){
-	uint8_t i = 0;
-	uint8_t y = 0;
-
-//////////////////   			 READ NUMBER
-
 		read_numbers();
 		read_TM_KEY_settings();
 		read_ds18x20_settings();

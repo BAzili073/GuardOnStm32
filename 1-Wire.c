@@ -312,9 +312,7 @@ void one_wire_read_temp(){
         }
         if (crc) {
           // в итоге должен получиться ноль. Если не так, вывод сообщения об ошибке
-        	send_char_to_GSM('C');
-        	send_char_to_GSM('R');
-        	send_char_to_GSM('C');
+
         } else {
           if ((family_code == 0x28) || (family_code == 0x22) || (family_code == 0x10)) {
             // Если код семейства соответствует одному из известных...
@@ -329,11 +327,6 @@ void one_wire_read_temp(){
             }
             if (one_wire_read_byte() != crc) {
               // Если контрольная сумма скретчпада не совпала.
-            	send_char_to_GSM('~');
-            	send_char_to_GSM('C');
-            	send_char_to_GSM('R');
-            	send_char_to_GSM('C');
-            	send_char_to_GSM(crc);
             } else {
               int16_t t = (scratchpad[1] << 8) | scratchpad[0];
 //              if (family_code == 0x10) { // 0x10 - DS18S20
