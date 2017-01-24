@@ -153,20 +153,29 @@ void send_int_to_GSM(uint16_t num){
 	send_char_to_GSM((d4 + '0'));
 }
 
-void send_int_to_UART3(int16_t num){
-	char d1,d2,d3,d4;
-	if (num < 0) {
-		send_char_to_UART3('-');
-		num = num*(-1);
-	}
-	d1 = (num/1000);
-	if (num>999) send_char_to_UART3((d1+'0'));
-	d2 = ((num - d1 * 1000)/100);
-	if (num>99) send_char_to_UART3((d2 + '0'));
-	d3 = ((num - d1*1000 - d2*100)/10);
-	if (num>9) send_char_to_UART3((d3 + '0'));
-	d4 = ((num - d1*1000 - d2*100 - d3*10));
-	send_char_to_UART3((d4 + '0'));
+void send_int_to_UART3(int32_t num){
+if (num < 0) {
+	send_char_to_UART3('-');
+	num = -num;
+}
+		if(num > 0)
+		{
+			send_int_to_UART3(num / 10);
+			send_char_to_UART3((num % 10) + '0');
+		}
+//	char d1,d2,d3,d4;
+//	if (num < 0) {
+//		send_char_to_UART3('-');
+//		num = num*(-1);
+//	}
+//	d1 = (num/1000);
+//	if (num>999) send_char_to_UART3((d1+'0'));
+//	d2 = ((num - d1 * 1000)/100);
+//	if (num>99) send_char_to_UART3((d2 + '0'));
+//	d3 = ((num - d1*1000 - d2*100)/10);
+//	if (num>9) send_char_to_UART3((d3 + '0'));
+//	d4 = ((num - d1*1000 - d2*100 - d3*10));
+//	send_char_to_UART3((d4 + '0'));
 }
 
 

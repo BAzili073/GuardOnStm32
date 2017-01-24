@@ -10,8 +10,10 @@
 #include "led.h"
 #include "DS18x20.h"
 #include "TM_KEY.h"
+#include "EEPROMfunc.h"
 
 //int time_access_lock = 0;
+
 
 
 volatile int timeout_7;
@@ -60,9 +62,13 @@ void  TIM7_IRQHandler(){
 				  min = 0;
 				  hour++;
 				  if (hour == 24){
+					  check_time_to_reset();
 					  last_control_guard[0] = "!";
 					  hour = 0;
 					  day++;
+					  if (day == 30){
+						  day = 0;
+					  }
 				  }
 			  }
 		  }
@@ -72,11 +78,6 @@ void  TIM7_IRQHandler(){
 	  }
 	   TIM7 -> SR &= ~TIM_SR_UIF;
 }
-
-
-
-
-
 
 void TIM6_init(){
 			RCC->APB1ENR |=  RCC_APB1ENR_TIM6EN ;
@@ -117,4 +118,5 @@ void TIM2_set_pwm_duty_cycle(uint8_t cyc){
 	if (cyc < 0) cyc = 0;
 	TIM2 -> CCR2 = (0xffff / 100 * cyc);
 }
+
 

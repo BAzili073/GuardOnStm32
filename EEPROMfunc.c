@@ -71,8 +71,6 @@ EEPROMEnable();
 		*(uint32_t *)(start_EEPROM + i*4) = 0xFEFEFEFE;
 		while (FLASH->SR & FLASH_SR_BSY);
 	}
-
-
 EEPROMDisable();
 }
 

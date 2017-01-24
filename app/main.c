@@ -12,7 +12,9 @@
 
 #define STM32_UUID ((uint32_t *)0x7b747800)
 
-
+void FULL_RESET(){
+	SCB -> AIRCR |= SCB_AIRCR_SYSRESETREQ;
+}
 
  void add_device_check();
  void add_device_mode();
@@ -45,6 +47,7 @@ int main(void) {
 
 //	GPIO_interrupt_init();
 //	ERASE_EEPROM();
+
 	read_settings();
 	add_device_check();
 	one_wire_start_conversion_temp();
@@ -59,14 +62,18 @@ int main(void) {
 	}
 //
 
+
+		str_add_str(output_sms_message,sizeof(output_sms_message),"zapusk",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\nver:5.1 24.01.2017",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\ntm: ",0);
+		str_add_num(output_sms_message,get_tm_key_number());
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\ndt:",0);
+		str_add_num(output_sms_message,get_DS18x20_count());
+		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+
 	if (check_device_setting(DEVICE_SETTING_SMS_AT_STARTUP)){
-		get_all_temp();
-		str_add_str(output_sms_message,sizeof(output_sms_message),"ver:5.0 ",0);
-		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
-		str_add_str(output_sms_message,sizeof(output_sms_message),"tm: ",0);
-		str_add_num(output_sms_message,get_tm_key_number() );
-		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
-		sms_command_r();
+			get_all_temp();
+			sms_command_r();
 	}
 
     while(1) {
@@ -80,14 +87,6 @@ int main(void) {
     }
     return 0;
 }
-
-
-
-
-
-
-
-
 
 
 void BusFault_Handler(){

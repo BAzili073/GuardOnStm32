@@ -39,6 +39,14 @@ char tel_number_temp[10];
 uint8_t last_control_ID_number = 254;
 char last_control_guard[13];
 
+int time_to_full_reset = -1;
+
+void check_time_to_reset(){
+	if (time_to_full_reset) {
+		time_to_full_reset --;
+		if (!time_to_full_reset) FULL_RESET();
+	}
+}
 
 void read_device_settings(){
 	 uint8_t temp;
@@ -48,8 +56,8 @@ void read_device_settings(){
 	 if (temp != 0xFE) device_settings = temp;
 	 temp = EEPROMRead(EEPROM_time_set_alarm,1);
 	 if (temp != 0xFE) time_set_alarm = temp;
-
-	 device_settings |= DEVICE_SETTING_SMS_AT_STARTUP;
+	 temp = EEPROMRead((EEPROM_time_to_reset),1);
+	 if (temp != 0xFE) time_to_full_reset = temp;
 }
 
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t){
@@ -289,9 +297,19 @@ int checkValidCode(int Step){
 	static int valid = 0;
 	if (Step == 1){
 	  unsigned long *uid = (unsigned long *)0x1FF80050;
+
 	  if (UUID_1 == uid[0])
 		  if (UUID_2 == uid[1])
 			  if (UUID_3 == uid[2]) valid = 1;
+#ifdef DEBUG
+	  send_string_to_UART3("UID[0] = ");
+	  send_int_to_UART3(uid[0]);
+	  send_string_to_UART3("\nUID[1] = ");
+	  send_int_to_UART3(uid[1]);
+	  send_string_to_UART3("\nUID[2] = ");
+	  send_int_to_UART3(uid[2]);
+	  if (!valid)  send_string_to_UART3("\nWARNING UID UNVALID!!!!");
+#endif
 	}
 	return valid;
 }

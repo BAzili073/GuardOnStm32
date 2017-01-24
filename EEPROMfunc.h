@@ -23,7 +23,8 @@
 #define EEPROM_input_text 			(EEPROM_input_time_to_alarm + MAX_INPUT)
 #define EEPROM_output_mode			(EEPROM_input_text + MAX_INPUT * INPUT_TEXT_SIZE)
 #define EEPROM_led_mode				(EEPROM_output_mode + MAX_OUTPUT)
-//#define EEPROM_					(EEPROM_led_mode + MAX_OUTPUT)
+#define EEPROM_time_to_reset		(EEPROM_led_mode + MAX_LED)
+//#define EEPROM_		(EEPROM_time_to_reset + 1)
 
 uint32_t *EEPROMAddress;
 
