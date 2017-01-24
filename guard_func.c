@@ -303,19 +303,26 @@ void set_new_guard_st(uint8_t new_st){
 int checkValidCode(int Step){
 	static int valid = 0;
 	if (Step == 1){
-	  unsigned long *uid = (unsigned long *)0x1FF80050;
+	  uint32_t *uid = (uint32_t *)0x1FF80050;
 
 	  if (UUID_1 == uid[0])
 		  if (UUID_2 == uid[1])
 			  if (UUID_3 == uid[2]) valid = 1;
 #ifdef DEBUG
-	  send_string_to_UART3("UID[0] = ");
+	  send_string_to_UART3("\n\rUID[0] = ");
 	  send_int_to_UART3(uid[0]);
-	  send_string_to_UART3("\nUID[1] = ");
+	  send_string_to_UART3(" (");
+	  send_int_to_UART3(UUID_1);
+	  send_string_to_UART3(")\n\rUID[1] = ");
 	  send_int_to_UART3(uid[1]);
-	  send_string_to_UART3("\nUID[2] = ");
+	  send_string_to_UART3(" (");
+	  send_int_to_UART3(UUID_2);
+	  send_string_to_UART3(")\n\rUID[2] = ");
 	  send_int_to_UART3(uid[2]);
-	  if (!valid)  send_string_to_UART3("\nWARNING UID UNVALID!!!!");
+	  send_string_to_UART3(" (");
+	  send_int_to_UART3(UUID_3);
+	  send_string_to_UART3(")");
+	  if (!valid)  send_string_to_UART3("\n\rWARNING UID UNVALID!!!!");
 #endif
 	}
 	return valid;

@@ -9,7 +9,7 @@
 //#define DEBUG_FINGER
 #define DEBUG_MODEM
 #define DEBUG_READ_SETTINGS
-#define DEBUG_MODEM_UART
+//#define DEBUG_MODEM_UART
 //#define DEBUG_220V
 //#define DEBUG_DS18x20
 //#define DEBUG_1WIRE
@@ -190,9 +190,10 @@
 
 
 
-#define UUID_1 0x09473333
-#define UUID_2 0x32373931
-#define UUID_3 0x817b7f00
+#define UUID_1 155661107
+#define UUID_2 842479921
+#define UUID_3 2172354304
+
 /*
  * 4096 EEPROM all
  *

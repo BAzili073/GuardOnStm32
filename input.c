@@ -14,7 +14,7 @@ typedef struct INPUT_obj{
 	uint8_t v_max;
 	uint8_t v_min;
 	uint8_t set_time_to_alarm;
-	int8_t time_to_alarm;
+	int16_t time_to_alarm;
 	uint32_t adc_channel;
 	uint8_t state;
 	uint8_t alarm;
@@ -23,15 +23,15 @@ typedef struct INPUT_obj{
 } INPUT_obj;
 
  INPUT_obj input[MAX_INPUT] ={
-	    [0] = {	.port = INPUT_PORT, 	.pin = INPUT_1,			.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_1},
-	    [1] = {	.port = INPUT_PORT, 	.pin = INPUT_2, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_4,},
-	    [2] = {	.port = INPUT_PORT,		.pin = INPUT_3, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_5,},
-	    [3] = {	.port = INPUT_PORT,		.pin = INPUT_4,			.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_6,},
-	    [4] = {	.port = INPUT_PORT, 	.pin = INPUT_5, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .time_to_alarm = 0, .adc_channel = ADC_CHANNEL_7,},
+	    [0] = {	.port = INPUT_PORT, 	.pin = INPUT_1,			.mode = 0, .set_time_to_alarm = 1, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_1},
+	    [1] = {	.port = INPUT_PORT, 	.pin = INPUT_2, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_4,},
+	    [2] = {	.port = INPUT_PORT,		.pin = INPUT_3, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_5,},
+	    [3] = {	.port = INPUT_PORT,		.pin = INPUT_4,			.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_6,},
+	    [4] = {	.port = INPUT_PORT, 	.pin = INPUT_5, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_7,},
 	    [5] = {	.port = B_INPUT_PORT,  	.pin = B_INPUT_1, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
 	    [6] = {	.port = B_INPUT_PORT,  	.pin = B_INPUT_2,   	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
 	    [7] = {	.port = B_INPUT_PORT,  	.pin = B_INPUT_3,    	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
-	    [8] = {	.port = OPEN_CAP_PORT,	.pin = OPEN_CAP_PIN, 	.mode = 4, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .text = "vzlom korpusa"},
+	    [8] = {	.port = OPEN_CAP_PORT,	.pin = OPEN_CAP_PIN, 	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .text = "vzlom korpusa"},
  };
 
  uint8_t last_input_alarm = 0;
@@ -50,6 +50,7 @@ void read_inputs_settings(){
 	 if (temp != 0xFE) input[i].mode = temp;
 	 temp = EEPROMRead((EEPROM_input_time_to_alarm + i),1);
 	 if (temp != 0xFE) input[i].set_time_to_alarm = temp;
+	 input[i].time_to_alarm = -1;
 	 for (y = 0;y<INPUT_TEXT_SIZE;y++){
 		 temp = EEPROMRead((EEPROM_input_text + y+(15*i)),1);
 		 if (temp == 0xFE){
@@ -133,7 +134,7 @@ void set_input_text(uint8_t inp, char * text_t){
  			}
  				return 0;
 	 }else{
-		 return ((GPIO_READ(input[input_t-1].port,input[input_t-1].pin) > 0) ^ (check_input_setting((input_t-1),INPUTS_MODE_INVERS) > 0));
+		 return !((GPIO_READ(input[input_t-1].port,input[input_t-1].pin) > 0) ^ (check_input_setting((input_t-1),INPUTS_MODE_INVERS) > 0));
 	 }
   // 33 -> 0 V
   // 1350 -> 5.3 V
@@ -143,38 +144,35 @@ void set_input_text(uint8_t inp, char * text_t){
 
  void check_inputs(void){
  	int i;
- 	for (i = 1;i<=MAX_INPUT;i++){ // перебор входов
- 		if (check_input(i)){
- 			if (!input[i-1].state){
+ 	for (i = 0;i<MAX_INPUT;i++){ // перебор входов
+ 		if (check_input(i+1)){
+ 			if (!input[i].state){
  #ifdef DEBUG_INPUTS
  	send_string_to_UART3("INPUT ");
  	send_int_to_UART3(i);
  	send_string_to_UART3(": ALERT!  \n\r");
  #endif
- 				input[i-1].state = 1;
- 				out_on_mode(i);
- 				if (last_input_alarm != i){
- 						if (check_input_setting((i-1),INPUTS_MODE_BUTTON_GUARD)){ //если вход управл€ющий охраной
- 							if (!get_guard_st()) guard_on();
+ 				out_on_mode(i+1);
+ 				if (!input[i].state){
+ 						if (check_input_setting((i),INPUTS_MODE_BUTTON_GUARD)){ //если вход управл€ющий охраной
+ 							if (!get_guard_st()) guard_on_TM();
  							return;
  						}
- 						if ((get_guard_st() || check_input_setting((i-1),INPUTS_MODE_24H))){ //если на охране или вход 24 часа
- 							if ((time_to_alarm == -1) || ((input[i - 1].set_time_to_alarm * 5) < time_to_alarm)){ //если врем€ до тревоги нету
- 								if (!input[i-1].alarm){
+ 						if ((get_guard_st() || check_input_setting((i),INPUTS_MODE_24H))){ //если на охране или вход 24 часа
+ 								if (!input[i].alarm){ //если тревоги по этому входу небыло
  									last_input_alarm = i; //запомним последний сработавший вход
- 	 								led_blink(OUT_MODE_GUARD,5,5);
- 	 								time_to_alarm = input[i-1].set_time_to_alarm * 5;
- 	 								input[i-1].alarm = 1;
- 								}
+ 	 								input[i].time_to_alarm = input[i].set_time_to_alarm * 5;
+ 	 								input[i].alarm = 1;
  							}
  						}
  				}
+ 				input[i].state = 1;
  			}
  		}else{ //вход в норме
- 			if (input[i-1].state){
- 				input[i-1].state = 0;
- 				out_off_mode(i);
- 				if (check_input_setting((i-1),INPUTS_MODE_BUTTON_GUARD)){//если вход управл€ющий охраной
+ 			if (input[i].state){
+ 				input[i].state = 0;
+ 				out_off_mode(i+1);
+ 				if (check_input_setting((i),INPUTS_MODE_BUTTON_GUARD)){//если вход управл€ющий охраной
  					if (get_guard_st()) guard_off();
  					return;
  				}
@@ -186,8 +184,8 @@ void set_input_text(uint8_t inp, char * text_t){
  			}
  		}
 
- 		if (!input[i-1].time_to_alarm){
- 			input[i-1].time_to_alarm = -1;
+ 		if (!input[i].time_to_alarm){
+ 			input[i].time_to_alarm = -1;
  			alarm_on();
  		}
  	}
@@ -200,8 +198,8 @@ void set_input_text(uint8_t inp, char * text_t){
 #ifdef DEBUG
  		 	send_string_to_UART3("INPUT #");
  		 	send_int_to_UART3(i);
- 		 	send_string_to_UART3("TIME TO ALARM : ");
- 		 	send_int_to_UART3(time_to_alarm);
+ 		 	send_string_to_UART3(" TIME TO ALARM : ");
+ 		 	send_int_to_UART3(input[i].time_to_alarm);
  		 	send_string_to_UART3("\n\r");
 #endif
  		 	input[i].time_to_alarm--;

@@ -13,7 +13,6 @@ int modem_call_state = CALL_STATE_NO_CALL;
 extern char tel_number_temp[10];
 
 void modem_call(char * number){
-
 	modem_call_state = CALL_STATE_CALL;
 	if (modem_action == MODEM_ACTION_FREE){
 		int i;
@@ -37,6 +36,7 @@ void modem_call(char * number){
 }
 
 uint8_t alarm_call(){
+	if (tel[0].access == 0) return 1;
 	uint8_t need_alarm_call = 1;
 	int try = 3;
 	while (need_alarm_call){

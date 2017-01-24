@@ -11,11 +11,11 @@ typedef struct LED_obj{
 } LED_obj;
 
 LED_obj led[MAX_LED] = {
-		[0] = { .port = LED_1_PORT, .pin = LED_1, .mode = OUT_MODE_LAMP, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
-		[1] = { .port = LED_2_PORT, .pin = LED_2, .mode = OUT_MODE_GUARD, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
-		[2] = { .port = LED_3_PORT, .pin = LED_3, .mode = OUT_MODE_TM, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
-		[3] = { .port = LED_4_PORT, .pin = LED_4, .mode = OUT_MODE_GSM, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
-		[4] = { .port = LED_5_PORT, .pin = LED_5, .mode = OUT_MODE_ALARM, .blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
+		[0] = { .port = LED_1_PORT, .pin = LED_1, .mode = OUT_MODE_LAMP,	.blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
+		[1] = { .port = LED_2_PORT, .pin = LED_2, .mode = OUT_MODE_GUARD, 	.blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
+		[2] = { .port = LED_3_PORT, .pin = LED_3, .mode = OUT_MODE_TM, 		.blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
+		[3] = { .port = LED_4_PORT, .pin = LED_4, .mode = OUT_MODE_GSM, 	.blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
+		[4] = { .port = LED_5_PORT, .pin = LED_5, .mode = OUT_MODE_ALARM,	.blink_time = 0, .blink_time_on = -127, .blink_time_off = -127},
 };
 
 void read_led_settings(){

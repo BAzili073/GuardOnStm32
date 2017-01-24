@@ -129,8 +129,7 @@ void modem_check_state(){
 }
 void MODEM_ON(){
 #ifdef DEBUG_MODEM
-	send_string_to_UART3("MODEM: ON? ");
-	send_string_to_UART3(" \n\r");
+	send_string_to_UART3("\n\rMODEM: ON? ");
 #endif
 	modem_setup_ok = 0;
 	check_gsm_message();
@@ -143,7 +142,7 @@ void MODEM_ON(){
 		while_timeout_7();
 		if (send_command_to_GSM("AT","OK",gsm_message,10,30)){
 #ifdef DEBUG_MODEM
-	send_string_to_UART3("MODEM: ON OK ");
+	send_string_to_UART3("\n\rMODEM: ON OK ");
 	send_string_to_UART3(" \n\r");
 #endif
 			modem_state = MODEM_STATE_ON;

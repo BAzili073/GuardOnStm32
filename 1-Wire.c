@@ -359,12 +359,27 @@ void one_wire_read_temp(){
   }
 
 uint8_t one_wire_check_keys(){
+	int counter = 0;
+	if  (!one_wire_level()) {
+#ifdef DEBUG
+	  send_string_to_UART3("KZ on line TM!!!\n\r");
+#endif
+		return ONE_WIRE_KEY_DENY;
+	}
 	if (one_wire_skip()) {
 	one_wire_enum_init(); // Начало перечисления устройств
 	      for(;;) {
 	        uint8_t * p = one_wire_enum_next(); // Очередной адрес
 	        if (!p)
 	          break;
+	        counter++;
+	        if (counter > 64) {
+	        	//KZS
+#ifdef DEBUG
+	  send_string_to_UART3("KZ on line TM!!!");
+#endif
+	        	break;
+	        }
 	        // Вывод шестнадцатиричной записи адреса в UART и рассчёт CRC
 	        uint8_t d = *(p++);
 	        uint8_t crc = 0;

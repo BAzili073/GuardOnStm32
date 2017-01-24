@@ -44,7 +44,7 @@ char UART2_get_next_data();
 
 void send_string_to_UART3(char * s);
 void send_char_to_UART3(char c);
-void send_int_to_UART3(uint16_t num);
+void send_int_to_UART3(uint32_t num);
 
 
 
