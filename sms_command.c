@@ -142,6 +142,7 @@ void parse_incoming_sms(){
 				//r
 					sms_command_r();
 			break;
+	//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 			case 'b':
 				//b *102#
 
@@ -154,6 +155,13 @@ void parse_incoming_sms(){
 				send_string_to_GSM(command);
 				send_command_to_GSM("\"","OK",gsm_message,2,5);
 	//			send_command_to_GSM("AT+CUSD=1,\"*102#\"","OK",gsm_message,2,5);
+			break;
+	//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+			case 'v':
+				if ((command_str[1]) == 's') {
+					temp = parse_int_in_message(command_str,(3));
+					set_time_to_reset(temp);
+				}
 			break;
 			default:
 				bug_command_count++;

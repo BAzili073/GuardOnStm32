@@ -153,16 +153,23 @@ void send_int_to_GSM(uint16_t num){
 	send_char_to_GSM((d4 + '0'));
 }
 
+void send_num_to_UART3(int32_t num){
+	if(num > 0){
+		send_int_to_UART3(num / 10);
+		send_char_to_UART3((num % 10) + '0');
+	}
+}
+
 void send_int_to_UART3(int32_t num){
-if (num < 0) {
+if(num > 0){
+	send_num_to_UART3(num);
+}else if (num == 0){
+	send_char_to_UART3('0');
+}else if (num < 0){
 	send_char_to_UART3('-');
 	num = -num;
+	send_num_to_UART3(num);
 }
-		if(num > 0)
-		{
-			send_int_to_UART3(num / 10);
-			send_char_to_UART3((num % 10) + '0');
-		}
 //	char d1,d2,d3,d4;
 //	if (num < 0) {
 //		send_char_to_UART3('-');

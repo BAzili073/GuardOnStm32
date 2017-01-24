@@ -32,7 +32,7 @@ void set_new_guard_st(uint8_t new_st);
 uint8_t check_device_setting(uint8_t opt);
 void check_TM();
 void check_time_to_reset();
-
+void set_time_to_reset(uint8_t day);
 
 uint8_t get_guard_st();
 uint8_t get_alarm_st();

@@ -48,6 +48,13 @@ void check_time_to_reset(){
 	}
 }
 
+void set_time_to_reset(uint8_t day){
+	time_to_full_reset = day; EEPROMWrite(EEPROM_time_to_reset,day,1);
+	send_string_to_UART3("Device: Time to full reset set each: ");
+	send_int_to_UART3(day);
+	send_string_to_UART3(" days");
+}
+
 void read_device_settings(){
 	 uint8_t temp;
 	 temp = EEPROMRead(EEPROM_time_to_guard,1);
