@@ -232,7 +232,9 @@ char get_next_gsm_message(){
 	return 0;
 }
 
-
+int get_gsm_signal_quality(){
+	return gsm_signal_quality;
+}
 
 char parse_gsm_message(){
 	int return_gsm_message = GSM_MESSAGE_UNKNOW;
@@ -240,6 +242,28 @@ char parse_gsm_message(){
 	if (find_str("+CMTI:",gsm_message)){ /////////////////////////////////INCOMING SMS
 		incoming_sms();
 		return_gsm_message = GSM_MESSAGE_INCOMING_SMS;
+	}else if (find_str("OK\r\n",gsm_message)){  ///////////////////////////////// OK
+		return_gsm_message = GSM_MESSAGE_OK;
+	}else if (find_str("ERROR\r\n",gsm_message)){ ///////////////////////////////// ERROR
+		return_gsm_message = GSM_MESSAGE_ERROR;
+	}
+	else if (find_str("+CSQ:",gsm_message)){///////////////////////////////// GET QUALITY LINE
+		if (gsm_message[7] == ','){
+			gsm_signal_quality = gsm_message[6] - 48;
+		}else{
+			gsm_signal_quality = (gsm_message[6] - 48) * 10 + (gsm_message[7] - 48);
+		}
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM : QUALITY = ");
+	send_int_to_UART3(gsm_signal_quality);
+	send_string_to_UART3(" \n\r");
+//	alarm_on();
+#endif
+		if (gsm_signal_quality > 31 || gsm_signal_quality < 6){
+			out_off_mode(OUT_MODE_GSM);
+		}else{
+			out_on_mode(OUT_MODE_GSM);
+		}
 	}
 
 	else if (find_str("+CPIN:",gsm_message)){ /////////////////////////////////START MODEM
@@ -291,25 +315,6 @@ char parse_gsm_message(){
 			return_gsm_message = GSM_MESSAGE_CALL_NO_ANSWER;
 	}
 
-	else if (find_str("+CSQ:",gsm_message)){///////////////////////////////// GET QUALITY LINE
-		if (gsm_message[7] == ','){
-			gsm_signal_quality = gsm_message[6] - 48;
-		}else{
-			gsm_signal_quality = (gsm_message[6] - 48) * 10 + (gsm_message[7] - 48);
-		}
-#ifdef DEBUG_MODEM
-	send_string_to_UART3("MODEM : QUALITY = ");
-	send_int_to_UART3(gsm_signal_quality);
-	send_string_to_UART3(" \n\r");
-//	alarm_on();
-#endif
-		if (gsm_signal_quality > 31 || gsm_signal_quality < 6){
-			out_off_mode(OUT_MODE_GSM);
-		}else{
-			out_on_mode(OUT_MODE_GSM);
-		}
-	}
-
 	else if(find_str("NO CARRIER",gsm_message)){ ///////////////////////////////// NO CARRIER
 		modem_no_carrier();
 #ifdef DEBUG_MODEM
@@ -319,10 +324,6 @@ char parse_gsm_message(){
 #endif
 	}else if(find_str("+CLIP:",gsm_message)){  ///////////////////////////////// INCOMING CALL
 		incoming_call();
-	}else if (find_str("OK\r\n",gsm_message)){  ///////////////////////////////// OK
-		return_gsm_message = GSM_MESSAGE_OK;
-	}else if (find_str("ERROR\r\n",gsm_message)){ ///////////////////////////////// ERROR
-		return_gsm_message = GSM_MESSAGE_ERROR;
 	}else if (find_str("+QTONEDET\r\n",gsm_message)){ ///////////////////////////////// DTMF
 
 	}else if (find_str("+CLCC:",gsm_message)){ ///////////////////////////////// DTMF

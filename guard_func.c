@@ -39,7 +39,9 @@ char tel_number_temp[10];
 uint8_t last_control_ID_number = 254;
 char last_control_guard[13];
 
-int time_to_full_reset = -1;
+uint8_t time_to_full_reset = 0;
+int16_t time_to_report = -1;
+uint8_t set_time_to_report = 254;
 
 void check_time_to_reset(){
 	if (time_to_full_reset) {
@@ -48,11 +50,40 @@ void check_time_to_reset(){
 	}
 }
 
+void check_time_to_report(){
+	if (time_to_report) {
+		time_to_report --;
+	}
+}
+void check_send_report(){
+	if (!time_to_report){
+		sms_command_r();
+		time_to_report = set_time_to_report;
+	}
+}
 void set_time_to_reset(uint8_t day){
-	time_to_full_reset = day; EEPROMWrite(EEPROM_time_to_reset,day,1);
+	time_to_full_reset = day;
+	if (!day) day = 0xFE;
+	EEPROMWrite(EEPROM_time_to_reset,day,1);
 	send_string_to_UART3("Device: Time to full reset set each: ");
 	send_int_to_UART3(day);
 	send_string_to_UART3(" days");
+}
+
+void setting_time_to_report(uint8_t hour){
+	set_time_to_report = hour;
+	EEPROMWrite(EEPROM_time_to_report,hour,1);
+	if (!hour){
+		time_to_report = -1;
+		EEPROMWrite(EEPROM_time_to_report,0xFE,1);
+	}else{
+		time_to_report = set_time_to_report;
+	}
+#ifdef DEBUG
+	send_string_to_UART3("Device: Time to report set each: ");
+	send_int_to_UART3(hour);
+	send_string_to_UART3(" hours");
+#endif
 }
 
 void read_device_settings(){
@@ -65,6 +96,9 @@ void read_device_settings(){
 	 if (temp != 0xFE) time_set_alarm = temp;
 	 temp = EEPROMRead((EEPROM_time_to_reset),1);
 	 if (temp != 0xFE) time_to_full_reset = temp;
+	 temp = EEPROMRead((EEPROM_time_to_reset),1);
+	 if (temp != 0xFE) set_time_to_report = temp;
+	 if (set_time_to_report != 0xFE && set_time_to_report) time_to_report = set_time_to_report;
 }
 
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t){

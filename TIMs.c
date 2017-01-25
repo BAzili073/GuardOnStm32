@@ -59,6 +59,7 @@ void  TIM7_IRQHandler(){
 			  sec = 0;
 			  min++;
 			  if (min == 60){
+				  check_time_to_report();
 				  min = 0;
 				  hour++;
 				  if (hour == 24){

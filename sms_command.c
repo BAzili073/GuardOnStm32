@@ -124,6 +124,9 @@ void parse_incoming_sms(){
 						set_device_setting(temp,temp2,temp3);
 
 					break;
+					default:
+						bug_command_count++;
+					break;
 
 				}
 			break;
@@ -159,9 +162,16 @@ void parse_incoming_sms(){
 	//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 			case 'v':
 				if ((command_str[1]) == 's') {
+					//vs 3
 					temp = parse_int_in_message(command_str,(3));
 					set_time_to_reset(temp);
+				}else if ((command_str[1]) == 'r'){
+					//vr 48
+					setting_time_to_report(parse_int_in_message(command_str,(3)));
+				}else{
+					bug_command_count++;
 				}
+
 			break;
 			default:
 				bug_command_count++;
