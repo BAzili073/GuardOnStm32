@@ -19,8 +19,10 @@ OUTPUT_obj output[MAX_OUTPUT] = {
 void check_time_output_on(){
 	int i;
 	for (i = 0;i<MAX_OUTPUT;i++){
-		if (output[i].time_on > 0) output[i].time_on--;
-		if (!output[i].time_on) output_off(i+1);
+		if (output[i].time_on > 0){
+			output[i].time_on--;
+			if (!output[i].time_on) output_off(i+1);
+		}
 	}
 }
 
@@ -28,7 +30,7 @@ void sms_control_output(uint8_t number, uint32_t state){
 	if (state > 0){
 		output_on(number);
 		if (state > 1){
-			output[number].time_on = state;
+			output[number-1].time_on = state;
 		}
 	}else if (state == 0)  {
 		output_off(number);

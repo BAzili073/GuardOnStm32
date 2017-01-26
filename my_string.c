@@ -62,6 +62,13 @@ void str_add_num(char * out,int num){
 			out_len++;
 			for (y = i;y>0;y--) a = a*10;
 			num = num-a;
+			if (!num && i) {
+				for (y=0;y<i;y++){
+					out[out_len] = '0';
+					out_len++;
+				}
+				return;
+			}
 		}
 	}
 }

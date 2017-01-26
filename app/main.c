@@ -13,7 +13,10 @@
 #define STM32_UUID ((uint32_t *)0x7b747800)
 
 void FULL_RESET(){
-	SCB -> AIRCR |= SCB_AIRCR_SYSRESETREQ;
+#ifdef DEBUG
+	send_string_to_UART3("FULL RESET \n\r");
+#endif
+	NVIC_SystemReset();
 }
 
  void add_device_check();
@@ -52,7 +55,6 @@ int main(void) {
 	add_device_check();
 	one_wire_start_conversion_temp();
 	modem_online();
-
 #ifdef DEBUG
 	send_string_to_UART3("START PROGTAMM! \n\r");
 #endif

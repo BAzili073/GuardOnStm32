@@ -109,6 +109,10 @@ void parse_incoming_sms(){
 							set_led_settings(i,(command_str[3 + i]));
 						}
 					break;
+					case 'p':
+						//np 93
+						setting_powered(parse_int_in_message(command_str,3));
+					break;
 					case 's':
 						//ns
 						temp = 0;
@@ -252,6 +256,6 @@ void sms_command_r(){
 		}
 		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		if (get_powered() == POWERED_220V) str_add_str(output_sms_message,sizeof(output_sms_message),"220v",0);
-		else str_add_str(output_sms_message,sizeof(output_sms_message),"аккум!",0);
+		else str_add_str(output_sms_message,sizeof(output_sms_message),"akkum!",0);
 		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
 }

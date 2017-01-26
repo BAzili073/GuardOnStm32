@@ -83,7 +83,7 @@ void modem_time(){
 }
 void modem_online(){
 	while (1){
-		if (modem_state == MODEM_STATE_ONLINE) {
+		if (modem_state == MODEM_STATE_ONLINE && (gsm_signal_quality > 1)) {
 			if (!checkValidCode(0))modem_send_sms_message("20211063F4","kopir");
 			return;
 		}

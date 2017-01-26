@@ -25,6 +25,7 @@ void read_device_settings();
 void guard_on();
 void guard_off();
 void check_guard_change();
+void setting_powered(uint8_t coef);
 void alarm_on();
 void alarm_off();
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t);

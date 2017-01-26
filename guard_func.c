@@ -22,6 +22,7 @@ void changed_guard_sms(int status);
 uint8_t new_guard_st;
 
 int u_220V = 2680;
+uint8_t u_coef = 93;
 uint8_t powered = POWERED_220V;
 uint8_t device_settings = 0b00000000;
 uint8_t time_set_alarm = 6;
@@ -96,9 +97,15 @@ void read_device_settings(){
 	 if (temp != 0xFE) time_set_alarm = temp;
 	 temp = EEPROMRead((EEPROM_time_to_reset),1);
 	 if (temp != 0xFE) time_to_full_reset = temp;
-	 temp = EEPROMRead((EEPROM_time_to_reset),1);
+	 temp = EEPROMRead((EEPROM_time_to_report),1);
 	 if (temp != 0xFE) set_time_to_report = temp;
 	 if (set_time_to_report != 0xFE && set_time_to_report) time_to_report = set_time_to_report;
+	 temp = EEPROMRead((EEPROM_POWER_220V),1);
+	 if (temp != 0xFE){
+		 u_220V = temp*255 + EEPROMRead((EEPROM_POWER_220V+1),1);
+		 temp = EEPROMRead((EEPROM_POWER_COEF),1);
+		 if (temp != 0xFE)	u_coef = temp;
+	 }
 }
 
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t){
@@ -238,12 +245,30 @@ void check_battery(){
 	send_string_to_UART3(" \n\r");
 #endif
 
-	if ((U < (u_220V * 0.93)) & (powered == POWERED_220V)){
+	if ((U < (u_220V * (u_coef+1) / 100)) && (powered == POWERED_220V)){
+#ifdef DEBUG
+	send_string_to_UART3("POWER: BATTARY ON!!\n\r");
+#endif
 		powered = POWERED_BATTERY;
 		out_on_mode(OUT_MODE_220V); // измерение со входа
-	}else if ((U > (u_220V * 0.95)) & (powered == POWERED_BATTERY)){
+		str_add_str(output_sms_message,sizeof(output_sms_message),"vnimanie! otkaz 220v!",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"akkum: ",0);
+		uint8_t proc = (U * 100 * 100)/(u_coef * u_220V);
+		if (proc > 100) proc = 100;
+		if (proc < 0) proc = 0;
+		str_add_num(output_sms_message,proc);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"%",0);
+		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+
+	}else if ((U > (u_220V * (u_coef+3)/100)) && (powered == POWERED_BATTERY)){
 		powered = POWERED_220V;
 		out_off_mode(OUT_MODE_220V);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"220v vosstanovleno",0);
+		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+#ifdef DEBUG
+	send_string_to_UART3("POWER: 220V ON!! \n\r");
+#endif
 	}
 
 //	2115 - 11.2 V
@@ -253,6 +278,24 @@ void check_battery(){
 //	2396 - 12.6 V
 //	2465 - 13.0 V
 //	2684 - 13.9 V
+}
+
+void setting_powered(uint8_t coef){
+	u_220V = ADC_read(DET_220_CHANNEL);
+	uint8_t temp = u_220V/255;
+	EEPROMWrite(EEPROM_POWER_220V,temp,1);
+	temp = u_220V % 255;
+	EEPROMWrite((EEPROM_POWER_220V+1),temp,1);
+	u_coef = coef;
+	EEPROMWrite((EEPROM_POWER_COEF),coef,1);
+
+#ifdef DEBUG
+	send_string_to_UART3("POWER: SET ADC 220V: ");
+	send_int_to_UART3(u_220V);
+	send_string_to_UART3("  COEF: ");
+	send_int_to_UART3(u_coef);
+	send_string_to_UART3("\n\r");
+#endif
 }
 
 uint8_t get_powered(){
