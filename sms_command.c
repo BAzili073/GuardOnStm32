@@ -173,6 +173,17 @@ void parse_incoming_sms(){
 				}
 
 			break;
+	//UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+			case 'u':
+				if ((command_str[1]) == 'v') {
+					//vs 3
+					temp2 = parse_int_in_message(command_str,4);
+					sms_control_output((command_str[2] - '0'), temp2);
+				}else{
+					bug_command_count++;
+				}
+
+			break;
 			default:
 				bug_command_count++;
 			break;

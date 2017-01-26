@@ -54,6 +54,7 @@ void  TIM7_IRQHandler(){
 	  m_sec++;
 //	  FP_time();
 	  if (m_sec == 10) {
+		  check_time_output_on();
 		  sec++;
 		  if (sec == 60){
 			  sec = 0;

@@ -64,12 +64,12 @@ int main(void) {
 
 
 		str_add_str(output_sms_message,sizeof(output_sms_message),"zapusk",0);
-		str_add_str(output_sms_message,sizeof(output_sms_message),"\nver:5.1 24.01.2017",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\nver:5.1 24.01.17",0);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"\nur:",0);
 		str_add_num(output_sms_message,(get_gsm_signal_quality()*100/31));
-		str_add_str(output_sms_message,sizeof(output_sms_message),"%\ntm: ",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"%\nkl: ",0);
 		str_add_num(output_sms_message,get_tm_key_number());
-		str_add_str(output_sms_message,sizeof(output_sms_message),"\ndt:",0);
+		str_add_str(output_sms_message,sizeof(output_sms_message),"\ndat:",0);
 		str_add_num(output_sms_message,get_DS18x20_count());
 		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
 

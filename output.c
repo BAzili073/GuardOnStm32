@@ -5,15 +5,35 @@ typedef struct OUTPUT_obj{
 	GPIO_TypeDef * port;
 	uint16_t  pin;
 	uint8_t mode;
+	uint16_t  time_on;
 } OUTPUT_obj;
 
 OUTPUT_obj output[MAX_OUTPUT] = {
-		[0] = {.port = OUTPUT_1_PORT, .pin = OUTPUT_1, .mode = OUT_MODE_LAMP*0,},
-		[1] = {.port = OUTPUT_2_PORT, .pin = OUTPUT_2, .mode = OUT_MODE_GUARD*0,},
-		[2] = {.port = OUTPUT_3_PORT, .pin = OUTPUT_3, .mode = OUT_MODE_TM*0,},
-		[3] = {.port = OUTPUT_4_PORT, .pin = OUTPUT_4, .mode = OUT_MODE_LAMP*0,},
-		[4] = {.port = OUTPUT_5_PORT, .pin = OUTPUT_5, .mode = OUT_MODE_LAMP*0,},
+		[0] = {.port = OUTPUT_1_PORT, .pin = OUTPUT_1, .time_on = 0, .mode = OUT_MODE_LAMP*0,},
+		[1] = {.port = OUTPUT_2_PORT, .pin = OUTPUT_2, .time_on = 0, .mode = OUT_MODE_GUARD*0,},
+		[2] = {.port = OUTPUT_3_PORT, .pin = OUTPUT_3, .time_on = 0, .mode = OUT_MODE_ALARM*0,},
+		[3] = {.port = OUTPUT_4_PORT, .pin = OUTPUT_4, .time_on = 0, .mode = OUT_MODE_HAND*0,},
+		[4] = {.port = OUTPUT_5_PORT, .pin = OUTPUT_5, .time_on = 0, .mode = OUT_MODE_HAND*0,},
 };
+
+void check_time_output_on(){
+	int i;
+	for (i = 0;i<MAX_OUTPUT;i++){
+		if (output[i].time_on > 0) output[i].time_on--;
+		if (!output[i].time_on) output_off(i+1);
+	}
+}
+
+void sms_control_output(uint8_t number, uint32_t state){
+	if (state > 0){
+		output_on(number);
+		if (state > 1){
+			output[number].time_on = state;
+		}
+	}else if (state == 0)  {
+		output_off(number);
+	}
+}
 
 void read_output_settings(){
 	 int i;
@@ -39,7 +59,6 @@ void set_output_settings(uint8_t output_t, uint8_t mode_t){
 
 void output_on(uint8_t output_t){
 	GPIO_HIGH(output[output_t-1].port,(output[output_t-1].pin));
-
 }
 
 void output_off(uint8_t output_t){
