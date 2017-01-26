@@ -33,6 +33,7 @@ void read_ds18x20_settings(){
 
 void set_ds18x20_settings(uint8_t ds, int8_t min_temp_t, int8_t max_temp_t ,uint8_t settings_t){
 	ds--;
+	if (ds > get_DS18x20_count() || ds < 0) return;
 	DS18x20[ds].min_temp = min_temp_t; EEPROMWrite((EEPROM_ds18x20_min + ds),DS18x20[ds].min_temp,1);
 	DS18x20[ds].max_temp = max_temp_t; EEPROMWrite((EEPROM_ds18x20_max + ds),DS18x20[ds].max_temp,1);
 	DS18x20[ds].settings = settings_t; EEPROMWrite((EEPROM_ds18x20_settings + ds),DS18x20[ds].settings,1);

@@ -65,7 +65,7 @@ void  TIM7_IRQHandler(){
 				  hour++;
 				  if (hour == 24){
 					  check_time_to_reset();
-					  last_control_guard[0] = "!";
+//					  last_control_guard[0] = "!";
 					  hour = 0;
 					  day++;
 					  if (day == 30){

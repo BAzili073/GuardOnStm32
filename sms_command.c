@@ -59,13 +59,11 @@ void parse_incoming_sms(){
 				switch(command_str[1]){
 					case 'n':
 						//nnX +79021201364
-						if (command_str[2] < '0' || command_str[2] > '9')  break;
 						sms_command_nn(command_str);
 
 					break;
 					case 't':
 						//ntX -10,29,00010011
-						if (command_str[2] < '0' || command_str[2] > '9') break;
 						temp = 0;
 						temp2 = parse_int_in_message(command_str,4);
 						temp3 = parse_int_in_message(command_str,(4 + get_size_number(temp2) + 1));
@@ -112,6 +110,7 @@ void parse_incoming_sms(){
 						}
 					break;
 					case 's':
+						//ns
 						temp = 0;
 						temp2 = 0;
 						temp3 = 0;
@@ -159,10 +158,11 @@ void parse_incoming_sms(){
 				send_command_to_GSM("\"","OK",gsm_message,2,5);
 	//			send_command_to_GSM("AT+CUSD=1,\"*102#\"","OK",gsm_message,2,5);
 			break;
-	//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-			case 'v':
+	//aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+			case 'a':
 				if ((command_str[1]) == 's') {
 					//vs 3
+					if (!command_str[3]) FULL_RESET();
 					temp = parse_int_in_message(command_str,(3));
 					set_time_to_reset(temp);
 				}else if ((command_str[1]) == 'r'){
@@ -213,7 +213,7 @@ void parse_incoming_sms(){
 
 
 void sms_command_nn(char * command_str){
-
+	if (command_str[2] < '0' || command_str[2] > '9')  return;
 	unsigned int ID_number  = (command_str[2] - '0');
 	char row_number[10];
 	unsigned int i;

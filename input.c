@@ -66,6 +66,7 @@ void read_inputs_settings(){
 
 void set_input_settings(uint8_t inp, uint8_t v_min_t, uint8_t v_max_t,uint8_t mode_t,uint8_t time_to_alarm_t){
 	inp--;
+	if (inp < 0 || inp > MAX_INPUT) return;
 	input[inp].v_max = v_max_t; EEPROMWrite((EEPROM_input_v_max + inp),input[inp].v_max,1);
 	input[inp].v_min = v_min_t; EEPROMWrite((EEPROM_input_v_min + inp),input[inp].v_min,1);
 	input[inp].mode = mode_t; EEPROMWrite((EEPROM_input_mode + inp),input[inp].mode,1);
@@ -95,6 +96,7 @@ void set_input_settings(uint8_t inp, uint8_t v_min_t, uint8_t v_max_t,uint8_t mo
 
 void set_input_text(uint8_t inp, char * text_t){
 	inp--;
+	if (inp < 0 || inp > MAX_INPUT) return;
 	int i;
 	for (i = 0;i < INPUT_TEXT_SIZE;i++){
 		if (!text_t[5 + i]) {
