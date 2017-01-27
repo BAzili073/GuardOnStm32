@@ -26,7 +26,7 @@
 #define EEPROM_time_to_reset		(EEPROM_led_mode + MAX_LED)
 #define EEPROM_time_to_report		(EEPROM_time_to_reset + 1)
 #define EEPROM_POWER_220V			(EEPROM_time_to_report + 1)
-#define EEPROM_POWER_COEF			(EEPROM_POWER_220V + 2)
+#define EEPROM_POWER_BATT			(EEPROM_POWER_220V + 2)
 //#define EEPROM_		(EEPROM_POWER_COEF + 1)
 
 uint32_t *EEPROMAddress;

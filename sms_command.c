@@ -111,7 +111,11 @@ void parse_incoming_sms(){
 					break;
 					case 'p':
 						//np 93
-						setting_powered(parse_int_in_message(command_str,3));
+						setting_powered(1);
+					break;
+					case 'a':
+						//np 93
+						setting_powered(2);
 					break;
 					case 's':
 						//ns
