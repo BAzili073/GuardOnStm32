@@ -31,7 +31,7 @@ typedef struct INPUT_obj{
 	    [5] = {	.port = B_INPUT_PORT,  	.pin = B_INPUT_1, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
 	    [6] = {	.port = B_INPUT_PORT,  	.pin = B_INPUT_2,   	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
 	    [7] = {	.port = B_INPUT_PORT,  	.pin = B_INPUT_3,    	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
-	    [8] = {	.port = OPEN_CAP_PORT,	.pin = OPEN_CAP_PIN, 	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .text = "vzlom korpusa"},
+	    [8] = {	.port = OPEN_CAP_PORT,	.pin = OPEN_CAP_PIN, 	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
  };
 
  uint8_t last_input_alarm = 0;
@@ -52,7 +52,7 @@ void read_inputs_settings(){
 	 if (temp != 0xFE) input[i].set_time_to_alarm = temp;
 	 input[i].time_to_alarm = -1;
 	 for (y = 0;y<INPUT_TEXT_SIZE;y++){
-		 temp = EEPROMRead((EEPROM_input_text + y+(15*i)),1);
+		 temp = EEPROMRead((EEPROM_input_text + y+(INPUT_TEXT_SIZE*i)),1);
 		 if (temp == 0xFE){
 			 input[i].text[y] = 0;
 			 break;
