@@ -259,12 +259,15 @@ char parse_gsm_message(){
 	send_string_to_UART3(" \n\r");
 //	alarm_on();
 #endif
-		if (gsm_signal_quality > 31 || gsm_signal_quality < 6){
-			out_off_mode(OUT_MODE_GSM);
-		}else{
-			out_on_mode(OUT_MODE_GSM);
+		if (tel[0].access){
+			if (gsm_signal_quality > 31 || gsm_signal_quality < 6){
+				out_off_mode(OUT_MODE_GSM);
+			}else{
+				out_on_mode(OUT_MODE_GSM);
+			}
 		}
 	}
+
 
 	else if (find_str("+CPIN:",gsm_message)){ /////////////////////////////////START MODEM
 		if (find_str("READY",gsm_message)){
@@ -394,14 +397,18 @@ char modem_setup(){
 	if (!send_command_to_GSM("AT+CLIP=1","OK",gsm_message,2,5)) return 0;   // for AON
 	if (!send_command_to_GSM("AT+CPBS=\"SM\"","OK",gsm_message,2,5)) return 0;   // select sim as memory
 	send_command_to_GSM("AT+CMGD=1,4","OK",gsm_message,2,5);
-
-	#ifdef DEBUG_MODEM
-	send_string_to_UART3("MODEM: setup ok!  \n\r");
-	if (tel[0].number[0] == 0xFE){
-		send_string_to_UART3("MODEM: Vnimanie nety osnovnogo nomera! \n\r ");
-	}
-#endif
 	led_blink_stop(OUT_MODE_GSM);
+#ifdef DEBUG_MODEM
+	send_string_to_UART3("MODEM: setup ok!  \n\r");
+#endif
+	if (!tel[0].access){
+		led_blink(OUT_MODE_GSM,20,10);
+#ifdef DEBUG_MODEM
+		send_string_to_UART3("MODEM: Vnimanie nety osnovnogo nomera! \n\r ");
+#endif
+	}
+
+
 	return 1;
 }
 

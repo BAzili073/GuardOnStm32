@@ -12,7 +12,7 @@
 #include "DS18x20.h"
 #include "modem.h"
 
-#define U_MIN 100 //U [volt] * 10
+ //U [volt] * 10
 
 extern TEL_obj tel[MAX_TEL_NUMBERS];
 int checkValidCode(int Step);
@@ -24,7 +24,7 @@ uint8_t new_guard_st;
 
 uint8_t u_220V = 140;
 uint8_t u_batt = 130;
-
+uint8_t u_coef = 100;
 uint8_t powered = POWERED_220V;
 uint8_t device_settings = 0b00000000;
 uint8_t time_set_alarm = 6;
@@ -104,8 +104,11 @@ void read_device_settings(){
 	 if (set_time_to_report != 0xFE && set_time_to_report) time_to_report = set_time_to_report;
 	 temp = EEPROMRead((EEPROM_POWER_220V),1);
 	 if (temp != 0xFE) u_220V = temp;
+	 else setting_powered(1);
+
 	 temp = EEPROMRead((EEPROM_POWER_BATT),1);
 	 if (temp != 0xFE) u_batt = temp;
+	 else u_batt = u_220V - 11;
 }
 
 void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_alarm_t){
@@ -238,7 +241,10 @@ void out_off_mode(uint8_t mode){
 }
 
 void check_battery(){
-	unsigned int U = ADC_read(DET_220_CHANNEL)*181.5/4096;
+	unsigned int U_adc = ADC_read(DET_220_CHANNEL);
+	unsigned int U = U_adc*181.5/4096;
+	u_coef =  U * 100 / u_220V;
+	if (u_coef>100) u_coef = 100;
 #ifdef DEBUG_220V
 	send_string_to_UART3("DETECT 220v: ");
 	send_int_to_UART3(U);
@@ -254,14 +260,17 @@ void check_battery(){
 		str_add_str(output_sms_message,sizeof(output_sms_message),"vnimanie! otkaz 220v!",0);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"akkum: ",0);
-		uint8_t proc = ((U - U_MIN)*100 / (u_batt-U_MIN));
+		uint8_t u_min = u_220V - 40;
+		set_timeout_7(30);
+		while_timeout_7();
+		U_adc =ADC_read(DET_220_CHANNEL);
+		uint8_t proc = ((U - u_min)*100 / (u_batt-u_min));
 		if (proc > 100) proc = 100;
-		if (proc < 0) proc = 0;
 		str_add_num(output_sms_message,proc);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"%",0);
 		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
 
-	}else if ((U > ((u_220V - u_batt)*0.4)) && (powered == POWERED_BATTERY)){
+	}else if ((U > (u_batt + (u_220V - u_batt)*0.4)) && (powered == POWERED_BATTERY)){
 		powered = POWERED_220V;
 		out_off_mode(OUT_MODE_220V);
 		str_add_str(output_sms_message,sizeof(output_sms_message),"220v vosstanovleno",0);

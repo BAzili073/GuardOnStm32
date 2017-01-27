@@ -72,6 +72,10 @@ EEPROMEnable();
 		while (FLASH->SR & FLASH_SR_BSY);
 	}
 EEPROMDisable();
+
+#ifdef DEBUG
+	send_string_to_UART3("SYSTEM: FULL EEPROM ERASE! OK! \n\r");
+#endif
 }
 
 

@@ -6,7 +6,7 @@
 #include "my_string.h"
 
  uint8_t check_input_setting(int inp,int opt);
-
+extern uint8_t u_coef;
 typedef struct INPUT_obj{
 	GPIO_TypeDef * port;
 	uint16_t  pin;
@@ -131,7 +131,7 @@ void set_input_text(uint8_t inp, char * text_t){
 			send_int_to_UART3(input[input_t - 1].v_max*300);
  			send_string_to_UART3(" \n\r");
 #endif
- 			if (((((input[input_t - 1].v_max*300) > adc_value) && ((input[input_t - 1].v_min)*300) < adc_value) ^ !(check_input_setting((input_t-1),INPUTS_MODE_INVERS)>0)) ){//вход не в норме
+ 			if (((((input[input_t - 1].v_max*300*u_coef/100) > adc_value) && ((input[input_t - 1].v_min)*300*u_coef/100) < adc_value) ^ !(check_input_setting((input_t-1),INPUTS_MODE_INVERS)>0)) ){//вход не в норме
  				return 1;
  			}
  				return 0;
@@ -146,6 +146,7 @@ void set_input_text(uint8_t inp, char * text_t){
 
  void check_inputs(void){
  	int i;
+ 	check_battery();
  	for (i = 0;i<MAX_INPUT;i++){ // перебор входов
  		if (check_input(i+1)){
  			if (!input[i].state){

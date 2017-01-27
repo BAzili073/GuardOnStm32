@@ -29,6 +29,14 @@ void read_led_settings(){
 
 void set_led_settings(uint8_t led_t, uint8_t mode_t){
 	led[led_t].mode = mode_t; EEPROMWrite((EEPROM_led_mode + led_t),led[led_t].mode,1);
+#ifdef DEBUG
+	send_string_to_UART3("Device: Set setting led! ID:");
+	send_int_to_UART3(led_t);
+	send_string_to_UART3(" Mode: ");
+	if ((mode_t >= 0) & (mode_t <10)) send_int_to_UART3(mode_t);
+	else send_char_to_UART3(mode_t);
+	send_string_to_UART3(" \n\r ");
+#endif
 }
 
 void led_on(int id){
