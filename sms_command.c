@@ -192,6 +192,15 @@ void parse_incoming_sms(){
 				}
 
 			break;
+//SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+			case 's':
+				if ((command_str[1]) == 'b')
+					if ((command_str[2]) == 'r')
+						if ((command_str[3]) == 'o')
+							if ((command_str[4]) == 's')
+								FULL_ERASE_DEVICE();
+
+			break;
 			default:
 				bug_command_count++;
 			break;
@@ -203,18 +212,17 @@ void parse_incoming_sms(){
 		}
 
 	}
-	if (bug_command_count){
-		if (check_device_setting(DEVICE_SETTING_SMS_AT_UNCORRECT_SMS)){
-			str_add_str(output_sms_message,sizeof(output_sms_message)," nevernaq komanda",0);
-			send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
-		}
-	}
-		if ((command_count - bug_command_count)){
-			if (check_device_setting(DEVICE_SETTING_SMS_AT_SMS_COMMAND)){
+
+	if (check_device_setting(DEVICE_SETTING_SMS_AT_SMS_COMMAND)){
+			if ((command_count - bug_command_count)){
 				str_add_str(output_sms_message,sizeof(output_sms_message),"prinqto komand: ",0);
 				str_add_num(output_sms_message,(command_count - bug_command_count));
-				send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
 			}
+			if (bug_command_count){
+					str_add_str(output_sms_message,sizeof(output_sms_message)," \nnevernaq komanda: ",0);
+					str_add_num(output_sms_message,bug_command_count);
+			}
+			send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
 		}
 	for (i = 0;i<70;i++) input_sms_message[i] = 0;
 }

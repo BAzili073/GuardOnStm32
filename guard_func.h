@@ -18,7 +18,7 @@ void check_time_to_guard_on();
 #define DEVICE_SETTING_CHANGE_GUARD_USE_CALL 1<<3
 #define DEVICE_SETTING_SMS_AT_ALARM 1<<2
 #define DEVICE_SETTING_AUTO_GUARD_AT_START 1<<1
-#define DEVICE_SETTING_SMS_AT_UNCORRECT_SMS 1<<0
+#define DEVICE_SETTING_SMS_AT_NOT_220 1<<0
 
 void check_lamp_blink();
 void read_device_settings();

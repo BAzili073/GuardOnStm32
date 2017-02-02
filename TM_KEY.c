@@ -30,6 +30,11 @@ void read_TM_KEY_settings(){
 void add_TM_key(uint8_t id[8]){
 	if (tm_key_number < MAX_TM){
 		led_on(4);
+#ifdef DEBUG
+		send_string_to_UART3("TM: Add key: #");
+		send_int_to_UART3(tm_key_number);
+		send_string_to_UART3("\n\r");
+#endif
 		tm_key_number++;
 		EEPROMWrite(EEPROM_tms_numbers,tm_key_number,1);
 		int i;

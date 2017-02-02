@@ -118,7 +118,7 @@ void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_
 #ifdef DEBUG
 	send_string_to_UART3("Device: Set setting device! Settings: \n\r");
 	send_string_to_UART3("SMS_AT_UNCORRECT_SMS: ");
-	check_device_setting(DEVICE_SETTING_SMS_AT_UNCORRECT_SMS) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
+	check_device_setting(DEVICE_SETTING_SMS_AT_NOT_220) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
 
 	send_string_to_UART3("AUTO_GUARD_AT_START: ");
 	check_device_setting(DEVICE_SETTING_AUTO_GUARD_AT_START) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
@@ -243,6 +243,7 @@ void out_off_mode(uint8_t mode){
 void check_battery(){
 	unsigned int U_adc = ADC_read(DET_220_CHANNEL);
 	unsigned int U = U_adc*181.5/4096;
+	static int NOT_220_TRY = 0;
 	u_coef =  U * 100 / u_220V;
 	if (u_coef>100) u_coef = 100;
 #ifdef DEBUG_220V
@@ -252,29 +253,43 @@ void check_battery(){
 #endif
 
 	if ((U < (u_batt + ((u_220V - u_batt)*0.2))) && (powered == POWERED_220V)){
+
+		if (NOT_220_TRY == 200){
 #ifdef DEBUG
 	send_string_to_UART3("POWER: BATTARY ON!!\n\r");
 #endif
-		powered = POWERED_BATTERY;
-		out_on_mode(OUT_MODE_220V); // измерение со входа
-		str_add_str(output_sms_message,sizeof(output_sms_message),"vnimanie! otkaz 220v!",0);
-		str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
-		str_add_str(output_sms_message,sizeof(output_sms_message),"akkum: ",0);
-		uint8_t u_min = u_220V - 40;
-		set_timeout_7(30);
-		while_timeout_7();
-		U_adc =ADC_read(DET_220_CHANNEL);
-		uint8_t proc = ((U - u_min)*100 / (u_batt-u_min));
-		if (proc > 100) proc = 100;
-		str_add_num(output_sms_message,proc);
-		str_add_str(output_sms_message,sizeof(output_sms_message),"%",0);
-		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+					NOT_220_TRY++;
+					powered = POWERED_BATTERY;
+					out_on_mode(OUT_MODE_220V);
+					uint8_t u_min = u_220V - 40;
+					set_timeout_7(30);
+					while_timeout_7();
+					U_adc =ADC_read(DET_220_CHANNEL);
+					uint8_t proc = ((U - u_min)*100 / (u_batt-u_min));
+					if (proc > 100) proc = 100;
+					if (check_device_setting(DEVICE_SETTING_SMS_AT_NOT_220)){
+						str_add_str(output_sms_message,sizeof(output_sms_message),"vnimanie! otkaz 220v!",0);
+						str_add_str(output_sms_message,sizeof(output_sms_message),"\n",0);
+						str_add_str(output_sms_message,sizeof(output_sms_message),"akkum: ",0);
+						str_add_num(output_sms_message,proc);
+						str_add_str(output_sms_message,sizeof(output_sms_message),"%",0);
+						send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+					}
+
+		}else{
+			led_on_mode(OUT_MODE_220V);
+			if (NOT_220_TRY < 200) NOT_220_TRY++;
+		}
 
 	}else if ((U > (u_batt + (u_220V - u_batt)*0.4)) && (powered == POWERED_BATTERY)){
+		NOT_220_TRY = 0;
 		powered = POWERED_220V;
 		out_off_mode(OUT_MODE_220V);
-		str_add_str(output_sms_message,sizeof(output_sms_message),"220v vosstanovleno",0);
-		send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+
+		if (check_device_setting(DEVICE_SETTING_SMS_AT_NOT_220)){
+			str_add_str(output_sms_message,sizeof(output_sms_message),"220v vosstanovleno",0);
+			send_sms_message_for_all(output_sms_message,SMS_FUNCTION_SERVICE);
+		}
 #ifdef DEBUG
 	send_string_to_UART3("POWER: 220V ON!! \n\r");
 #endif

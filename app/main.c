@@ -19,6 +19,15 @@ void FULL_RESET(){
 	NVIC_SystemReset();
 }
 
+
+void FULL_ERASE_DEVICE(){
+#ifdef DEBUG
+	send_string_to_UART3("SYSTEM: FULL ERASE AND RESET DEVICE!!! \n\r");
+#endif
+	ERASE_EEPROM();
+	FULL_RESET();
+}
+
  void add_device_check();
  void add_device_mode();
 
@@ -184,7 +193,18 @@ volatile uint32_t psr;/* Program status register. */
  }
 
 void add_device_mode(){
+	int state_reset_input = check_input(9);
+	int reset_try = 0;
 	while(1){
 		one_wire_add_device();
+		int a = check_input(9);
+		if (!state_reset_input && a){
+			reset_try++;
+			if (reset_try >= 4) {
+			FULL_ERASE_DEVICE();
+			}
+		}
+
+		state_reset_input = a;
 	}
 }

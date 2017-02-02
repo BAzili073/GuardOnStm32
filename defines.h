@@ -190,9 +190,13 @@
 
 
 
-#define UUID_1 155661107
-#define UUID_2 842479921
-#define UUID_3 2172354304
+//#define UUID_1 155661107
+//#define UUID_2 842479921
+//#define UUID_3 2172354304
+
+#define UUID_1 273102386
+#define UUID_2 858861873
+#define UUID_3 2105047808
 
 /*
  * 4096 EEPROM all

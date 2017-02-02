@@ -68,6 +68,11 @@ void time_check_temp(){
 void add_DS18x20(uint8_t id[8]){
 	if (ds18x20_number < MAX_DS18x20){
 		led_on(4);
+#ifdef DEBUG
+		send_string_to_UART3("TM: Add DS18x20: #");
+		send_int_to_UART3(ds18x20_number);
+		send_string_to_UART3("\n\r");
+#endif
 		ds18x20_number++;
 		EEPROMWrite(EEPROM_ds18x20_numbers,ds18x20_number,1);
 		int i;
