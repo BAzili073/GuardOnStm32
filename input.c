@@ -23,7 +23,7 @@ typedef struct INPUT_obj{
 } INPUT_obj;
 
  INPUT_obj input[MAX_INPUT] ={
-	    [0] = {	.port = INPUT_PORT, 	.pin = INPUT_1,			.mode = 0, .set_time_to_alarm = 1, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_1},
+	    [0] = {	.port = INPUT_PORT, 	.pin = INPUT_1,			.mode = 0, .set_time_to_alarm = 6, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_1, .text = "vhod"},
 	    [1] = {	.port = INPUT_PORT, 	.pin = INPUT_2, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_4,},
 	    [2] = {	.port = INPUT_PORT,		.pin = INPUT_3, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_5,},
 	    [3] = {	.port = INPUT_PORT,		.pin = INPUT_4,			.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .v_min = 3, .v_max = 7, .adc_channel = ADC_CHANNEL_6,},
@@ -31,7 +31,7 @@ typedef struct INPUT_obj{
 	    [5] = {	.port = B_INPUT_PORT,  	.pin = B_INPUT_1, 		.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
 	    [6] = {	.port = B_INPUT_PORT,  	.pin = B_INPUT_2,   	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
 	    [7] = {	.port = B_INPUT_PORT,  	.pin = B_INPUT_3,    	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
-	    [8] = {	.port = OPEN_CAP_PORT,	.pin = OPEN_CAP_PIN, 	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0},
+	    [8] = {	.port = OPEN_CAP_PORT,	.pin = OPEN_CAP_PIN, 	.mode = 0, .set_time_to_alarm = 0, .time_to_alarm = -1, .state = 0, .alarm = 0, .text = "vzlom korpusa"},
  };
 
  uint8_t last_input_alarm = 0;
@@ -54,7 +54,7 @@ void read_inputs_settings(){
 	 for (y = 0;y<INPUT_TEXT_SIZE;y++){
 		 temp = EEPROMRead((EEPROM_input_text + y+(INPUT_TEXT_SIZE*i)),1);
 		 if (temp == 0xFE){
-			 input[i].text[y] = 0;
+			 if (y != 0) input[i].text[y] = 0;
 			 break;
 		 }else{
 			 input[i].text[y] = temp;
@@ -227,8 +227,8 @@ void set_input_text(uint8_t inp, char * text_t){
 	 int i;
 	 int len_str = str_length(str);
 	 for (i = 0; i < 70; i++){
-		 if (!input[inp - 1].text[i]) break;
-		 str[len_str + i] = input[inp - 1].text[i];
+		 if (!input[inp].text[i]) break;
+		 str[len_str + i] = input[inp].text[i];
 	 }
  }
 

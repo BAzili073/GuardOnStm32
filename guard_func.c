@@ -117,7 +117,7 @@ void set_device_setting(uint8_t settings, uint8_t time_to_guard_t, uint8_t time_
 	time_set_alarm = time_alarm_t; EEPROMWrite(EEPROM_time_set_alarm,time_alarm_t,1);
 #ifdef DEBUG
 	send_string_to_UART3("Device: Set setting device! Settings: \n\r");
-	send_string_to_UART3("SMS_AT_UNCORRECT_SMS: ");
+	send_string_to_UART3("DEVICE_SETTING_SMS_AT_NOT_220: ");
 	check_device_setting(DEVICE_SETTING_SMS_AT_NOT_220) ? send_string_to_UART3("ON \n\r") : send_string_to_UART3("OFF \n\r");
 
 	send_string_to_UART3("AUTO_GUARD_AT_START: ");
@@ -165,7 +165,7 @@ void guard_on(){
 
 void guard_on_TM(){
 	if (time_set_to_guard_on){
-		if (!time_to_guard_on){
+		if (time_to_guard_on == -1){
 			time_to_guard_on = time_set_to_guard_on;
 			led_blink(OUT_MODE_GUARD,5,5);
 		}else{
@@ -211,7 +211,7 @@ void alarm_on(){
 	alarm_st = ALARM_ON;
 
 	str_add_str(output_sms_message,sizeof(output_sms_message),"srabotal vhod ",0);
-	str_add_num(output_sms_message,get_alarm_input());
+	str_add_num(output_sms_message,(get_alarm_input() + 1));
 	str_add_str(output_sms_message,sizeof(output_sms_message),": ",0);
 	add_input_text(output_sms_message, get_alarm_input());
 	send_sms_message_for_all(output_sms_message,get_alarm_input());
@@ -390,7 +390,7 @@ void clear_last_control_guard(){
 }
 
 void check_guard_change(){
-	if (last_control_guard[0]) new_guard_st ? guard_on() : guard_off();
+	if (last_control_guard[0] && (time_to_guard_on == -1)) new_guard_st ? guard_on() : guard_off();
 
 	if (!time_to_guard_on){
 		time_to_guard_on = -1;
