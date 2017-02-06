@@ -9,11 +9,11 @@ typedef struct OUTPUT_obj{
 } OUTPUT_obj;
 
 OUTPUT_obj output[MAX_OUTPUT] = {
-		[0] = {.port = OUTPUT_1_PORT, .pin = OUTPUT_1, .time_on = 0, .mode = OUT_MODE_LAMP*0,},
-		[1] = {.port = OUTPUT_2_PORT, .pin = OUTPUT_2, .time_on = 0, .mode = OUT_MODE_GUARD*0,},
-		[2] = {.port = OUTPUT_3_PORT, .pin = OUTPUT_3, .time_on = 0, .mode = OUT_MODE_ALARM*0,},
-		[3] = {.port = OUTPUT_4_PORT, .pin = OUTPUT_4, .time_on = 0, .mode = OUT_MODE_HAND*0,},
-		[4] = {.port = OUTPUT_5_PORT, .pin = OUTPUT_5, .time_on = 0, .mode = OUT_MODE_HAND*0,},
+		[0] = {.port = OUTPUT_1_PORT, .pin = OUTPUT_1, .time_on = 0, .mode = OUT_MODE_LAMP,},
+		[1] = {.port = OUTPUT_2_PORT, .pin = OUTPUT_2, .time_on = 0, .mode = OUT_MODE_GUARD,},
+		[2] = {.port = OUTPUT_3_PORT, .pin = OUTPUT_3, .time_on = 0, .mode = OUT_MODE_ALARM,},
+		[3] = {.port = OUTPUT_4_PORT, .pin = OUTPUT_4, .time_on = 0, .mode = OUT_MODE_HAND,},
+		[4] = {.port = OUTPUT_5_PORT, .pin = OUTPUT_5, .time_on = 0, .mode = OUT_MODE_HAND,},
 };
 
 void check_time_output_on(){

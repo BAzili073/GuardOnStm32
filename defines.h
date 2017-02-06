@@ -17,7 +17,7 @@
 #define DEBUG_GUARD
 #define DEBUG_INPUTS
 #define DEBUG_B_INPUTS
-#define DEBUG_INPUTS_ADC
+//#define DEBUG_INPUTS_ADC
 #define DEBUG_ALARM
 #define DEBUG
 
