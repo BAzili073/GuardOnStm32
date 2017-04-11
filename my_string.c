@@ -3,26 +3,26 @@
 #include "my_string.h"
 
 int find_str(char * find,char * string){
-	 int counter = 0;
-	int find_length = str_length(find);
-	int string_length = str_length(string);
-	unsigned int coincidence = 0;
-
-	while(counter <= (string_length - find_length)){
-		int y;
-		for (y = 0;y <= find_length;y++ ){
-			if (find[y] == string[counter]){
-				coincidence++;
-				if (coincidence == find_length) return 1;
-		}else{
-				coincidence = 0;
-				y = find_length + 1;
-			}
-			counter++;
-
-		}
-	}
-	return 0;
+        int counter = 0;
+        int find_length = str_length(find);
+        int string_length = str_length(string);
+        while(counter <= (string_length - find_length)){
+			if (find[0] == string[counter]){
+					int u;
+					unsigned int coincidence = 0;
+					for (u = 0;u<find_length;u++){
+							if (find[u] == string[counter + u]){
+									coincidence++;
+									if (coincidence == find_length) return 1;
+							}else{
+											coincidence = 0;
+											break;
+							}
+					}
+                }
+                counter++;
+        }
+        return 0;
 }
 
 unsigned int str_length(char * str){

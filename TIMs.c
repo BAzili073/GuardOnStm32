@@ -109,8 +109,7 @@ void while_timeout_7(){
 	while(timeout_7);
 }
 
-void reset_timer()
-{
+void reset_timer(){
 	TIM6->EGR |= TIM_EGR_UG;
 	TIM6->SR &= !TIM_SR_UIF;
 }

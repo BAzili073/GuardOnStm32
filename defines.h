@@ -9,7 +9,7 @@
 //#define DEBUG_FINGER
 #define DEBUG_MODEM
 #define DEBUG_READ_SETTINGS
-//#define DEBUG_MODEM_UART
+#define DEBUG_MODEM_UART
 //#define DEBUG_220V
 //#define DEBUG_DS18x20
 //#define DEBUG_1WIRE
@@ -181,8 +181,8 @@
 //#define LOCK_ACCESS_PIN GPIO_PIN_13
 
 #define MAX_TEL_NUMBERS 5
-#define MAX_TM 5
-#define MAX_DS18x20 5
+#define MAX_TM 6
+#define MAX_DS18x20 8
 
 #define TIME_CHECK_DS18B20 50
 #define INPUT_TEXT_SIZE 15

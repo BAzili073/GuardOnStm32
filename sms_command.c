@@ -31,7 +31,9 @@ void parse_incoming_sms(){
 	char command[20];
 	char command_count = 0;
 	char bug_command_count = 0;
-	for (i = 0;i<11;i++) tel_number_temp[i] = gsm_message[i+24];
+	for (i = 0;i<11;i++){
+		tel_number_temp[i] = gsm_message[i+24];
+	}
 	last_control_ID_number = check_number(tel_number_temp);
 
 	if (last_control_ID_number > MAX_TEL_NUMBERS) return;
