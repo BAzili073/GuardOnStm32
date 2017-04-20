@@ -2,6 +2,8 @@
 #else
 #define TM_KEY_H
 #include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 #include "EEPROMfunc.h"
 #include "led.h"
 

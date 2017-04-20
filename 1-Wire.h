@@ -3,6 +3,8 @@
 #define ONE_WIRE_H
 
 #include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 
 
 void one_wire_write_bit(uint8_t bit);

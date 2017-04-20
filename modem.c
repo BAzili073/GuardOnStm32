@@ -1,7 +1,7 @@
-#include "stm32l1xx_hal.h"
-#include "stm32l151xba.h"
-#include "EEPROMfunc.h"
 #include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
+#include "EEPROMfunc.h"
 #include "TIMs.h"
 #include "UART.h"
 #include "guard_func.h"

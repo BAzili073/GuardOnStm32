@@ -2,9 +2,9 @@
 #else
 #define ADC_func
 
-#include "stm32l1xx_hal.h"
-#include "stm32l151xba.h"
-
+#include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 
 
 void ADC_init();

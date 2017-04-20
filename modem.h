@@ -3,6 +3,8 @@
 #define MODEM_H
 
 #include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 
 #define MODEM_ON_PORT GPIOB
 #define MODEM_ON_PIN GPIO_PIN_2

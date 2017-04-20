@@ -2,7 +2,9 @@
 #else
 #define SPI_H
 
-#include "stm32l1xx_hal.h"
+#include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 
 #define SPI_CS_PORT GPIOB
 #define SPI_CS_PIN GPIO_PIN_2

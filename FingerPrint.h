@@ -1,3 +1,7 @@
+
+#include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 int FP_detect_time;
 char FP_check_allow;
 char FP_time_for_rec;

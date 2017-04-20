@@ -1,5 +1,4 @@
-#include "stm32l1xx_hal.h"
-#include "stm32l151xba.h"
+
 #include "1-Wire.h"
 #include "TIMs.h"
 #include "my_string.h"

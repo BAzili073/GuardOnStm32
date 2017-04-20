@@ -1,7 +1,6 @@
-#include "stm32l1xx_hal.h"
-#include "stm32l151xba.h"
-
 #include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 
 char gsm_buffer[GSM_BUFFER_SIZE];
 char uart2_buffer[UART2_BUFFER_SIZE];
@@ -54,9 +53,9 @@ void UART2_init(){
 }
 
 void UART3_init(){
-	RCC -> APB1ENR |= RCC_APB1ENR_USART3EN;
+	RCC -> APB1ENR |= RCC_APB1ENR_LPUART1EN;
 //	NVIC_EnableIRQ(USART3_IRQn);
-	huart3.Instance = USART3;
+	huart3.Instance = LPUART1;
 	huart3.Init.BaudRate = 9600;
 	huart3.Init.WordLength = UART_WORDLENGTH_8B;
 	huart3.Init.StopBits = UART_STOPBITS_1;
@@ -65,7 +64,7 @@ void UART3_init(){
 	huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	huart3.Init.OverSampling = UART_OVERSAMPLING_16;
 	HAL_UART_Init(&huart3);
-	USART3->CR1 |= USART_CR1_RXNEIE;
+	LPUART1->CR1 |= USART_CR1_RXNEIE;
 }
 
 
@@ -79,12 +78,12 @@ void send_string_to_GSM(char * s){
 }
 
 void send_char_to_GSM(char c){
-	while((USART1->SR & USART_SR_TXE) == 0);
-	USART1->DR = c;
+	while((USART1->ISR & USART_ISR_TXE) == 0);
+	USART1->TDR = c;
 }
 void send_char_to_UART2(char c){
-	USART2->DR = c;
-	while((USART2->SR & USART_SR_TXE) == 0);
+	USART2->TDR = c;
+	while((USART2->ISR & USART_ISR_TXE) == 0);
 }
 
 void send_string_to_UART2(char * s){
@@ -97,8 +96,8 @@ void send_string_to_UART2(char * s){
 }
 
 void send_char_to_UART3(char c){
-	while((USART3->SR & USART_SR_TXE) == 0);
-	USART3->DR = c;
+	while((LPUART1->ISR & USART_ISR_TXE) == 0);
+	LPUART1->TDR = c;
 }
 
 void send_string_to_UART3(char * s){
@@ -114,19 +113,19 @@ void send_string_to_UART3(char * s){
 
 void USART1_IRQHandler(){
 		 USART_get_message();
-		 USART1->SR &= ~(USART_IT_RXNE | USART_SR_ORE);
+		 USART1->ISR &= ~(USART_IT_RXNE | USART_ISR_ORE);
 }
 
 void USART2_IRQHandler(){
 		 USART2_get_message();
-		 USART2->SR &= ~(USART_IT_RXNE | USART_SR_ORE);
+		 USART2->ISR &= ~(USART_IT_RXNE | USART_ISR_ORE);
 }
 void USART3_IRQHandler(){
-		 USART3->SR &= ~(USART_IT_RXNE | USART_SR_ORE);
+		 LPUART1->ISR &= ~(USART_IT_RXNE | USART_ISR_ORE);
 }
 
 void USART_get_message(){
-	gsm_buffer[gsm_buffer_char_counter] = USART1 -> DR;
+	gsm_buffer[gsm_buffer_char_counter] = USART1 -> TDR;
 	gsm_buffer_char_counter++;
 	if (gsm_buffer_char_counter == GSM_BUFFER_SIZE) {
 		gsm_buffer_char_counter = 0;
@@ -134,7 +133,7 @@ void USART_get_message(){
 }
 
 void USART2_get_message(){
-	uart2_buffer[uart2_buffer_char_counter] = USART2 -> DR;
+	uart2_buffer[uart2_buffer_char_counter] = USART2 -> TDR;
 	uart2_buffer_char_counter++;
 	if (uart2_buffer_char_counter == UART2_BUFFER_SIZE) {
 		uart2_buffer_char_counter = 0;

@@ -2,8 +2,9 @@
 #else
 #define DS18x20_H
 
-
 #include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 #include "EEPROMfunc.h"
 
 void read_ds18x20_settings();

@@ -2,9 +2,9 @@
 #else
 #define INPUT
 
-#include "stm32l1xx_hal.h"
-#include "stm32l151xba.h"
 #include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 
 
  int check_input(int input_t);

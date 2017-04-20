@@ -3,8 +3,11 @@
 
 #define DEF_H
 
-#include "stm32l1xx_hal.h"
-#include "stm32l151xba.h"
+#include "stm32l051xx.h"
+#include "stm32l0xx.h"
+
+#define INCLUDED_FILE_1 "stm32l051xx.h"
+#define INCLUDED_FILE_2 "stm32l0xx.h"
 
 //#define DEBUG_FINGER
 #define DEBUG_MODEM

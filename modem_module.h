@@ -4,6 +4,8 @@
 
 
 #include "defines.h"
+#include INCLUDED_FILE_1
+#include INCLUDED_FILE_2
 
 char output_sms_message[70];
 char input_sms_message[70];
